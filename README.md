@@ -1,4 +1,4 @@
-IITC-iOS
+Ingress iOS Intel
 ========
 
-Ingress Intel Total Conversion for iOS
+Client designed to be a native intel viewer for Ingress
