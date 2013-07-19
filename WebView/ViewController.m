@@ -8,49 +8,39 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
-
-@end
-
 @implementation ViewController
+
 @synthesize viewWeb;
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
 	
     NSString *fullURL = @"http://ingress.com/intel";
     NSURL *url = [NSURL URLWithString:fullURL];
     NSURLRequest *requestObj = [NSURLRequest requestWithURL:url];
     [viewWeb loadRequest:requestObj];
-    
-    /*
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"ittc" ofType:@"js" inDirectory:@""];
-                          
-                          NSData *fileData = [NSData dataWithContentsOfFile:filePath];
-                          
-                          NSString *jsString = [[NSMutableString alloc] initWithData:fileData encoding:NSUTF8StringEncoding];
-                          
-                          [viewWeb stringByEvaluatingJavaScriptFromString:jsString];*/
-    
-    //[viewWeb loadHTMLString:@"<script src=\"iitc.js\"></script>"
-    //                baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]]];
 }
 
-- (void)viewDidUnload
-{
+- (void)viewDidUnload {
     [self setViewWeb:nil];
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+- (NSUInteger)supportedInterfaceOrientations {
+	if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        return UIInterfaceOrientationMaskAllButUpsideDown;
     } else {
-        return YES;
+        return UIInterfaceOrientationMaskAll;
     }
+}
+
+#pragma mark - UIWebViewDelegate
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+	if ([webView.request.URL.absoluteString isEqualToString:@"http://www.ingress.com/intel"]) {
+		NSString *jsString = [NSString stringWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"iitc" withExtension:@"js"] encoding:NSUTF8StringEncoding error:nil];
+		[webView stringByEvaluatingJavaScriptFromString:jsString];
+	}
 }
 
 @end
