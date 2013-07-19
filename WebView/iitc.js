@@ -1,25 +1,27 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.11.3.20130502.021312
+// @version        0.12.2.20130701.174507
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://secure.jonatkins.com/iitc/release/total-conversion-build.meta.js
 // @downloadURL    https://secure.jonatkins.com/iitc/release/total-conversion-build.user.js
-// @description    [jonatkins-2013-05-02-021312] Total conversion for the ingress intel map.
+// @description    [jonatkins-2013-07-01-174507] Total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @grant          none
 // ==/UserScript==
 
 
 // REPLACE ORIG SITE ///////////////////////////////////////////////////
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
-window.iitcBuildDate = '2013-05-02-021312';
+window.iitcBuildDate = '2013-07-01-174507';
 
 // disable vanilla JS
 window.onload = function() {};
+document.body.onload = function() {};
 
 
 // rescue user data from original page
@@ -58,10 +60,11 @@ for(var i = 0; i < d.length; i++) {
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
   + '<title>Ingress Intel Map</title>'
-  + '<style>/* general rules ******************************************************/\n\nhtml, body, #map {\n  height: 100%;\n  width: 100%;\n  overflow: hidden; /* workaround for #373 */\n  background: #0e3d4e;\n}\n\nbody {\n  font-size: 14px;\n  font-family: "coda",arial,helvetica,sans-serif;\n  margin: 0;\n}\n\n#scrollwrapper {\n  overflow-x: hidden;\n  overflow-y: auto;\n  position: fixed;\n  right: -38px;\n  top: 0;\n  width: 340px;\n  bottom: 45px;\n  z-index: 1001;\n  pointer-events: none;\n}\n\n#sidebar {\n  background-color: rgba(8, 48, 78, 0.9);\n  border-left: 1px solid #20A8B1;\n  color: #888;\n  position: relative;\n  left: 0;\n  top: 0;\n  max-height: 100%;\n  overflow-y:scroll;\n  overflow-x:hidden;\n  z-index: 3000;\n  pointer-events: auto;\n}\n\n#sidebartoggle {\n  display: block;\n  padding: 20px 5px;\n  margin-top: -31px; /* -(toggle height / 2) */\n  line-height: 10px;\n  position: absolute;\n  top: 325px; /* (sidebar height / 2) */\n  z-index: 3001;\n  background-color: rgba(8, 48, 78, 0.9);\n  color: #FFCE00;\n  border: 1px solid #20A8B1;\n  border-right: none;\n  border-radius: 5px 0 0 5px;\n  text-decoration: none;\n  right: 301px; /* overwritten later by the script with SIDEBAR_WIDTH */\n}\n\n.enl {\n  color: #03fe03 !important;\n}\n\n.res {\n  color: #00c5ff !important;\n}\n\n.none {\n  color: #fff;\n}\n\n.nickname {\n  cursor: pointer !important;\n}\n\na {\n  color: #ffce00;\n  cursor: pointer;\n  text-decoration: none;\n}\n\na:hover {\n  text-decoration: underline;\n}\n\n/* map display, required because GMaps uses a high z-index which is\n * normally above Leaflet’s vector pane */\n.leaflet-map-pane {\n  z-index: 1000;\n}\n\n.leaflet-control-layers-overlays label.disabled {\n  text-decoration: line-through;\n  cursor: help;\n}\n\n.help {\n  cursor: help;\n}\n\n.toggle {\n  display: block;\n  height: 0;\n  width: 0;\n}\n\n/* field mu count */\n.fieldmu {\n  color: #FFCE00;\n  font-size: 13px;\n  font-family: "coda",arial,helvetica,sans-serif; /*override leaflet-container */\n  text-align: center;\n  text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;\n  pointer-events: none;\n}\n\n\n/* chat ***************************************************************/\n\n#chatcontrols {\n  color: #FFCE00;\n  background: rgba(8, 48, 78, 0.9);\n  position: absolute;\n  left: 0;\n  z-index: 3001;\n  height: 26px;\n  padding-left:1px;\n}\n\n#chatcontrols.expand {\n  top: 0;\n  bottom: auto;\n}\n\n#chatcontrols a {\n  margin-left: -1px;\n  display: inline-block;\n  width: 94px;\n  text-align: center;\n  height: 24px;\n  line-height: 24px;\n  border: 1px solid #20A8B1;\n  vertical-align: top;\n}\n\n#chatcontrols a:first-child {\n  letter-spacing:-1px;\n  text-decoration: none !important;\n}\n\n#chatcontrols a.active {\n  border-color: #FFCE00;\n  border-bottom-width:0px;\n  font-weight:bold\n}\n\n#chatcontrols a.active + a {\n  border-left-color: #FFCE00\n}\n\n\n#chatcontrols .toggle {\n  border-left: 10px solid transparent;\n  border-right: 10px solid transparent;\n  margin: 6px auto auto;\n}\n\n#chatcontrols .expand {\n  border-bottom: 10px solid #FFCE00;\n}\n\n#chatcontrols .shrink {\n  border-top: 10px solid #FFCE00;\n}\n\n\n#chat {\n  position: absolute;\n  width: 708px;\n  bottom: 23px;\n  left: 0;\n  z-index: 3000;\n  background: rgba(8, 48, 78, 0.9);\n  font-size: 12.6px;\n  color: #eee;\n  border: 1px solid #20A8B1;\n  border-bottom: 0;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\nem {\n  color: red;\n  font-style: normal;\n}\n\n#chat.expand {\n  height:auto;\n  top: 25px;\n}\n\n#chatpublic, #chatfull, #chatcompact {\n  display: none;\n}\n\n#chat > div {\n  overflow-x:hidden;\n  overflow-y:scroll;\n  height: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 2px;\n  position:relative;\n}\n\n#chat table, #chatinput table {\n  width: 100%;\n  table-layout: fixed;\n  border-spacing: 0m;\n  border-collapse: collapse;\n}\n\n#chatinput table {\n  height: 100%;\n}\n\n#chat td, #chatinput td {\n  font-family: Verdana, sans-serif;\n  font-size: 12.6px;\n  vertical-align: top;\n  padding-bottom: 3px;\n}\n\n/* time */\n#chat td:first-child, #chatinput td:first-child {\n  width: 44px;\n  overflow: hidden;\n  padding-left: 2px;\n  color: #bbb;\n  white-space: nowrap;\n}\n\n#chat time {\n  cursor: help;\n}\n\n/* nick */\n#chat td:nth-child(2), #chatinput td:nth-child(2) {\n  width: 91px;\n  overflow: hidden;\n  padding-left: 2px;\n  white-space: nowrap;\n}\n\n#chat td .system_narrowcast {\n  color: #f66 !important;\n}\n\nmark {\n  background: transparent;\n}\n\n.invisep {\n  display: inline-block;\n  width: 1px;\n  height: 1px;\n  overflow:hidden;\n  color: transparent;\n}\n\n/* divider */\nsummary {\n  color: #bbb;\n  display: inline-block;\n  font-family: Verdana,sans-serif;\n  height: 16px;\n  overflow: hidden;\n  padding: 0 2px;\n  white-space: nowrap;\n  width: 100%;\n}\n\n#chatinput {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  padding: 0 2px;\n  background: rgba(8, 48, 78, 0.9);\n  width: 708px;\n  border: 1px solid #20A8B1;\n  z-index: 3001;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n#chatinput td {\n  padding-bottom: 1px;\n  vertical-align: middle;\n}\n\n\n#chatinput input {\n  background: transparent;\n  font-size: 12.6px;\n  font-family: Verdana,sans-serif;\n  color: #EEEEEE;\n  width: 100%;\n  height: 100%;\n  padding:3px 4px 1px 4px;\n}\n\n\n\n/* sidebar ************************************************************/\n\n#sidebar > * {\n  border-bottom: 1px solid #20A8B1;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n\n\n#sidebartoggle .toggle {\n  border-bottom: 10px solid transparent;\n  border-top: 10px solid transparent;\n}\n\n#sidebartoggle .open {\n  border-right: 10px solid #FFCE00;\n}\n\n#sidebartoggle .close {\n  border-left: 10px solid #FFCE00;\n}\n\n/* player stats */\n#playerstat {\n  height: 30px;\n}\n\nh2 {\n  color: #ffce00;\n  font-size: 21px;\n  padding: 0 4px;\n  margin: 0;\n  cursor:help;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  width: 100%;\n}\n\nh2 #name {\n  display: inline-block;\n  overflow: hidden;\n  text-overflow: "~";\n  vertical-align: top;\n  white-space: nowrap;\n  width: 205px;\n  position: relative;\n}\n\nh2 #stats {\n  float: right;\n  height: 100%;\n  overflow: hidden;\n}\n\nh2 #signout {\n  font-size: 12px;\n  font-weight: normal;\n  line-height: 29px;\n  padding: 0 4px;\n  position: absolute;\n  top: 0;\n  right: 0;\n  background-color: rgba(8, 48, 78, 0.5);\n  display: none; /* starts hidden */\n}\n\nh2 sup, h2 sub {\n  display: block;\n  font-size: 11px;\n  margin-bottom: -2px;\n}\n\n\n/* gamestats */\n#gamestat {\n  height: 22px;\n}\n\n#gamestat span {\n  display: block;\n  float: left;\n  font-weight: bold;\n  cursor:help;\n  height: 21px;\n  line-height: 22px;\n}\n\n#gamestat .res {\n  background: #005684;\n  text-align: right;\n}\n\n#gamestat .enl {\n  background: #017f01;\n}\n\n\n/* geosearch input, and others */\ninput {\n  background-color: rgba(0, 0, 0, 0.3);\n  color: #ffce00;\n  height: 24px;\n  padding:0px 4px 0px 4px;\n  font-size: 12px;\n  border:0;\n  font-family:inherit;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n#geosearch{\n  width:272px;\n  background-color: transparent;\n}\n#geosearchwrapper {\n  height:25px;  \n  background-color: rgba(0, 0, 0, 0.3);\n}\n#geosearchwrapper img{\n  vertical-align: bottom;\n  margin-bottom: 2px;\n  cursor: pointer;\n}\n::-webkit-input-placeholder {\n  font-style: italic;\n}\n\n:-moz-placeholder {\n  font-style: italic;\n}\n\n::-moz-placeholder {\n  font-style: italic;\n}\n\n.leaflet-control-layers input {\n  height: auto;\n  padding: 0;\n}\n\n\n/* portal title and image */\nh3 {\n  font-size: 16px;\n  padding: 0 4px;\n  margin:0;\n  height: 23px;\n  width: 100%;\n  overflow:hidden;\n  text-overflow: "~";\n  white-space: nowrap;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n.imgpreview {\n  height: 190px;\n  background: no-repeat center center;\n  background-size: contain;\n  cursor: help;\n  overflow: hidden;\n}\n\n.imgpreview img.hide {\n  display: none;\n}\n\n#level {\n  font-size: 40px;\n  text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 5px #fff;\n  display: block;\n  margin-right: 15px;\n  text-align:right;\n}\n\n/* portal mods */\n.mods {\n  margin: 3px auto 1px auto;\n  width: 296px;\n  height: 67px;\n  text-align: center;\n}\n\n.mods span {\n  background-color: rgba(0, 0, 0, 0.3);\n  /* can’t use inline-block because Webkit’s implementation is buggy and\n   * introduces additional margins in random cases. No clear necessary,\n   * as that’s solved by setting height on .mods. */\n  display: block;\n  float:left;\n  height: 63px;\n  margin: 0 2px;\n  overflow: hidden;\n  padding: 2px;\n  text-align: center;\n  width: 63px;\n  cursor:help;\n  border: 1px solid #666;\n}\n\n.mods span:not([title]) {\n  cursor: auto;\n}\n\n.res .mods span, .res .meter {\n  border: 1px solid #0076b6;\n}\n.enl .mods span, .enl .meter {\n  border: 1px solid #017f01;\n}\n\n/* random details, resonator details */\n#randdetails, #resodetails {\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 0 4px;\n  table-layout: fixed;\n  border-spacing: 0m;\n  border-collapse: collapse;\n}\n\n#randdetails td, #resodetails td {\n  overflow: hidden;\n  text-overflow: "~";\n  vertical-align: top;\n  white-space: nowrap;\n  width: 50%;\n  width: calc(50% - 62px);\n}\n\n#randdetails th, #resodetails th {\n  font-weight: normal;\n  text-align: right;\n  width: 62px;\n  padding:0px;\n  padding-right:4px;\n  padding-left:4px;\n}\n\n#randdetails th + th, #resodetails th + th {\n  text-align: left;\n  padding-right: 4px;\n  padding-left: 4px;\n}\n\n#randdetails td:first-child, #resodetails td:first-child {\n  text-align: right;\n  padding-left: 2px;\n}\n\n#randdetails td:last-child, #resodetails td:last-child {\n  text-align: left;\n  padding-right: 2px;\n}\n\n\n#randdetails {\n  margin-top: 4px;\n  margin-bottom: 5px;\n}\n\n\n#randdetails tt {\n  font-family: inherit;\n  cursor: help;\n}\n\n/* resonators */\n#resodetails {\n  margin-bottom: 0px;\n}\n\n.meter {\n  background: #000;\n  cursor: help;\n  display: inline-block;\n  height: 18px;\n  padding: 1px;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  position: relative;\n  left: 0;\n  top: 0;\n}\n\n.meter span {\n  display: block;\n  height: 14px;\n}\n\n.meter-level {\n  position: absolute;\n  top: -2px;\n  left: 50%;\n  margin-left: -6px;\n  text-shadow: 0.0em 0.0em 0.3em #808080;\n}\n\n/* links below resos */\n\n.linkdetails {\n  margin-bottom: 0px;\n  text-align: center;\n}\n\n.linkdetails aside {\n  display: inline-block;\n  white-space: nowrap;\n  font-size: 12px;\n  margin-left: 5px;\n  margin-right: 5px;\n}\n\n\n\n#toolbox {\n  font-size: 12px;\n  text-align: left;    /* centre didn\'t look as nice here as it did above in .linkdetails */\n}\n\n#toolbox > a {\n  margin-left: 5px;\n  margin-right: 5px;\n  white-space: nowrap;\n}\n\n/* a common portal display takes this much space (prevents moving\n * content when first selecting a portal) */\n\n#portaldetails {\n  min-height: 485px;\n  position: relative; /* so the below \'#portaldetails .close\' is relative to this */\n}\n\n#portaldetails .close {\n  position: absolute;\n  top: -2px;\n  right: 2px;\n  cursor: pointer;\n  color: #FFCE00;\n  font-family: "Arial", sans;\n  font-size: 16px;\n}\n\n\n/* update status */\n#updatestatus {\n  background-color: rgba(8, 48, 78, 0.9);\n  border-bottom: 0;\n  border-top: 1px solid #20A8B1;\n  border-left: 1px solid #20A8B1;\n  bottom: 0;\n  color: #ffce00;\n  font-size:13px;\n  padding: 4px;\n  position: fixed;\n  right: 0;\n  z-index:3002;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n\n/* preview */\n\n#largepreview {\n  left: 50%;\n  position: fixed;\n  top: 50%;\n  z-index: 2000;\n}\n#largepreview img {\n  box-shadow: 0 0 40px #000;\n  border: 2px solid #f8ff5e;\n  background-color: rgba(8, 48, 78, 0.9);  /* as some images - eg ZipCar - have transparency */\n}\n\n/* tooltips, dialogs */\n.ui-tooltip, .ui-dialog {\n  max-width: 300px;\n  position: absolute;\n  z-index: 9999;\n  background-color: rgba(8, 48, 78, 0.9);\n  border: 1px solid #20A8B1;\n  color: #eee;\n  font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;\n  padding: 2px 4px;\n}\n\n.ui-tooltip, .ui-dialog a {\n  color: #FFCE00;\n}\n\n.ui-dialog {\n  padding: 0;\n  border-radius: 2px;\n}\n\n.ui-widget-overlay {\n  height: 100%;\n  left: 0;\n  position: fixed;\n  top: 0;\n  width: 100%;\n  z-index:9998;\n  background:  #444;\n  opacity: 0.6;\n}\n\n.ui-dialog-titlebar {\n  display: none;\n}\n\n.ui-dialog-content {\n  padding: 12px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  max-height: 600px !important;\n  max-width: 700px !important;\n}\n\n.ui-dialog-buttonpane {\n  padding: 12px;\n  border-top: 1px solid #20A8B1;\n}\n\n.ui-dialog-buttonset {\n  text-align: right;\n}\n\n.ui-dialog-buttonset button,\n.ui-dialog-content button {\n  padding: 2px;\n  min-width: 80px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n}\n\n.ui-dialog-buttonset button:hover {\n  text-decoration: underline;\n}\n\n.ui-dialog-aboutIITC {\n  max-width: 600px !important;\n  width: 600px !important;\n}\n\ntd {\n  padding: 0;\n  vertical-align: top;\n}\n\ntd + td {\n  padding-left: 4px;\n}\n\n#qrcode > canvas {\n  border: 8px solid white;\n} \n\n/* redeem results *****************************************************/\n.redeem-result {\n  font-size: 14px;\n  font-family: arial,helvetica,sans-serif;\n  table-layout: fixed;\n}\n\n.redeem-result tr > td:first-child {\n  width: 50px;\n  text-align: right;\n}\n\n.pl_nudge_date {\n  background-color: #724510;\n  border-left: 1px solid #ffd652;\n  border-bottom: 1px solid #ffd652;\n  border-top: 1px solid #ffd652;\n  color: #ffd652;\n  display: inline-block;\n  float: left;\n  font-size: 12px;\n  height: 18px;\n  text-align: center;\n}\n\n.pl_nudge_pointy_spacer {\n  background: no-repeat url(//commondatastorage.googleapis.com/ingress.com/img/nudge_pointy.png);\n  display: inline-block;\n  float: left;\n  height: 20px;\n  left: 47px;\n  width: 5px;\n}\n\n.pl_nudge_player {\n  cursor: pointer;\n}\n\n.pl_nudge_me {\n  color: #ffd652;\n}\n\n.RESISTANCE {\n  color: #00c2ff;\n}\n\n.ALIENS {\n  color: #28f428;\n}\n</style>'
-  + '<style>/* required styles */\n\n.leaflet-map-pane,\n.leaflet-tile,\n.leaflet-marker-icon,\n.leaflet-marker-shadow,\n.leaflet-tile-pane,\n.leaflet-overlay-pane,\n.leaflet-shadow-pane,\n.leaflet-marker-pane,\n.leaflet-popup-pane,\n.leaflet-overlay-pane svg,\n.leaflet-zoom-box,\n.leaflet-image-layer,\n.leaflet-layer {\n	position: absolute;\n	left: 0;\n	top: 0;\n	}\n.leaflet-container {\n	overflow: hidden;\n	-ms-touch-action: none;\n	}\n.leaflet-tile,\n.leaflet-marker-icon,\n.leaflet-marker-shadow {\n	-webkit-user-select: none;\n	   -moz-user-select: none;\n	        user-select: none;\n	}\n.leaflet-marker-icon,\n.leaflet-marker-shadow {\n	display: block;\n	}\n/* map is broken in FF if you have max-width: 100% on tiles */\n.leaflet-container img {\n	max-width: none !important;\n	}\n/* stupid Android 2 doesn\'t understand "max-width: none" properly */\n.leaflet-container img.leaflet-image-layer {\n	max-width: 15000px !important;\n	}\n.leaflet-tile {\n	filter: inherit;\n	visibility: hidden;\n	}\n.leaflet-tile-loaded {\n	visibility: inherit;\n	}\n.leaflet-zoom-box {\n	width: 0;\n	height: 0;\n	}\n\n.leaflet-tile-pane    { z-index: 2; }\n.leaflet-objects-pane { z-index: 3; }\n.leaflet-overlay-pane { z-index: 4; }\n.leaflet-shadow-pane  { z-index: 5; }\n.leaflet-marker-pane  { z-index: 6; }\n.leaflet-popup-pane   { z-index: 7; }\n\n\n/* control positioning */\n\n.leaflet-control {\n	position: relative;\n	z-index: 7;\n	pointer-events: auto;\n	}\n.leaflet-top,\n.leaflet-bottom {\n	position: absolute;\n	z-index: 1000;\n	pointer-events: none;\n	}\n.leaflet-top {\n	top: 0;\n	}\n.leaflet-right {\n	right: 0;\n	}\n.leaflet-bottom {\n	bottom: 0;\n	}\n.leaflet-left {\n	left: 0;\n	}\n.leaflet-control {\n	float: left;\n	clear: both;\n	}\n.leaflet-right .leaflet-control {\n	float: right;\n	}\n.leaflet-top .leaflet-control {\n	margin-top: 10px;\n	}\n.leaflet-bottom .leaflet-control {\n	margin-bottom: 10px;\n	}\n.leaflet-left .leaflet-control {\n	margin-left: 10px;\n	}\n.leaflet-right .leaflet-control {\n	margin-right: 10px;\n	}\n\n\n/* zoom and fade animations */\n\n.leaflet-fade-anim .leaflet-tile,\n.leaflet-fade-anim .leaflet-popup {\n	opacity: 0;\n	-webkit-transition: opacity 0.2s linear;\n	   -moz-transition: opacity 0.2s linear;\n	     -o-transition: opacity 0.2s linear;\n	        transition: opacity 0.2s linear;\n	}\n.leaflet-fade-anim .leaflet-tile-loaded,\n.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {\n	opacity: 1;\n	}\n\n.leaflet-zoom-anim .leaflet-zoom-animated {\n	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);\n	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);\n	     -o-transition:      -o-transform 0.25s cubic-bezier(0,0,0.25,1);\n	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);\n	}\n.leaflet-zoom-anim .leaflet-tile,\n.leaflet-pan-anim .leaflet-tile,\n.leaflet-touching .leaflet-zoom-animated {\n	-webkit-transition: none;\n	   -moz-transition: none;\n	     -o-transition: none;\n	        transition: none;\n	}\n\n.leaflet-zoom-anim .leaflet-zoom-hide {\n	visibility: hidden;\n	}\n\n\n/* cursors */\n\n.leaflet-clickable {\n	cursor: pointer;\n	}\n.leaflet-container {\n	cursor: -webkit-grab;\n	cursor:    -moz-grab;\n	}\n.leaflet-popup-pane,\n.leaflet-control {\n	cursor: auto;\n	}\n.leaflet-dragging,\n.leaflet-dragging .leaflet-clickable,\n.leaflet-dragging .leaflet-container {\n	cursor: move;\n	cursor: -webkit-grabbing;\n	cursor:    -moz-grabbing;\n	}\n\n\n/* visual tweaks */\n\n.leaflet-container {\n	background: #ddd;\n	outline: 0;\n	}\n.leaflet-container a {\n	color: #0078A8;\n	}\n.leaflet-container a.leaflet-active {\n	outline: 2px solid orange;\n	}\n.leaflet-zoom-box {\n	border: 2px dotted #05f;\n	background: white;\n	opacity: 0.5;\n	}\n\n\n/* general typography */\n.leaflet-container {\n	font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;\n	}\n\n\n/* general toolbar styles */\n\n.leaflet-bar {\n	box-shadow: 0 0 8px rgba(0,0,0,0.4);\n	border: 1px solid #888;\n	-webkit-border-radius: 5px;\n	        border-radius: 5px;\n	}\n.leaflet-bar-part {\n	background-color: rgba(255, 255, 255, 0.8);\n	border-bottom: 1px solid #aaa;\n	}\n.leaflet-bar-part-top {\n	-webkit-border-radius: 4px 4px 0 0;\n	        border-radius: 4px 4px 0 0;\n	}\n.leaflet-bar-part-bottom {\n	-webkit-border-radius: 0 0 4px 4px;\n	        border-radius: 0 0 4px 4px;\n	border-bottom: none;\n	}\n\n.leaflet-touch .leaflet-bar {\n	-webkit-border-radius: 10px;\n	        border-radius: 10px;\n	}\n.leaflet-touch .leaflet-bar-part {\n	border-bottom: 4px solid rgba(0,0,0,0.3);\n	}\n.leaflet-touch .leaflet-bar-part-top {\n	-webkit-border-radius: 7px 7px 0 0;\n	        border-radius: 7px 7px 0 0;\n	}\n.leaflet-touch .leaflet-bar-part-bottom {\n	-webkit-border-radius: 0 0 7px 7px;\n	        border-radius: 0 0 7px 7px;\n	border-bottom: none;\n	}\n\n\n/* zoom control */\n\n.leaflet-container .leaflet-control-zoom {\n	margin-left: 13px;\n	margin-top: 12px;\n	}\n.leaflet-control-zoom a {\n	width: 22px;\n	height: 22px;\n	text-align: center;\n	text-decoration: none;\n	color: black;\n	}\n.leaflet-control-zoom a,\n.leaflet-control-layers-toggle {\n	background-position: 50% 50%;\n	background-repeat: no-repeat;\n	display: block;\n	}\n.leaflet-control-zoom a:hover {\n	background-color: #fff;\n	color: #777;\n	}\n.leaflet-control-zoom-in {\n	font: bold 18px/24px Arial, Helvetica, sans-serif;\n	}\n.leaflet-control-zoom-out {\n	font: bold 23px/20px Tahoma, Verdana, sans-serif;\n	}\n.leaflet-control-zoom a.leaflet-control-zoom-disabled {\n	cursor: default;\n	background-color: rgba(255, 255, 255, 0.8);\n	color: #bbb;\n	}\n\n.leaflet-touch .leaflet-control-zoom a {\n	width: 30px;\n	height: 30px;\n	}\n.leaflet-touch .leaflet-control-zoom-in {\n	font-size: 24px;\n	line-height: 29px;\n	}\n.leaflet-touch .leaflet-control-zoom-out {\n	font-size: 28px;\n	line-height: 24px;\n	}\n\n/* layers control */\n\n.leaflet-control-layers {\n	box-shadow: 0 1px 7px rgba(0,0,0,0.4);\n	background: #f8f8f9;\n	-webkit-border-radius: 8px;\n	        border-radius: 8px;\n	}\n.leaflet-control-layers-toggle {\n	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAMAAACelLz8AAABrVBMVEUNDQ0PDw8QEBARERESEhIUFBQVFRUYGBgZGRkcHBwdHR0fHx8jIyMoKCgxMTE0NDQ1NTU2NjY4ODg5OTk6Ojo7Ozs+Pj4/Pz9AQEBBQUFDQ0NFRUVISEhMTExNTU1ZWVlaWlpmZmb///+rq6u1tbWHh4eOjo6oqKiampqdnZ2wsLC5ubmEhISLi4uZmZmSkpK1tbV6enqCgoKpqamJiYmurq66urp4eHh/f3+1tbXAwMBubm52dnacnJyEhISAgIBvb2+wsLC9vb15eXleXl5fX19mZmZoaGhsbGxtbW1ubm5vb29xcXF8fHx9fX1+fn6CgoKDg4OFhYWGhoaKioqNjY2Tk5OUlJSVlZWXl5eYmJibm5uenp6fn5+goKChoaGioqKpqamqqqqsrKyurq6vr6+xsbGzs7O0tLS1tbW2tra4uLi6urq9vb2+vr6/v7/BwcHDw8PExMTFxcXHx8fJycnKysrLy8vMzMzOzs7Pz8/Q0NDS0tLT09PV1dXW1tbX19fZ2dna2trb29vc3Nzd3d3f39/i4uLk5OTn5+fo6Ojt7e3u7u7z8/P09PRxWspKAAAARHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABISFxcXKC1DQ0hISE2IjIyMkMTEx8nr6+zs7O74+/v7/ChuOn8AAAGLSURBVCjPbZJLT8JAEIBnW1re3VKoETloSLjKzXhS4w836smQcCAaXyQEYxBJoXRLeW1p192GIoh7aabfzs63O4OqEC8/gYGsViyO0S9K42u4Id4GbpBkXJYU8Id3Nl2GO0gzrtIS/4bzW9uhS7ZBKXxRkFG0hwXjezKZByxCinZeSoqUAGSRuBw+2N6CcVTQzjQBGJUgVEVu6DbcgYdOcb0gYrZgCkc+SomAjlsE1XHZ1CWgVI2KsYCqKoSO1Sf8QAMf6khW0FqD+QFzvsmbqAXJgyw2FPEbBPZtMh18srXGqs0KGSngteRwNka1RMN9glij01dzXIAtPFqu/tGY9rxcBmZerpLd15h8+KAc59caTdjR+IKjWOM1esNYQ47kg7VGc0sjiRWu4ZPlXw3w25NII1/jR29pFLP8rqRLQT3B/ObTUayRMMyiLjR6UBEazsiy3+NWZrGpR40RDXEs8rg9ALpm6tFrOJb7vDsbIBtmTgPXs+wu2xu2DM7DhLyE/8xhR6pDawMAfgAd2djeY/eg2wAAAABJRU5ErkJggg==);\n	width: 36px;\n	height: 36px;\n	}\n.leaflet-touch .leaflet-control-layers-toggle {\n	width: 44px;\n	height: 44px;\n	}\n.leaflet-control-layers .leaflet-control-layers-list,\n.leaflet-control-layers-expanded .leaflet-control-layers-toggle {\n	display: none;\n	}\n.leaflet-control-layers-expanded .leaflet-control-layers-list {\n	display: block;\n	position: relative;\n	}\n.leaflet-control-layers-expanded {\n	padding: 6px 10px 6px 6px;\n	color: #333;\n	background: #fff;\n	}\n.leaflet-control-layers-selector {\n	margin-top: 2px;\n	position: relative;\n	top: 1px;\n	}\n.leaflet-control-layers label {\n	display: block;\n	}\n.leaflet-control-layers-separator {\n	height: 0;\n	border-top: 1px solid #ddd;\n	margin: 5px -10px 5px -6px;\n	}\n\n\n/* attribution and scale controls */\n\n.leaflet-container .leaflet-control-attribution {\n	background-color: rgba(255, 255, 255, 0.7);\n	box-shadow: 0 0 5px #bbb;\n	margin: 0;\n	}\n.leaflet-control-attribution,\n.leaflet-control-scale-line {\n	padding: 0 5px;\n	color: #333;\n	}\n.leaflet-container .leaflet-control-attribution,\n.leaflet-container .leaflet-control-scale {\n	font-size: 11px;\n	}\n.leaflet-left .leaflet-control-scale {\n	margin-left: 5px;\n	}\n.leaflet-bottom .leaflet-control-scale {\n	margin-bottom: 5px;\n	}\n.leaflet-control-scale-line {\n	border: 2px solid #777;\n	border-top: none;\n	color: black;\n	line-height: 1.1;\n	padding: 2px 5px 1px;\n	font-size: 11px;\n	text-shadow: 1px 1px 1px #fff;\n	background-color: rgba(255, 255, 255, 0.5);\n	box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.2);\n	white-space: nowrap;\n	overflow: hidden;\n	}\n.leaflet-control-scale-line:not(:first-child) {\n	border-top: 2px solid #777;\n	border-bottom: none;\n	margin-top: -2px;\n	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);\n	}\n.leaflet-control-scale-line:not(:first-child):not(:last-child) {\n	border-bottom: 2px solid #777;\n	}\n\n.leaflet-touch .leaflet-control-attribution,\n.leaflet-touch .leaflet-control-layers,\n.leaflet-touch .leaflet-control-zoom {\n	box-shadow: none;\n	}\n.leaflet-touch .leaflet-control-layers,\n.leaflet-touch .leaflet-control-zoom {\n	border: 4px solid rgba(0,0,0,0.3);\n	}\n\n\n/* popup */\n\n.leaflet-popup {\n	position: absolute;\n	text-align: center;\n	}\n.leaflet-popup-content-wrapper {\n	padding: 1px;\n	text-align: left;\n	-webkit-border-radius: 20px;\n	        border-radius: 20px;\n	}\n.leaflet-popup-content {\n	margin: 14px 20px;\n	line-height: 1.4;\n	}\n.leaflet-popup-content p {\n	margin: 18px 0;\n	}\n.leaflet-popup-tip-container {\n	margin: 0 auto;\n	width: 40px;\n	height: 20px;\n	position: relative;\n	overflow: hidden;\n	}\n.leaflet-popup-tip {\n	width: 15px;\n	height: 15px;\n	padding: 1px;\n\n	margin: -8px auto 0;\n\n	-webkit-transform: rotate(45deg);\n	   -moz-transform: rotate(45deg);\n	    -ms-transform: rotate(45deg);\n	     -o-transform: rotate(45deg);\n	        transform: rotate(45deg);\n	}\n.leaflet-popup-content-wrapper, .leaflet-popup-tip {\n	background: white;\n\n	box-shadow: 0 3px 14px rgba(0,0,0,0.4);\n	}\n.leaflet-container a.leaflet-popup-close-button {\n	position: absolute;\n	top: 0;\n	right: 0;\n	padding: 4px 5px 0 0;\n	text-align: center;\n	width: 18px;\n	height: 14px;\n	font: 16px/14px Tahoma, Verdana, sans-serif;\n	color: #c3c3c3;\n	text-decoration: none;\n	font-weight: bold;\n	background: transparent;\n	}\n.leaflet-container a.leaflet-popup-close-button:hover {\n	color: #999;\n	}\n.leaflet-popup-scrolled {\n	overflow: auto;\n	border-bottom: 1px solid #ddd;\n	border-top: 1px solid #ddd;\n	}\n\n\n/* div icon */\n\n.leaflet-div-icon {\n	background: #fff;\n	border: 1px solid #666;\n	}\n.leaflet-editing-icon {\n	-webkit-border-radius: 2px;\n	        border-radius: 2px;\n	}\n</style>'
+  + '<style>/* general rules ******************************************************/\n\nhtml, body, #map {\n  height: 100%;\n  width: 100%;\n  overflow: hidden; /* workaround for #373 */\n  background: #0e3d4e;\n}\n\nbody {\n  font-size: 14px;\n  font-family: "coda",arial,helvetica,sans-serif;\n  margin: 0;\n}\n\n#scrollwrapper {\n  overflow-x: hidden;\n  overflow-y: auto;\n  position: fixed;\n  right: -38px;\n  top: 0;\n  width: 340px;\n  bottom: 45px;\n  z-index: 1001;\n  pointer-events: none;\n}\n\n#sidebar {\n  background-color: rgba(8, 48, 78, 0.9);\n  border-left: 1px solid #20A8B1;\n  color: #888;\n  position: relative;\n  left: 0;\n  top: 0;\n  max-height: 100%;\n  overflow-y:scroll;\n  overflow-x:hidden;\n  z-index: 3000;\n  pointer-events: auto;\n}\n\n#sidebartoggle {\n  display: block;\n  padding: 20px 5px;\n  margin-top: -31px; /* -(toggle height / 2) */\n  line-height: 10px;\n  position: absolute;\n  top: 108px;\n  z-index: 3001;\n  background-color: rgba(8, 48, 78, 0.9);\n  color: #FFCE00;\n  border: 1px solid #20A8B1;\n  border-right: none;\n  border-radius: 5px 0 0 5px;\n  text-decoration: none;\n  right: -50px; /* overwritten later by the script with SIDEBAR_WIDTH */\n}\n\n.enl {\n  color: #03fe03 !important;\n}\n\n.res {\n  color: #00c5ff !important;\n}\n\n.none {\n  color: #fff;\n}\n\n.nickname {\n  cursor: pointer !important;\n}\n\na {\n  color: #ffce00;\n  cursor: pointer;\n  text-decoration: none;\n}\n\na:hover {\n  text-decoration: underline;\n}\n\n/* map display, required because GMaps uses a high z-index which is\n * normally above Leaflet’s vector pane */\n.leaflet-map-pane {\n  z-index: 1000;\n}\n\n/* leaflet layer chooser, when opened, is above other panels */\n/* doesn\'t actually work :( - left commented out for reference\n.leaflet-control-layers-expanded {\n  z-index: 9999 !important;\n}\n*/\n\n\n.leaflet-control-layers-overlays label.disabled {\n  text-decoration: line-through;\n  cursor: help;\n}\n\n\n/* base layer selection - first column */\n.leaflet-control-layers-base {\n  float: left;\n}\n\n/* overlays layer selection - 2nd column */\n.leaflet-control-layers-overlays {\n  float: left;\n  margin-left: 8px;\n  border-left: 1px solid #DDDDDD;\n  padding-left: 8px;\n}\n\n/* hide the usual seperator */\n.leaflet-control-layers-separator {\n  display: none;\n}\n\n\n\n.help {\n  cursor: help;\n}\n\n.toggle {\n  display: block;\n  height: 0;\n  width: 0;\n}\n\n/* field mu count */\n.fieldmu {\n  color: #FFCE00;\n  font-size: 13px;\n  font-family: "coda",arial,helvetica,sans-serif; /*override leaflet-container */\n  text-align: center;\n  text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;\n  pointer-events: none;\n}\n\n\n/* chat ***************************************************************/\n\n#chatcontrols {\n  color: #FFCE00;\n  background: rgba(8, 48, 78, 0.9);\n  position: absolute;\n  left: 0;\n  z-index: 3000;\n  height: 26px;\n  padding-left:1px;\n}\n\n#chatcontrols.expand {\n  top: 0;\n  bottom: auto;\n}\n\n#chatcontrols a {\n  margin-left: -1px;\n  display: inline-block;\n  width: 94px;\n  text-align: center;\n  height: 24px;\n  line-height: 24px;\n  border: 1px solid #20A8B1;\n  vertical-align: top;\n}\n\n#chatcontrols a:first-child {\n  letter-spacing:-1px;\n  text-decoration: none !important;\n}\n\n#chatcontrols a.active {\n  border-color: #FFCE00;\n  border-bottom-width:0px;\n  font-weight:bold\n}\n\n#chatcontrols a.active + a {\n  border-left-color: #FFCE00\n}\n\n\n#chatcontrols .toggle {\n  border-left: 10px solid transparent;\n  border-right: 10px solid transparent;\n  margin: 6px auto auto;\n}\n\n#chatcontrols .expand {\n  border-bottom: 10px solid #FFCE00;\n}\n\n#chatcontrols .shrink {\n  border-top: 10px solid #FFCE00;\n}\n\n\n#chat {\n  position: absolute;\n  width: 708px;\n  bottom: 23px;\n  left: 0;\n  z-index: 3000;\n  background: rgba(8, 48, 78, 0.9);\n  font-size: 12.6px;\n  color: #eee;\n  border: 1px solid #20A8B1;\n  border-bottom: 0;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\nem {\n  color: red;\n  font-style: normal;\n}\n\n#chat.expand {\n  height:auto;\n  top: 25px;\n}\n\n#chatpublic, #chatfull, #chatcompact {\n  display: none;\n}\n\n#chat > div {\n  overflow-x:hidden;\n  overflow-y:scroll;\n  height: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 2px;\n  position:relative;\n}\n\n#chat table, #chatinput table {\n  width: 100%;\n  table-layout: fixed;\n  border-spacing: 0m;\n  border-collapse: collapse;\n}\n\n#chatinput table {\n  height: 100%;\n}\n\n#chat td, #chatinput td {\n  font-family: Verdana, sans-serif;\n  font-size: 12.6px;\n  vertical-align: top;\n  padding-bottom: 3px;\n}\n\n/* time */\n#chat td:first-child, #chatinput td:first-child {\n  width: 44px;\n  overflow: hidden;\n  padding-left: 2px;\n  color: #bbb;\n  white-space: nowrap;\n}\n\n#chat time {\n  cursor: help;\n}\n\n/* nick */\n#chat td:nth-child(2), #chatinput td:nth-child(2) {\n  width: 91px;\n  overflow: hidden;\n  padding-left: 2px;\n  white-space: nowrap;\n}\n\n#chat td .system_narrowcast {\n  color: #f66 !important;\n}\n\nmark {\n  background: transparent;\n}\n\n.invisep {\n  display: inline-block;\n  width: 1px;\n  height: 1px;\n  overflow:hidden;\n  color: transparent;\n}\n\n/* divider */\nsummary {\n  color: #bbb;\n  display: inline-block;\n  font-family: Verdana,sans-serif;\n  height: 16px;\n  overflow: hidden;\n  padding: 0 2px;\n  white-space: nowrap;\n  width: 100%;\n}\n\n#chatinput {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  padding: 0 2px;\n  background: rgba(8, 48, 78, 0.9);\n  width: 708px;\n  border: 1px solid #20A8B1;\n  z-index: 3001;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n#chatinput td {\n  padding-bottom: 1px;\n  vertical-align: middle;\n}\n\n\n#chatinput input {\n  background: transparent;\n  font-size: 12.6px;\n  font-family: Verdana,sans-serif;\n  color: #EEEEEE;\n  width: 100%;\n  height: 100%;\n  padding:3px 4px 1px 4px;\n}\n\n\n\n/* sidebar ************************************************************/\n\n#sidebar > * {\n  border-bottom: 1px solid #20A8B1;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n\n\n#sidebartoggle .toggle {\n  border-bottom: 10px solid transparent;\n  border-top: 10px solid transparent;\n}\n\n#sidebartoggle .open {\n  border-right: 10px solid #FFCE00;\n}\n\n#sidebartoggle .close {\n  border-left: 10px solid #FFCE00;\n}\n\n/* player stats */\n#playerstat {\n  height: 30px;\n}\n\nh2 {\n  color: #ffce00;\n  font-size: 21px;\n  padding: 0 4px;\n  margin: 0;\n  cursor:help;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  width: 100%;\n}\n\nh2 #name {\n  display: inline-block;\n  overflow: hidden;\n  text-overflow: "~";\n  vertical-align: top;\n  white-space: nowrap;\n  width: 205px;\n  position: relative;\n}\n\nh2 #stats {\n  float: right;\n  height: 100%;\n  overflow: hidden;\n}\n\nh2 #signout {\n  font-size: 12px;\n  font-weight: normal;\n  line-height: 29px;\n  padding: 0 4px;\n  position: absolute;\n  top: 0;\n  right: 0;\n  background-color: rgba(8, 48, 78, 0.5);\n  display: none; /* starts hidden */\n}\n\nh2 sup, h2 sub {\n  display: block;\n  font-size: 11px;\n  margin-bottom: -2px;\n}\n\n\n/* gamestats */\n#gamestat {\n  height: 22px;\n}\n\n#gamestat span {\n  display: block;\n  float: left;\n  font-weight: bold;\n  cursor:help;\n  height: 21px;\n  line-height: 22px;\n}\n\n#gamestat .res {\n  background: #005684;\n  text-align: right;\n}\n\n#gamestat .enl {\n  background: #017f01;\n}\n\n\n/* geosearch input, and others */\ninput {\n  background-color: rgba(0, 0, 0, 0.3);\n  color: #ffce00;\n  height: 24px;\n  padding:0px 4px 0px 4px;\n  font-size: 12px;\n  border:0;\n  font-family:inherit;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n#geosearch{\n  width:272px;\n  background-color: transparent;\n}\n#geosearchwrapper {\n  height:25px;  \n  background-color: rgba(0, 0, 0, 0.3);\n}\n#geosearchwrapper img{\n  vertical-align: bottom;\n  margin-bottom: 2px;\n  cursor: pointer;\n}\n::-webkit-input-placeholder {\n  font-style: italic;\n}\n\n:-moz-placeholder {\n  font-style: italic;\n}\n\n::-moz-placeholder {\n  font-style: italic;\n}\n\n.leaflet-control-layers input {\n  height: auto;\n  padding: 0;\n}\n\n\n/* portal title and image */\nh3 {\n  font-size: 16px;\n  padding: 0 4px;\n  margin:0;\n  height: 23px;\n  width: 100%;\n  overflow:hidden;\n  text-overflow: "~";\n  white-space: nowrap;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n.imgpreview {\n  height: 190px;\n  background: no-repeat center center;\n  background-size: contain;\n  cursor: help;\n  overflow: hidden;\n}\n\n.imgpreview img.hide {\n  display: none;\n}\n\n#level {\n  font-size: 40px;\n  text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 5px #fff;\n  display: block;\n  margin-right: 15px;\n  text-align:right;\n}\n\n/* portal mods */\n.mods {\n  margin: 3px auto 1px auto;\n  width: 296px;\n  height: 67px;\n  text-align: center;\n}\n\n.mods span {\n  background-color: rgba(0, 0, 0, 0.3);\n  /* can’t use inline-block because Webkit\'s implementation is buggy and\n   * introduces additional margins in random cases. No clear necessary,\n   * as that’s solved by setting height on .mods. */\n  display: block;\n  float:left;\n  height: 63px;\n  margin: 0 2px;\n  overflow: hidden;\n  padding: 2px;\n  text-align: center;\n  width: 63px;\n  cursor:help;\n  border: 1px solid #666;\n}\n\n.mods span:not([title]) {\n  cursor: auto;\n}\n\n.res .mods span, .res .meter {\n  border: 1px solid #0076b6;\n}\n.enl .mods span, .enl .meter {\n  border: 1px solid #017f01;\n}\n\n/* random details, resonator details */\n#randdetails, #resodetails {\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 0 4px;\n  table-layout: fixed;\n  border-spacing: 0m;\n  border-collapse: collapse;\n}\n\n#randdetails td, #resodetails td {\n  overflow: hidden;\n  text-overflow: "~";\n  vertical-align: top;\n  white-space: nowrap;\n  width: 50%;\n  width: calc(50% - 62px);\n}\n\n#randdetails th, #resodetails th {\n  font-weight: normal;\n  text-align: right;\n  width: 62px;\n  padding:0px;\n  padding-right:4px;\n  padding-left:4px;\n}\n\n#randdetails th + th, #resodetails th + th {\n  text-align: left;\n  padding-right: 4px;\n  padding-left: 4px;\n}\n\n#randdetails td:first-child, #resodetails td:first-child {\n  text-align: right;\n  padding-left: 2px;\n}\n\n#randdetails td:last-child, #resodetails td:last-child {\n  text-align: left;\n  padding-right: 2px;\n}\n\n\n#randdetails {\n  margin-top: 4px;\n  margin-bottom: 5px;\n}\n\n\n#randdetails tt {\n  font-family: inherit;\n  cursor: help;\n}\n\n/* resonators */\n#resodetails {\n  margin-bottom: 0px;\n}\n\n.meter {\n  background: #000;\n  cursor: help;\n  display: inline-block;\n  height: 18px;\n  padding: 1px;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  position: relative;\n  left: 0;\n  top: 0;\n}\n\n.meter span {\n  display: block;\n  height: 14px;\n}\n\n.meter-level {\n  position: absolute;\n  top: -2px;\n  left: 50%;\n  margin-left: -6px;\n  text-shadow: 0.0em 0.0em 0.3em #808080;\n}\n\n/* links below resos */\n\n.linkdetails {\n  margin-bottom: 0px;\n  text-align: center;\n}\n\n.linkdetails aside {\n  display: inline-block;\n  white-space: nowrap;\n  font-size: 12px;\n  margin-left: 5px;\n  margin-right: 5px;\n}\n\n\n\n#toolbox {\n  font-size: 12px;\n  text-align: left;    /* centre didn\'t look as nice here as it did above in .linkdetails */\n}\n\n#toolbox > a {\n  margin-left: 5px;\n  margin-right: 5px;\n  white-space: nowrap;\n}\n\n/* a common portal display takes this much space (prevents moving\n * content when first selecting a portal) */\n\n#portaldetails {\n  min-height: 63px;\n  position: relative; /* so the below \'#portaldetails .close\' is relative to this */\n}\n\n#portaldetails .close {\n  position: absolute;\n  top: -2px;\n  right: 2px;\n  cursor: pointer;\n  color: #FFCE00;\n  font-family: "Arial", sans;\n  font-size: 16px;\n}\n\n/* update status */\n#updatestatus {\n  background-color: rgba(8, 48, 78, 0.9);\n  border-bottom: 0;\n  border-top: 1px solid #20A8B1;\n  border-left: 1px solid #20A8B1;\n  bottom: 0;\n  color: #ffce00;\n  font-size:13px;\n  padding: 4px;\n  position: fixed;\n  right: 0;\n  z-index: 3002;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n#updatestatus .map {\n  margin-left: 8px;\n}\n\n/* Dialogs\n */\n.ui-tooltip, .ui-dialog {\n  position: absolute;\n  z-index: 9999;\n  background-color: rgba(8, 48, 78, 0.9);\n  border: 1px solid #20A8B1;\n  color: #eee;\n  font: 13px/15px Roboto, Arial, Helvetica, sans-serif;\n  padding: 2px 4px;\n}\n\n.ui-tooltip {\n  max-width: 300px;\n}\n\n.ui-widget-overlay {\n  height: 100%;\n  left: 0;\n  position: fixed;\n  top: 0;\n  width: 100%;\n  z-index: 10000;\n  background:  #444;\n  opacity: 0.6;\n}\n\n.ui-modal {\n  z-index: 10001 !important;\n}\n\n.ui-tooltip {\n  z-index: 10002 !important;\n}\n\n.ui-tooltip, .ui-dialog a {\n  color: #FFCE00;\n}\n\n.ui-dialog {\n  padding: 0;\n  border-radius: 2px;\n}\n\n.ui-dialog-modal .ui-dialog-titlebar-close {\n  display: none;\n}\n\n.ui-dialog-titlebar {\n  text-align: center;\n  padding: 4px;\n  background-color: rgba(8, 60, 78, 0.9);\n  min-width: 250px;\n}\n\n.ui-dialog-title {\n  padding: 2px;\n  font-weight: bold;\n}\n\n.ui-dialog-title-active {\n  color: #ffce00;\n}\n\n.ui-dialog-title-inactive {\n  color: #ffffff;\n}\n\n.ui-dialog-titlebar-button {\n  position: absolute;\n  display: table-cell;\n  vertical-align: middle;\n  text-align: center;\n  width: 17px;\n  height: 17px;\n  top: 3px;\n  cursor: pointer;\n  border: 1px solid rgb(32, 168, 177);\n  background-color: rgba(0, 0, 0, 0);\n}\n\n.ui-dialog-titlebar-button:active {\n  background-color: rgb(32, 168, 177);\n}\n\n.ui-dialog-titlebar-button-close {\n  right: 4px;\n}\n\n.ui-dialog-titlebar-button-collapse {\n  right: 25px;\n}\n\n.ui-dialog-titlebar-button-collapse-expanded {\n  /* For future changes */\n}\n\n.ui-dialog-titlebar-button-collapse-collapsed {\n   background-color: rgb(32, 168, 177);\n}\n\n.ui-dialog-content {\n  padding: 12px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  max-height: 600px !important;\n  max-width: 700px !important;\n  position: relative;\n}\n\n.ui-dialog-content-hidden {\n  display: none !important;\n}\n\n.ui-dialog-buttonpane {\n  padding: 6px;\n  border-top: 1px solid #20A8B1;\n}\n\n.ui-dialog-buttonset {\n  text-align: right;\n}\n\n.ui-dialog-buttonset button,\n.ui-dialog-content button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n}\n\n.ui-dialog-buttonset button:hover {\n  text-decoration: underline;\n}\n\n.ui-dialog-aboutIITC {\n  width: auto !important;\n  min-width: 400px !important;\n  max-width: 600px !important;\n}\n\ntd {\n  padding: 0;\n  vertical-align: top;\n}\n\ntd + td {\n  padding-left: 4px;\n}\n\n#qrcode > canvas {\n  border: 8px solid white;\n}\n\n/* redeem results *****************************************************/\n.redeem-result-table {\n  font-size: 14px;\n  font-family: Roboto, Arial, Helvetica, sans-serif;\n  table-layout: fixed;\n}\n\n.redeem-result tr > td:first-child {\n  width: 50px;\n  text-align: right;\n}\n\n.redeem-result-html {\n  font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;\n}\n\n.pl_nudge_date {\n  background-color: #724510;\n  border-left: 1px solid #ffd652;\n  border-bottom: 1px solid #ffd652;\n  border-top: 1px solid #ffd652;\n  color: #ffd652;\n  display: inline-block;\n  float: left;\n  font-size: 12px;\n  height: 18px;\n  text-align: center;\n}\n\n.pl_nudge_pointy_spacer {\n  background: no-repeat url(//commondatastorage.googleapis.com/ingress.com/img/nudge_pointy.png);\n  display: inline-block;\n  float: left;\n  height: 20px;\n  left: 47px;\n  width: 5px;\n}\n\n.pl_nudge_player {\n  cursor: pointer;\n}\n\n.pl_nudge_me {\n  color: #ffd652;\n}\n\n.RESISTANCE {\n  color: #00c2ff;\n}\n\n.ALIENS {\n  color: #28f428;\n}\n\n#portal_highlight_select{\n  position: absolute;\n  top:5px;\n  left:10px;\n  z-index: 2500;\n  font-size:11px;\n  font-family: "coda",arial,helvetica,sans-serif;\n  background-color:#0E3C46;\n  color:#ffce00;\n  \n}\n\n\n</style>'
+  + '<style>/* required styles */\n\n.leaflet-map-pane,\n.leaflet-tile,\n.leaflet-marker-icon,\n.leaflet-marker-shadow,\n.leaflet-tile-pane,\n.leaflet-tile-container,\n.leaflet-overlay-pane,\n.leaflet-shadow-pane,\n.leaflet-marker-pane,\n.leaflet-popup-pane,\n.leaflet-overlay-pane svg,\n.leaflet-zoom-box,\n.leaflet-image-layer,\n.leaflet-layer {\n	position: absolute;\n	left: 0;\n	top: 0;\n	}\n.leaflet-container {\n	overflow: hidden;\n	-ms-touch-action: none;\n	}\n.leaflet-tile,\n.leaflet-marker-icon,\n.leaflet-marker-shadow {\n	-webkit-user-select: none;\n	   -moz-user-select: none;\n	        user-select: none;\n	-webkit-user-drag: none;\n	}\n.leaflet-marker-icon,\n.leaflet-marker-shadow {\n	display: block;\n	}\n/* map is broken in FF if you have max-width: 100% on tiles */\n.leaflet-container img {\n	max-width: none !important;\n	}\n/* stupid Android 2 doesn\'t understand "max-width: none" properly */\n.leaflet-container img.leaflet-image-layer {\n	max-width: 15000px !important;\n	}\n.leaflet-tile {\n	filter: inherit;\n	visibility: hidden;\n	}\n.leaflet-tile-loaded {\n	visibility: inherit;\n	}\n.leaflet-zoom-box {\n	width: 0;\n	height: 0;\n	}\n\n.leaflet-tile-pane    { z-index: 2; }\n.leaflet-objects-pane { z-index: 3; }\n.leaflet-overlay-pane { z-index: 4; }\n.leaflet-shadow-pane  { z-index: 5; }\n.leaflet-marker-pane  { z-index: 6; }\n.leaflet-popup-pane   { z-index: 7; }\n\n\n/* control positioning */\n\n.leaflet-control {\n	position: relative;\n	z-index: 7;\n	pointer-events: auto;\n	}\n.leaflet-top,\n.leaflet-bottom {\n	position: absolute;\n	z-index: 1000;\n	pointer-events: none;\n	}\n.leaflet-top {\n	top: 0;\n	}\n.leaflet-right {\n	right: 0;\n	}\n.leaflet-bottom {\n	bottom: 0;\n	}\n.leaflet-left {\n	left: 0;\n	}\n.leaflet-control {\n	float: left;\n	clear: both;\n	}\n.leaflet-right .leaflet-control {\n	float: right;\n	}\n.leaflet-top .leaflet-control {\n	margin-top: 10px;\n	}\n.leaflet-bottom .leaflet-control {\n	margin-bottom: 10px;\n	}\n.leaflet-left .leaflet-control {\n	margin-left: 10px;\n	}\n.leaflet-right .leaflet-control {\n	margin-right: 10px;\n	}\n\n\n/* zoom and fade animations */\n\n.leaflet-fade-anim .leaflet-tile,\n.leaflet-fade-anim .leaflet-popup {\n	opacity: 0;\n	-webkit-transition: opacity 0.2s linear;\n	   -moz-transition: opacity 0.2s linear;\n	     -o-transition: opacity 0.2s linear;\n	        transition: opacity 0.2s linear;\n	}\n.leaflet-fade-anim .leaflet-tile-loaded,\n.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {\n	opacity: 1;\n	}\n\n.leaflet-zoom-anim .leaflet-zoom-animated {\n	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);\n	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);\n	     -o-transition:      -o-transform 0.25s cubic-bezier(0,0,0.25,1);\n	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);\n	}\n.leaflet-zoom-anim .leaflet-tile,\n.leaflet-pan-anim .leaflet-tile,\n.leaflet-touching .leaflet-zoom-animated {\n	-webkit-transition: none;\n	   -moz-transition: none;\n	     -o-transition: none;\n	        transition: none;\n	}\n\n.leaflet-zoom-anim .leaflet-zoom-hide {\n	visibility: hidden;\n	}\n\n\n/* cursors */\n\n.leaflet-clickable {\n	cursor: pointer;\n	}\n.leaflet-container {\n	cursor: -webkit-grab;\n	cursor:    -moz-grab;\n	}\n.leaflet-popup-pane,\n.leaflet-control {\n	cursor: auto;\n	}\n.leaflet-dragging,\n.leaflet-dragging .leaflet-clickable,\n.leaflet-dragging .leaflet-container {\n	cursor: move;\n	cursor: -webkit-grabbing;\n	cursor:    -moz-grabbing;\n	}\n\n\n/* visual tweaks */\n\n.leaflet-container {\n	background: #ddd;\n	outline: 0;\n	}\n.leaflet-container a {\n	color: #0078A8;\n	}\n.leaflet-container a.leaflet-active {\n	outline: 2px solid orange;\n	}\n.leaflet-zoom-box {\n	border: 2px dotted #05f;\n	background: white;\n	opacity: 0.5;\n	}\n\n\n/* general typography */\n.leaflet-container {\n	font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;\n	}\n\n\n/* general toolbar styles */\n\n.leaflet-bar {\n	box-shadow: 0 1px 7px rgba(0,0,0,0.65);\n	-webkit-border-radius: 4px;\n	        border-radius: 4px;\n	}\n.leaflet-bar a {\n	background-color: #fff;\n	border-bottom: 1px solid #ccc;\n	width: 26px;\n	height: 26px;\n	line-height: 26px;\n	display: block;\n	text-align: center;\n	text-decoration: none;\n	color: black;\n	}\n.leaflet-bar a,\n.leaflet-control-layers-toggle {\n	background-position: 50% 50%;\n	background-repeat: no-repeat;\n	display: block;\n	}\n.leaflet-bar a:hover {\n	background-color: #f4f4f4;\n	}\n.leaflet-bar a:first-child {\n	-webkit-border-top-left-radius: 4px;\n	        border-top-left-radius: 4px;\n	-webkit-border-top-right-radius: 4px;\n	        border-top-right-radius: 4px;\n	}\n.leaflet-bar a:last-child {\n	-webkit-border-bottom-left-radius: 4px;\n	        border-bottom-left-radius: 4px;\n	-webkit-border-bottom-right-radius: 4px;\n	        border-bottom-right-radius: 4px;\n	border-bottom: none;\n	}\n.leaflet-bar a.leaflet-disabled {\n	cursor: default;\n	background-color: #f4f4f4;\n	color: #bbb;\n	}\n\n.leaflet-touch .leaflet-bar {\n	-webkit-border-radius: 10px;\n	        border-radius: 10px;\n	}\n.leaflet-touch .leaflet-bar a {\n	width: 30px;\n	height: 30px;\n	}\n.leaflet-touch .leaflet-bar a:first-child {\n	-webkit-border-top-left-radius: 7px;\n	        border-top-left-radius: 7px;\n	-webkit-border-top-right-radius: 7px;\n	        border-top-right-radius: 7px;\n	}\n.leaflet-touch .leaflet-bar a:last-child {\n	-webkit-border-bottom-left-radius: 7px;\n	        border-bottom-left-radius: 7px;\n	-webkit-border-bottom-right-radius: 7px;\n	        border-bottom-right-radius: 7px;\n	border-bottom: none;\n	}\n\n\n/* zoom control */\n\n.leaflet-control-zoom-in {\n	font: bold 18px \'Lucida Console\', Monaco, monospace;\n	}\n.leaflet-control-zoom-out {\n	font: bold 22px \'Lucida Console\', Monaco, monospace;\n	}\n\n.leaflet-touch .leaflet-control-zoom-in {\n	font-size: 22px;\n	line-height: 30px;\n	}\n.leaflet-touch .leaflet-control-zoom-out {\n	font-size: 28px;\n	line-height: 30px;\n	}\n\n\n/* layers control */\n\n.leaflet-control-layers {\n	box-shadow: 0 1px 7px rgba(0,0,0,0.4);\n	background: #f8f8f9;\n	-webkit-border-radius: 8px;\n	        border-radius: 8px;\n	}\n.leaflet-control-layers-toggle {\n	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAMAAACelLz8AAABrVBMVEUNDQ0PDw8QEBARERESEhIUFBQVFRUYGBgZGRkcHBwdHR0fHx8jIyMoKCgxMTE0NDQ1NTU2NjY4ODg5OTk6Ojo7Ozs+Pj4/Pz9AQEBBQUFDQ0NFRUVISEhMTExNTU1ZWVlaWlpmZmb///+rq6u1tbWHh4eOjo6oqKiampqdnZ2wsLC5ubmEhISLi4uZmZmSkpK1tbV6enqCgoKpqamJiYmurq66urp4eHh/f3+1tbXAwMBubm52dnacnJyEhISAgIBvb2+wsLC9vb15eXleXl5fX19mZmZoaGhsbGxtbW1ubm5vb29xcXF8fHx9fX1+fn6CgoKDg4OFhYWGhoaKioqNjY2Tk5OUlJSVlZWXl5eYmJibm5uenp6fn5+goKChoaGioqKpqamqqqqsrKyurq6vr6+xsbGzs7O0tLS1tbW2tra4uLi6urq9vb2+vr6/v7/BwcHDw8PExMTFxcXHx8fJycnKysrLy8vMzMzOzs7Pz8/Q0NDS0tLT09PV1dXW1tbX19fZ2dna2trb29vc3Nzd3d3f39/i4uLk5OTn5+fo6Ojt7e3u7u7z8/P09PRxWspKAAAARHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABISFxcXKC1DQ0hISE2IjIyMkMTEx8nr6+zs7O74+/v7/ChuOn8AAAGLSURBVCjPbZJLT8JAEIBnW1re3VKoETloSLjKzXhS4w836smQcCAaXyQEYxBJoXRLeW1p192GIoh7aabfzs63O4OqEC8/gYGsViyO0S9K42u4Id4GbpBkXJYU8Id3Nl2GO0gzrtIS/4bzW9uhS7ZBKXxRkFG0hwXjezKZByxCinZeSoqUAGSRuBw+2N6CcVTQzjQBGJUgVEVu6DbcgYdOcb0gYrZgCkc+SomAjlsE1XHZ1CWgVI2KsYCqKoSO1Sf8QAMf6khW0FqD+QFzvsmbqAXJgyw2FPEbBPZtMh18srXGqs0KGSngteRwNka1RMN9glij01dzXIAtPFqu/tGY9rxcBmZerpLd15h8+KAc59caTdjR+IKjWOM1esNYQ47kg7VGc0sjiRWu4ZPlXw3w25NII1/jR29pFLP8rqRLQT3B/ObTUayRMMyiLjR6UBEazsiy3+NWZrGpR40RDXEs8rg9ALpm6tFrOJb7vDsbIBtmTgPXs+wu2xu2DM7DhLyE/8xhR6pDawMAfgAd2djeY/eg2wAAAABJRU5ErkJggg==);\n	width: 36px;\n	height: 36px;\n	}\n.leaflet-touch .leaflet-control-layers-toggle {\n	width: 44px;\n	height: 44px;\n	}\n.leaflet-control-layers .leaflet-control-layers-list,\n.leaflet-control-layers-expanded .leaflet-control-layers-toggle {\n	display: none;\n	}\n.leaflet-control-layers-expanded .leaflet-control-layers-list {\n	display: block;\n	position: relative;\n	}\n.leaflet-control-layers-expanded {\n	padding: 6px 10px 6px 6px;\n	color: #333;\n	background: #fff;\n	}\n.leaflet-control-layers-selector {\n	margin-top: 2px;\n	position: relative;\n	top: 1px;\n	}\n.leaflet-control-layers label {\n	display: block;\n	}\n.leaflet-control-layers-separator {\n	height: 0;\n	border-top: 1px solid #ddd;\n	margin: 5px -10px 5px -6px;\n	}\n\n\n/* attribution and scale controls */\n\n.leaflet-container .leaflet-control-attribution {\n	background-color: rgba(255, 255, 255, 0.7);\n	box-shadow: 0 0 5px #bbb;\n	margin: 0;\n	}\n.leaflet-control-attribution,\n.leaflet-control-scale-line {\n	padding: 0 5px;\n	color: #333;\n	}\n.leaflet-container .leaflet-control-attribution,\n.leaflet-container .leaflet-control-scale {\n	font-size: 11px;\n	}\n.leaflet-left .leaflet-control-scale {\n	margin-left: 5px;\n	}\n.leaflet-bottom .leaflet-control-scale {\n	margin-bottom: 5px;\n	}\n.leaflet-control-scale-line {\n	border: 2px solid #777;\n	border-top: none;\n	color: black;\n	line-height: 1.1;\n	padding: 2px 5px 1px;\n	font-size: 11px;\n	text-shadow: 1px 1px 1px #fff;\n	background-color: rgba(255, 255, 255, 0.5);\n	box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.2);\n	white-space: nowrap;\n	overflow: hidden;\n	}\n.leaflet-control-scale-line:not(:first-child) {\n	border-top: 2px solid #777;\n	border-bottom: none;\n	margin-top: -2px;\n	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);\n	}\n.leaflet-control-scale-line:not(:first-child):not(:last-child) {\n	border-bottom: 2px solid #777;\n	}\n\n.leaflet-touch .leaflet-control-attribution,\n.leaflet-touch .leaflet-control-layers,\n.leaflet-touch .leaflet-control-zoom {\n	box-shadow: none;\n	}\n.leaflet-touch .leaflet-control-layers,\n.leaflet-touch .leaflet-control-zoom {\n	border: 4px solid rgba(0,0,0,0.3);\n	}\n\n\n/* popup */\n\n.leaflet-popup {\n	position: absolute;\n	text-align: center;\n	}\n.leaflet-popup-content-wrapper {\n	padding: 1px;\n	text-align: left;\n	-webkit-border-radius: 20px;\n	        border-radius: 20px;\n	}\n.leaflet-popup-content {\n	margin: 14px 20px;\n	line-height: 1.4;\n	}\n.leaflet-popup-content p {\n	margin: 18px 0;\n	}\n.leaflet-popup-tip-container {\n	margin: 0 auto;\n	width: 40px;\n	height: 20px;\n	position: relative;\n	overflow: hidden;\n	}\n.leaflet-popup-tip {\n	width: 15px;\n	height: 15px;\n	padding: 1px;\n\n	margin: -8px auto 0;\n\n	-webkit-transform: rotate(45deg);\n	   -moz-transform: rotate(45deg);\n	    -ms-transform: rotate(45deg);\n	     -o-transform: rotate(45deg);\n	        transform: rotate(45deg);\n	}\n.leaflet-popup-content-wrapper, .leaflet-popup-tip {\n	background: white;\n\n	box-shadow: 0 3px 14px rgba(0,0,0,0.4);\n	}\n.leaflet-container a.leaflet-popup-close-button {\n	position: absolute;\n	top: 0;\n	right: 0;\n	padding: 4px 5px 0 0;\n	text-align: center;\n	width: 18px;\n	height: 14px;\n	font: 16px/14px Tahoma, Verdana, sans-serif;\n	color: #c3c3c3;\n	text-decoration: none;\n	font-weight: bold;\n	background: transparent;\n	}\n.leaflet-container a.leaflet-popup-close-button:hover {\n	color: #999;\n	}\n.leaflet-popup-scrolled {\n	overflow: auto;\n	border-bottom: 1px solid #ddd;\n	border-top: 1px solid #ddd;\n	}\n\n\n/* div icon */\n\n.leaflet-div-icon {\n	background: #fff;\n	border: 1px solid #666;\n	}\n.leaflet-editing-icon {\n	-webkit-border-radius: 2px;\n	        border-radius: 2px;\n	}\n</style>'
 //note: smartphone.css injection moved into code/smartphone.js
-  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Coda"/>';
+  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Coda"/>'
+  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -90,15 +93,15 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxNjM1OTRFNUE0RTIxMUUxODNBMUZBQ0ZFQkJDNkRBQiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxNjM1OTRFNkE0RTIxMUUxODNBMUZBQ0ZFQkJDNkRBQiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjE2MzU5NEUzQTRFMjExRTE4M0ExRkFDRkVCQkM2REFCIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjE2MzU5NEU0QTRFMjExRTE4M0ExRkFDRkVCQkM2REFCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+kxvtEgAAAWVJREFUeNqsVctRwzAUlDTccQlxB3RA0kHSQXLxNXEFgQrsHO1L6AA6cKgAd4BLEBXAU2YfszY2oMCb2Rlbelqv3s+2qiozYjPBVjAX3Az2WsFJcBB0WZb1Nt0IWSF4FexGyAzWdvAp6rpOpgjDxgucg3lBKViRzz3WPN6Db8OkjsgaUvQgSAW54IkI77CWwkcVN0PCPZFtAG+mzZPfmVRUhlAZK0mZIR6qbGPi7ChY4zl1yKZ+NTfxltNttg6loep8LJuUjad4zh3F7s1cbs8ayxDD9xEH+0uiL2ed+WdjwhWU2YjzVmJoUfCfhC2eb/8g7Fr73KHRDWopiWVC22kdnhymhrZfcYG6goQcAmGHhleV64lsjlUD+5cSz85RtbfUSscfrp+Qn87Ic2KuyGlBEyd8dYkO4IJfInkc70C2QMf0CD1I95hzCc1GtcfBe7hm/l1he5p3JYVh+AsoaV727EOAAQAWgF3ledLuQAAAAABJRU5ErkJggg=="/ title="Current Location">'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
-  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+// redeeming removed from stock site, so commented out for now. it may return...
+//  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidCopy(this.href)" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
   + '    </div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"></div>'
-  + '<div id="dialog"></div>';
+  + '<div id="updatestatus"><div id="innerstatus"></div></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context
@@ -112,12 +115,12 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-window.REFRESH = 60; // refresh view every 60s (base time)
+window.REFRESH = 30; // refresh view every 30s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
-window.ON_MOVE_REFRESH = 0.8;  //refresh time to use after a movement event
+window.ON_MOVE_REFRESH = 1.25;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 5; //limit on refresh time since previous refresh, limiting repeated move refresh rate
-window.REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
-window.MAX_IDLE_TIME = 4; // stop updating map after 4min idling
+window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
+window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
 window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
@@ -153,15 +156,31 @@ window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
 window.FIELD_MU_DISPLAY_POINT_TOLERANCE = 60
 
 window.COLOR_SELECTED_PORTAL = '#f00';
-window.COLORS = ['#FFCE00', '#0088FF', '#03DC03']; // none, res, enl
+window.COLORS = ['#FF9900', '#0088FF', '#03DC03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
 window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
-window.OPTIONS_RESONATOR_SELECTED = { color: '#fff', weight: 2, radius: 4};
-window.OPTIONS_RESONATOR_NON_SELECTED = { color: '#aaa', weight: 1, radius: 3};
+window.OPTIONS_RESONATOR_SELECTED = {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false};
+window.OPTIONS_RESONATOR_NON_SELECTED = {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false};
 
-window.OPTIONS_RESONATOR_LINE_SELECTED = {opacity: 0.7, weight: 3};
-window.OPTIONS_RESONATOR_LINE_NON_SELECTED = {opacity: 0.25, weight: 2};
+window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force Amp', HEATSINK:'Heat Sink', TURRET:'Turret', LINK_AMPLIFIER: 'Link Amp'};
+
+window.OPTIONS_RESONATOR_LINE_SELECTED = {
+  opacity: 0.7,
+  weight: 3,
+  color: '#FFA000',
+  dashArray: '0,10' + (new Array(25).join(',8,4')),
+  fill: false,
+  clickable: false
+};
+window.OPTIONS_RESONATOR_LINE_NON_SELECTED = {
+  opacity: 0.25,
+  weight: 2,
+  color: '#FFA000',
+  dashArray: '0,10' + (new Array(25).join(',8,4')),
+  fill: false,
+  clickable: false
+};
 
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made
@@ -184,6 +203,7 @@ window.MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 window.MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
 window.HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 window.OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
+window.OCTANTS_ARROW = ['→', '↗', '↑', '↖', '←', '↙', '↓', '↘'];
 window.DESTROY_RESONATOR = 75; //AP for destroying portal
 window.DESTROY_LINK = 187; //AP for destroying link
 window.DESTROY_FIELD = 750; //AP for destroying field
@@ -299,8 +319,35 @@ window.getPortalRange = function(d) {
     lvl += parseInt(reso.level);
   });
   if(resoMissing) return 0;
-  return 160*Math.pow(getPortalLevel(d), 4);
+
+  var range = 160*Math.pow(getPortalLevel(d), 4);
+
+  var boost = getLinkAmpRangeBoost(d);
+
+  return range*boost;
+
 }
+
+window.getLinkAmpRangeBoost = function(d) {
+  // additional range boost calculation
+  // (at the time of writing, only rare link amps have been seen in the wild, so there's a little guesswork at how
+  // the stats work and combine - jon 2013-06-26)
+
+  var boost = 1.0;  // initial boost is 1.0 (i.e. no boost over standard range)
+  var scale = 1.0;  // scale starts at 1 (full effect of boost) - will be halved after each link amp is processed
+
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if(mod && mod.type === 'LINK_AMPLIFIER' && mod.stats && mod.stats.LINK_RANGE_MULTIPLIER) {
+      // link amp stat LINK_RANGE_MULTIPLIER is 2000 for rare, and gives 2x boost to the range
+      var baseMultiplier = mod.stats.LINK_RANGE_MULTIPLIER/1000;
+      boost += (baseMultiplier-1)*scale;
+      scale = scale / 2;  // each link amp has half the effect of the previous one
+    }
+  });
+
+  return boost;
+}
+
 
 window.getAvgResoDist = function(d) {
   var sum = 0, resos = 0;
@@ -324,10 +371,13 @@ window.getAttackApGain = function(d) {
     if(!reso)
       return true;
     resoCount += 1;
+    var reslevel=parseInt(reso.level);
     if(reso.ownerGuid === PLAYER.guid) {
-      maxResonators[parseInt(reso.level)] -= 1;
+      if(maxResonators[reslevel] > 0) {
+        maxResonators[reslevel] -= 1;
+      }
     } else {
-      curResonators[parseInt(reso.level)] += 1;
+      curResonators[reslevel] += 1;
     }
   });
 
@@ -363,6 +413,46 @@ window.getAttackApGain = function(d) {
   };
 }
 
+//This function will return the potential level a player can upgrade it to
+window.potentialPortalLevel = function(d) {
+  var current_level = getPortalLevel(d);
+  var potential_level = current_level;
+  
+  if(PLAYER.team === d.controllingTeam.team) {
+    var resonators_on_portal = d.resonatorArray.resonators;
+    var resonator_levels = new Array();
+    // figure out how many of each of these resonators can be placed by the player
+    var player_resontators = new Array();
+    for(var i=1;i<=MAX_PORTAL_LEVEL; i++) {
+      player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
+    }
+    $.each(resonators_on_portal, function(ind, reso) {
+      if(reso !== null && reso.ownerGuid === window.PLAYER.guid) {
+        player_resontators[reso.level]--;
+      }
+      resonator_levels.push(reso === null ? 0 : reso.level);  
+    });
+    
+    resonator_levels.sort(function(a, b) {
+      return(a - b);
+    });
+    
+    // Max out portal
+    var install_index = 0;
+    for(var i=MAX_PORTAL_LEVEL;i>=1; i--) {
+      for(var install = player_resontators[i]; install>0; install--) {
+        if(resonator_levels[install_index] < i) {
+          resonator_levels[install_index] = i;
+          install_index++;
+        }
+      }
+    }
+    //console.log(resonator_levels);
+    potential_level = resonator_levels.reduce(function(a, b) {return a + b;}) / 8;
+  }
+  return(potential_level);
+}
+
 
 
 // PORTAL RENDER LIMIT HANDLER ///////////////////////////////////////
@@ -370,21 +460,19 @@ window.getAttackApGain = function(d) {
 // limit is reached. 
 //
 // On initialization, previous minLevel will preserve to previousMinLevel
-// with zoom level difference. 
+// and modify with zoom level difference. 
 //
 // After initialized and reset in window.requestData(), "processPortals" 
 // intercept all portals data in "handleDataResponse". Put the count of 
-// new portals to newPortalsPerLevel[portal level]. And split portals 
-// into two parts base on previousMinLevel. Portals with level >= 
-// previousMinLevel will return as result and continue to render. 
-// Others will save to portalsPreviousMinLevel. If there is no more 
-// active request of map data, portals will not split and 
-// portalsPreviousMinLevel will add back to result and render base on 
-// current minLevel. 
+// new portals to newPortalsPerLevel[portal level]. Portals with level >= 
+// previousMinLevel and already on map will return as result and continue 
+// to render. Others will save to portalsLowerThanPrevMinLv. If there is 
+// no more active request of map data, portalsLowerThanPrevMinLv will add 
+// back to result and render base on current minLevel. 
 //
-// "handleFailRequest" is added to handle the case when the last request 
+// "window.handleFailRequest" is added to handle the case when the last request 
 // failed and "processPortals" didn't get called. It will get
-// portalsPreviousMinLevel base on current minLevel and render them.
+// portalsLowerThanPrevMinLv base on current minLevel and render them.
 //
 // "getMinLevel" will be called by "getMinPortalLevel" in utils_misc.js 
 // to determine min portal level to draw on map.
@@ -396,9 +484,7 @@ window.getAttackApGain = function(d) {
 // high to low, and sum total portal count (old + new) to check 
 // minLevel. 
 //
-// In each call of window.handleDataResponse(), it will call 
-// "resetCounting" to reset previous response data. But minLevel
-// is preserved and only replaced when render limit reached in 
+// minLevel is preserved and only replaced when render limit reached in 
 // higher level, until next window.requestData() called and reset.
 // 
 
@@ -408,12 +494,13 @@ window.portalRenderLimit.initialized = false;
 window.portalRenderLimit.minLevelSet = false;
 window.portalRenderLimit.minLevel = -1;
 window.portalRenderLimit.previousMinLevel = -1;
-window.portalRenderLimit.previousZoomLevel;
+window.portalRenderLimit.previousZoomLevel = null;
 window.portalRenderLimit.newPortalsPerLevel = new Array(MAX_PORTAL_LEVEL + 1);
-window.portalRenderLimit.portalsPreviousMinLevel = new Array(MAX_PORTAL_LEVEL + 1);
+window.portalRenderLimit.portalsLowerThanPrevMinLv = new Array(MAX_PORTAL_LEVEL + 1);
 
 window.portalRenderLimit.init = function () {
   var currentZoomLevel = map.getZoom();
+  // previousZoomLevel set to current zoom level on the first run
   portalRenderLimit.previousZoomLevel = portalRenderLimit.previousZoomLevel || currentZoomLevel;
 
   // If there is a minLevel set in previous run, calculate previousMinLevel with it.
@@ -425,10 +512,10 @@ window.portalRenderLimit.init = function () {
 
   portalRenderLimit.previousZoomLevel = currentZoomLevel;
 
-  portalRenderLimit.initialized = true;
   portalRenderLimit.minLevel = -1;
   portalRenderLimit.resetCounting();
-  portalRenderLimit.resetPortalsPreviousMinLevel();
+  portalRenderLimit.resetPortalsLowerThanPrevMinLv();
+  portalRenderLimit.initialized = true;
 }
 
 window.portalRenderLimit.resetCounting = function() {
@@ -438,12 +525,29 @@ window.portalRenderLimit.resetCounting = function() {
   }
 }
 
-window.portalRenderLimit.resetPortalsPreviousMinLevel = function() {
+window.portalRenderLimit.resetPortalsLowerThanPrevMinLv = function() {
   for(var i = 0; i <= MAX_PORTAL_LEVEL; i++) {
-    portalRenderLimit.portalsPreviousMinLevel[i] = new Array();
+    portalRenderLimit.portalsLowerThanPrevMinLv[i] = {};
   }
 }
 
+// Use to clean up level of portals which is over render limit after counting new portals
+window.portalRenderLimit.cleanUpOverLimitPortalLevel = function() {
+  var currentMinLevel = window.getMinPortalLevel();
+  for(var i = 0; i < currentMinLevel; i++) {
+    portalsLayers[i].eachLayer(function(item) {
+      var itemGuid = item.options.guid;
+      // check if 'item' is a portal
+      if(getTypeByGuid(itemGuid) != TYPE_PORTAL) return true;
+      // Don’t remove if it is selected.
+      if(itemGuid == window.selectedPortal) return true;
+      portalsLayers[i].removeLayer(item);
+    });
+  }
+}
+
+// Count new portals. Then split lower level portal if it's not last request. 
+// And Merge back if it's last request and render limit not yet hit
 window.portalRenderLimit.splitOrMergeLowLevelPortals = function(originPortals) {
   portalRenderLimit.resetCounting();
   portalRenderLimit.countingPortals(originPortals);
@@ -467,29 +571,33 @@ window.portalRenderLimit.countingPortals = function(portals) {
   });
 }
 
+// Split the portal if it's lower level and not on map
 window.portalRenderLimit.splitLowLevelPortals = function(portals) {
-  var resultPortals = new Array();
-  $.each(portals, function(ind, portal) {
+  var resultPortals = {};
+
+  $.each(portals || {}, function(guid, portal) {
     var portalLevel = parseInt(getPortalLevel(portal[2]));
-    if(portalLevel < portalRenderLimit.previousMinLevel) {
-      portalRenderLimit.portalsPreviousMinLevel[portalLevel].push(portal);
-    }else{
-      resultPortals.push(portal);
+    var portalOnMap = window.portals[guid];
+
+    if(!portalOnMap && portalLevel < portalRenderLimit.previousMinLevel) {
+      portalRenderLimit.portalsLowerThanPrevMinLv[portalLevel][guid] = portal;
+    } else {
+      resultPortals[guid] = portal;
     }
   });
   return resultPortals;
 }
 
 window.portalRenderLimit.mergeLowLevelPortals = function(appendTo) {
-  var resultPortals = appendTo ? appendTo : new Array();
-  for(var i = portalRenderLimit.getMinLevel(); 
-      i < portalRenderLimit.previousMinLevel; 
+  var resultPortals = appendTo ? appendTo : {};
+  for(var i = portalRenderLimit.getMinLevel();
+      i < portalRenderLimit.previousMinLevel;
      i++) {
-    $.merge(resultPortals, portalRenderLimit.portalsPreviousMinLevel[i]);
+    $.extend(resultPortals, portalRenderLimit.portalsLowerThanPrevMinLv[i]);
   }
 
-  // Reset portalsPreviousMinLevel, ensure they return only once
-  portalRenderLimit.resetPortalsPreviousMinLevel();
+  // Reset portalsLowerThanPrevMinLv, ensure they return only once
+  portalRenderLimit.resetPortalsLowerThanPrevMinLv();
   return resultPortals;
 }
 
@@ -506,7 +614,9 @@ window.portalRenderLimit.setMinLevel = function() {
   // Find the min portal level under render limit
   while(newMinLevel > 0) {
     var oldPortalCount = layerGroupLength(portalsLayers[newMinLevel - 1]);
-    var newPortalCount = portalRenderLimit.newPortalsPerLevel[newMinLevel - 1];
+    var storedPortalCount = Object.keys(portalRenderLimit.portalsLowerThanPrevMinLv[newMinLevel - 1]).length;
+    var newPortalCount = Math.max(storedPortalCount, portalRenderLimit.newPortalsPerLevel[newMinLevel - 1]);
+
     totalPortalsCount += oldPortalCount + newPortalCount;
     if(totalPortalsCount >= MAX_DRAWN_PORTALS)
       break;
@@ -576,14 +686,14 @@ window.portalRenderLimit.setMinLevel = function() {
 //              set reached to true.
 // requestFinished: called after each request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
-
+// iitcLoaded: called after IITC and all plugins loaded
 
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
   'beforePortalReRender', 'checkRenderLimit', 'requestFinished', 'nicknameClicked',
-  'geoSearch'];
+  'geoSearch', 'iitcLoaded'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
@@ -661,16 +771,24 @@ window.debug.console = function() {
   $('#debugconsole').text();
 }
 
-window.debug.console.create = function() {
-  if($('#debugconsole').length) return;
-  $('#chatcontrols').append('<a>debug</a>');
-  $('#chatcontrols a:last').click(function() {
+window.debug.console.show = function() {
+    if (window.isSmartphone()) {
+        $('#scrollwrapper, #updatestatus').hide();
+        $('#map').css('visibility', 'hidden');
+    }
+    $('#chat, #chatinput').show();
+    window.debug.console.create();
     $('#chatinput mark').css('cssText', 'color: #bbb !important').text('debug:');
     $('#chat > div').hide();
     $('#debugconsole').show();
     $('#chatcontrols .active').removeClass('active');
-    $(this).addClass('active');
-  });
+    $("#chatcontrols a:contains('debug')").addClass('active');
+}
+
+window.debug.console.create = function() {
+  if($('#debugconsole').length) return;
+  $('#chatcontrols').append('<a>debug</a>');
+  $('#chatcontrols a:last').click(window.debug.console.show);
   $('#chat').append('<div style="display: none" id="debugconsole"><table></table></div>');
 }
 
@@ -731,6 +849,79 @@ window.debug.console.overwriteNativeIfRequired = function() {
 }
 
 
+// Portal Highlighter //////////////////////////////////////////////////////////
+// these functions handle portal highlighters
+
+
+window._highlighters = null;
+window._current_highlighter = localStorage.portal_highlighter;
+window.changing_highlighters = false;
+window._no_highlighter = 'No Highlights';
+
+window.addPortalHighlighter = function(name, callback) {
+  if(_highlighters === null) {
+    _highlighters = {};
+  }
+  _highlighters[name] = callback;
+  if(localStorage.portal_highlighter === undefined) {
+    _current_highlighter = name;
+    localStorage.portal_highlighter = name;
+  }
+  portalHighlighterControl();
+}
+
+window.portalHighlighterControl = function() {
+  if(_highlighters !== null) {
+    if($('#portal_highlight_select').length === 0) {
+      $("body").append("<select id='portal_highlight_select'></select>");
+    }
+    $("#portal_highlight_select").html('');
+    $("#portal_highlight_select").append($("<option>").attr('value',_no_highlighter).text(_no_highlighter));
+    var h_names = Object.keys(_highlighters).sort();
+    
+    $.each(h_names, function(i, name) {  
+      $("#portal_highlight_select").append($("<option>").attr('value',name).text(name));
+    });
+    $("#portal_highlight_select").val(_current_highlighter);
+    $("#portal_highlight_select").change(function(){ changePortalHighlights($(this).val());});
+    // notify android that the select spinner is enabled.
+    // this disables javascript injection on android side.
+    // if android is not notified, the spinner closes on the next JS call
+    if (typeof android !== 'undefined' && android && android.spinnerEnabled) {
+      $("#portal_highlight_select").click(function(){ android.spinnerEnabled(true);});
+      $("#portal_highlight_select").focus(function(){ android.spinnerEnabled(false);});
+    }
+    $(".leaflet-top.leaflet-left").css('padding-top', '20px');
+    $(".leaflet-control-scale-line").css('margin-top','25px');
+  }
+}
+
+window.changePortalHighlights = function(name) {
+  changing_highlighters = true;
+  _current_highlighter = name;
+  resetHighlightedPortals();
+  changing_highlighters = false;
+  localStorage.portal_highlighter = name;
+}
+
+window.highlightPortal = function(p) {
+  
+  if(_highlighters !== null && _highlighters[_current_highlighter] !== undefined) {
+    p.options.highligher = _current_highlighter;
+    _highlighters[_current_highlighter]({portal: p});
+  }
+}
+
+window.resetHighlightedPortals = function() {
+  $.each(portals, function(ind, portal) {
+    try {
+      renderPortal(portal.options.ent);
+    }
+    catch(e) {}
+  }); 
+}
+
+
 // PORTAL DETAILS DISPLAY ////////////////////////////////////////////
 // hand any of these functions the details-hash of a portal, and they
 // will return pretty, displayable HTML or parts thereof.
@@ -741,8 +932,8 @@ window.getRangeText = function(d) {
   return ['range',
       '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
-      ? Math.round(range/1000) + ' km'
-      : Math.round(range)      + ' m')
+      ? Math.floor(range/1000) + ' km'
+      : Math.floor(range)      + ' m')
     + '</a>'];
 }
 
@@ -763,29 +954,61 @@ window.getModDetails = function(d) {
   var modsTitle = [];
   var modsColor = [];
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
-    if(!mod) {
-      mods.push('');
-      modsTitle.push('');
-      modsColor.push('#000');
-    } else if(mod.type === 'RES_SHIELD') {
+    var modName = '';
+    var modTooltip = '';
+    var modColor = '#000';
 
-      var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
-      title += 'Installed by: '+ getPlayerName(mod.installingUser);
+    if (mod) {
+      // all mods seem to follow the same pattern for the data structure
+      // but let's try and make this robust enough to handle possible future differences
 
-      title += '\nStats:';
-      for (var key in mod.stats) {
-        if (!mod.stats.hasOwnProperty(key)) continue;
-        title += '\n+' +  mod.stats[key] + ' ' + key.capitalize();
+      if (mod.displayName) {
+        modName = mod.displayName;
+      } else if (mod.type) {
+        modName = mod.type;
+      } else {
+        modName = '(unknown mod)';
       }
 
-      mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
-      modsTitle.push(title);
-      modsColor.push(COLORS_MOD[mod.rarity]);
-    } else {
-      mods.push(mod.type);
-      modsTitle.push('Unknown mod. No further details available.');
-      modsColor.push('#FFF');
+      if (mod.rarity) {
+        modName = mod.rarity.capitalize().replace(/_/g,' ') + ' ' + modName;
+      }
+
+      modTooltip = modName + '\n';
+      if (mod.installingUser) {
+        modTooltip += 'Installed by: '+ getPlayerName(mod.installingUser) + '\n';
+      }
+
+      if (mod.stats) {
+        modTooltip += 'Stats:';
+        for (var key in mod.stats) {
+          if (!mod.stats.hasOwnProperty(key)) continue;
+          var val = mod.stats[key];
+
+          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
+
+          // special formatting for known mod stats, where the display of the raw value is less useful
+          if (mod.type === 'HEATSINK' && key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
+          else if (mod.type === 'FORCE_AMP' && key === 'FORCE_AMPLIFIER') val = (val/1000)+'x';  // 2000 = 2x
+          else if (mod.type === 'LINK_AMPLIFIER' && key === 'LINK_RANGE_MULTIPLIER') val = (val/1000)+'x' // 2000 = 2x
+          else if (mod.type === 'TURRET' && key === 'HIT_BONUS') val = (val/10000)+'%'; // 2000 = 0.2% (although this seems pretty small to be useful?)
+          else if (mod.type === 'TURRET' && key === 'ATTACK_FREQUENCY') val = (val/1000)+'x' // 2000 = 2x
+          // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
+
+          modTooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');
+        }
+      }
+
+      if (mod.rarity) {
+        modColor = COLORS_MOD[mod.rarity];
+      } else {
+        modColor = '#fff';
+      }
     }
+
+    mods.push(modName);
+    modsTitle.push(modTooltip);
+    modsColor.push(modColor);
   });
 
   var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
@@ -844,7 +1067,7 @@ window.getResonatorDetails = function(d) {
 // rotates clockwise. So, last one is 7 (southeast).
 window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
   if(level === 0) {
-    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + '"></span>';
+    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
   } else {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
@@ -853,7 +1076,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
             + 'level:\t'  + level + '\n'
             + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t'  + nick  + '\n'
-            + 'octant:\t' + OCTANTS[slot];
+            + 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot];
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
 
@@ -896,8 +1119,8 @@ window.getAttackApGainText = function(d) {
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
 window.aboutIITC = function(){
-  var v = 'jonatkins-2013-05-02-021312';
-  var attrib = '<p>This project is licensed under the permissive ISC license. Parts imported from other projects remain under their respective licenses:</p><ul><li><a href="https://github.com/bryanwoods/autolink-js">autolink-js by Bryan Woods; MIT</a></li><li><a href="https://github.com/chriso/load.js">load.js by Chris O\'Hara; MIT</a></li><li><a href="http://leafletjs.com/">leaflet.js; custom license (but appears free)</a></li><li><a href="https://github.com/Leaflet/Leaflet.draw">leaflet.draw.js; by jacobtoye; MIT</a></li><li><a href="https://github.com/shramov/leaflet-plugins"><code>leaflet_google.js</code> by Pavel Shramov; same as Leaftlet</a> (modified, though)</li><li><a href="https://github.com/jeromeetienne/jquery-qrcode">jquery.qrcode.js by Jerome Etienne; MIT</a></li><li><a href="https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet">oms.min.js by George MacKerron; MIT</a></li><li><a href="https://github.com/richadams/jquery-taphold">taphold.js by Rich Adams; unknown</a></li><li><a href="https://github.com/kartena/Leaflet.Pancontrol">L.Control.Pan.js by Kartena AB; same as Leaftlet</a></li><li><a href="https://github.com/kartena/Leaflet.zoomslider">L.Control.Zoomslider.js by Kartena AB; same as Leaftlet</a></li><li>StackOverflow-CopyPasta is attributed in the source; <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-Wiki</a></li><li>all Ingress/Niantic related stuff obviously remains non-free and is still copyrighted by Niantic/Google</li></ul>';
+  var v = 'jonatkins-2013-07-01-174507';
+  var attrib = '<p>This project is licensed under the permissive <a href="http://www.isc.org/software/license">ISC license</a>. Parts imported from other projects remain under their respective licenses:</p>\n\n<ul>\n<li><a href="https://github.com/bryanwoods/autolink-js">autolink-js by Bryan Woods; MIT</a></li>\n<li><a href="https://github.com/chriso/load.js">load.js by Chris O\'Hara; MIT</a></li>\n<li><a href="http://leafletjs.com/">leaflet.js; custom license (but appears free)</a></li>\n<li><a href="https://github.com/Leaflet/Leaflet.draw">leaflet.draw.js by jacobtoye; MIT</a></li>\n<li>\n<a href="https://github.com/shramov/leaflet-plugins">leaflet_google.js by Pavel Shramov; same as Leaflet</a> (modified, though)</li>\n<li><a href="https://github.com/jeromeetienne/jquery-qrcode">jquery.qrcode.js by Jerome Etienne; MIT</a></li>\n<li><a href="https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet">oms.min.js by George MacKerron; MIT</a></li>\n<li><a href="https://github.com/richadams/jquery-taphold">taphold.js by Rich Adams; unknown</a></li>\n<li><a href="https://github.com/kartena/Leaflet.Pancontrol">L.Control.Pan.js by Kartena AB; same as Leaflet</a></li>\n<li><a href="https://github.com/kartena/Leaflet.zoomslider">L.Control.Zoomslider.js by Kartena AB; same as Leaflet</a></li>\n<li>StackOverflow-CopyPasta is attributed in the source; <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-Wiki</a>\n</li>\n<li>all Ingress/Niantic related stuff obviously remains non-free and is still copyrighted by Niantic/Google</li>\n</ul>';
   var contrib = '<p>So far, these people have contributed:</p>\n\n<p><a href="https://github.com/Bananeweizen">Bananeweizen</a>,\n<a href="https://github.com/blakjakau">blakjakau</a>,\n<a href="https://github.com/boombuler">boombuler</a>,\n<a href="https://github.com/breunigs">breunigs</a>,\n<a href="https://github.com/ccjon">ccjon</a>,\n<a href="https://github.com/cmrn">cmrn</a>,\n<a href="https://github.com/epf">epf</a>,\n<a href="https://github.com/Fragger">Fragger</a>,\n<a href="https://github.com/integ3r">integ3r</a>,\n<a href="https://github.com/j16sdiz">j16sdiz</a>,\n<a href="https://github.com/JasonMillward">JasonMillward</a>,\n<a href="https://github.com/jonatkins">jonatkins</a>,\n<a href="https://github.com/leCradle">leCradle</a>,\n<a href="https://github.com/Merovius">Merovius</a>,\n<a href="https://github.com/mledoze">mledoze</a>,\n<a href="https://github.com/OshiHidra">OshiHidra</a>,\n<a href="https://github.com/phoenixsong6">phoenixsong6</a>,\n<a href="https://github.com/Pirozek">Pirozek</a>,\n<a href="https://github.com/saithis">saithis</a>,\n<a href="https://github.com/Scrool">Scrool</a>,\n<a href="https://github.com/sorgo">sorgo</a>,\n<a href="https://github.com/tpenner">tpenner</a>,\n<a href="https://github.com/vita10gy">vita10gy</a>,\n<a href="https://github.com/Xelio">Xelio</a>,\n<a href="https://github.com/ZauberNerd">ZauberNerd</a>,\n<a href="https://github.com/waynn">waynn</a></p>'
   var a = ''
   + '  <div><b>About IITC</b></div> '
@@ -914,7 +1137,7 @@ window.aboutIITC = function(){
   + '     </ul>'
   + '  </div>'
   + '  <div>'
-  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png">'
   + '  </div>'
   + '  <hr>'
   + '  <div>Version: ' + v + '</div>'
@@ -922,8 +1145,11 @@ window.aboutIITC = function(){
   + '  <div>' + attrib + '</div>'
   + '  <hr>'
   + '  <div>' + contrib + '</div>';
-  alert(a, true, function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');});
-  $('.ui-dialog').addClass('ui-dialog-aboutIITC');
+  dialog({
+    title: 'IITC ' + v,
+    html: a,
+    dialogClass: 'ui-dialog-aboutIITC'
+  });
 }
 
 
@@ -964,6 +1190,22 @@ window.writeCookie = function(name, val) {
   document.cookie = name + "=" + val + '; expires=Thu, 31 Dec 2020 23:59:59 GMT; path=/';
 }
 
+window.eraseCookie = function(name) {
+  document.cookie = name + '=; expires=Thu, 1 Jan 1970 00:00:00 GMT; path=/';
+}
+
+//certain values were stored in cookies, but we're better off using localStorage instead - make it easy to convert
+window.convertCookieToLocalStorage = function(name) {
+  var cookie=readCookie(name);
+  if(cookie !== undefined) {
+    console.log('converting cookie '+name+' to localStorage');
+    if(localStorage[name] === undefined) {
+      localStorage[name] = cookie;
+    }
+    eraseCookie(name);
+  }
+}
+
 // add thousand separators to given number.
 // http://stackoverflow.com/a/1990590/1684530 by Doug Neiner.
 window.digits = function(d) {
@@ -1000,18 +1242,34 @@ window.postAjax = function(action, data, success, error) {
   return result;
 }
 
-// converts unix timestamps to HH:mm:ss format if it was today;
+window.zeroPad = function(number,pad) {
+  number = number.toString();
+  var zeros = pad - number.length;
+  return Array(zeros>0?zeros+1:0).join("0") + number;
+}
+
+
+// converts javascript timestamps to HH:mm:ss format if it was today;
 // otherwise it returns YYYY-MM-DD
 window.unixTimeToString = function(time, full) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
   var time = d.toLocaleTimeString();
-  var date = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  var date = d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2);
   if(typeof full !== 'undefined' && full) return date + ' ' + time;
   if(d.toDateString() == new Date().toDateString())
     return time;
   else
     return date;
+}
+
+// converts a javascript time to a precise date and time (optionally with millisecond precision)
+// formatted in ISO-style YYYY-MM-DD hh:mm:ss.mmm - but using local timezone
+window.unixTimeToDateTimeString = function(time, millisecond) {
+  if(!time) return null;
+  var d = new Date(typeof time === 'string' ? parseInt(time) : time);
+  return d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2)
+    +' '+d.toLocaleTimeString()+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
 }
 
 window.unixTimeToHHmm = function(time) {
@@ -1025,24 +1283,30 @@ window.unixTimeToHHmm = function(time) {
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
-  if(window.isSmartphone)
+  if(window.isSmartphone())
     window.smartphone.mapButton.click();
 }
 
 window.showPortalPosLinks = function(lat, lng, name) {
-  var portal_name = '';
+  var encoded_name = 'undefined';
   if(name !== undefined) {
-    portal_name = encodeURIComponent(' (' + name + ')');
+    encoded_name = encodeURIComponent(name);
   }
+
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
-    android.intentPosLink(lat, lng, portal_name);
+    android.intentPosLink(lat, lng, encoded_name);
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">Google maps</a>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'%20('+encoded_name+')">Google Maps</a>';
+    var bingmaps = '<a href="http://www.bing.com/maps/?v=2&cp='+lat+'~'+lng+'&lvl=16&sp=Point.'+lat+'_'+lng+'_'+encoded_name+'___">Bing Maps</a>';
     var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
-    var latLng = '<span>'+lat+','+lng +'</span>';
-    alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '<br />' + latLng + '</div>');
+    var latLng = '<span>&lt;' + lat + ',' + lng +'&gt;</span>';
+    dialog({
+      html: '<div style="text-align: center;">' + qrcode + script + gmaps + '; ' + bingmaps + '; ' + osm + '<br />' + latLng + '</div>',
+      title: name,
+      id: 'poslinks'
+    });
   }
 }
 
@@ -1098,15 +1362,39 @@ window.renderLimitReached = function(ratio) {
   return param.reached;
 }
 
-window.getMinPortalLevel = function() {
+window.getPortalDataZoom = function() {
   var z = map.getZoom();
+
+  // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
+  // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
+  // very effective along with the new cache code
+  if (z > 17) z=17;
+
+  // we could consider similar zoom-level consolidation, as, e.g. level 16 and 15 both return L1+, always
+  // request zoom 15 tiles. however, there are quirks in the current data stream, where small fields aren't
+  // returned by the server. using larger tiles always would amplify this issue.
+
+  //sanity check - should never happen
+  if (z < 0) z=0;
+
+  return z;
+}
+
+window.getMinPortalLevelForZoom = function(z) {
   if(z >= 17) return 0;
-  var conv = ['impossible', 8,8,8,7,7,6,6,5,4,4,3,3,2,2,1,1];
+  if(z < 0) return 8;
+  var conv = [8,8,8,8,7,7,6,6,5,4,4,3,3,2,2,1,1];
   var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
   var result = minLevelByRenderLimit > conv[z]
     ? minLevelByRenderLimit
     : conv[z];
   return result;
+}
+
+
+window.getMinPortalLevel = function() {
+  var z = getPortalDataZoom();
+  return getMinPortalLevelForZoom(z);
 }
 
 // returns number of pixels left to scroll down before reaching the
@@ -1128,21 +1416,36 @@ window.zoomToAndShowPortal = function(guid, latlng) {
 
 // translates guids to entity types
 window.getTypeByGuid = function(guid) {
-  // portals end in “.11” or “.12“, links in “.9", fields in “.b”
-  // .11 == portals
-  // .12 == portals
-  // .16 == portals
-  // .9  == links
-  // .b  == fields
-  // .c  == player/creator
-  // .d  == chat messages
-  //
-  // others, not used in web:
-  // .5  == resources (burster/resonator)
-  // .6  == XM
-  // .4  == media items, maybe all droppped resources (?)
+  // All GUID type values, extracted from the ingress app .apk
+  // some are almost certainly Niantic internal use only - never seen on the network
+  // .1  == Panoramio portal [deprecated]
+  // .2  == Random portal
+  // .3  == Beacon
+  // .4  == Resource (dropped media - other dropped items?)
+  // .5  == Inventory item
+  // .6  == Energy glob (XM)
+  // .7  == Energy spawn location
+  // .8  == HMDB portal [deprecated]
+  // .9  == Link (internally "edge")                     ** TYPE_LINK
+  // .a  == LocalStore portal [deprecated]
+  // .b  == Control field (internally "captured region") ** TYPE_FIELD
+  // .c  == Player                                       ** TYPE_PLAYER
+  // .d  == COMM message (internally "plext")            ** TYPE_CHAT
+  // .e  == Tracking record
+  // .f  == Tracking group
+  // .10 == Passcode reward [deprecated]
+  // .11 == SuperOps portal                              ** TYPE_PORTAL - the batch loaded from panorimo, etc?
+  // .12 == Anon portal                                  ** TYPE_PORTAL - user submitted by email?
+  // .13 == Account info
+  // .14 == GeoStore POI [deprecated]
+  // .15 == GeoStore mod
+  // .16 == GeoStore portal                              ** TYPE_PORTAL - new in-app submissions?
+  // .17 == Portal image
+  // .18 == PMRR change
+  
   // resonator guid is [portal guid]-resonator-[slot]
   switch(guid.slice(33)) {
+    case '2':
     case '11':
     case '12':
     case '16':
@@ -1175,6 +1478,20 @@ if (typeof String.prototype.startsWith !== 'function') {
   String.prototype.startsWith = function (str){
     return this.slice(0, str.length) === str;
   };
+}
+
+// escape a javascript string, so quotes and backslashes are escaped with a backslash
+// (for strings passed as parameters to html onclick="..." for example)
+window.escapeJavascriptString = function(str) {
+  return (str+'').replace(/[\\"']/g,'\\$&');
+}
+
+//escape special characters, such as tags
+window.escapeHtmlSpecialChars = function(str) {
+  var div = document.createElement(div);
+  var text = document.createTextNode(str);
+  div.appendChild(text);
+  return div.innerHTML;
 }
 
 window.prettyEnergy = function(nrg) {
@@ -1246,26 +1563,57 @@ window.calcTriArea = function(p) {
   return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
 }
 
-// Update layerGroups display status to window.overlayStatus and cookie 'ingress.intelmap.layergroupdisplayed'
+// Update layerGroups display status to window.overlayStatus and localStorage 'ingress.intelmap.layergroupdisplayed'
 window.updateDisplayedLayerGroup = function(name, display) {
   overlayStatus[name] = display;
-  writeCookie('ingress.intelmap.layergroupdisplayed', JSON.stringify(overlayStatus));
+  localStorage['ingress.intelmap.layergroupdisplayed'] = JSON.stringify(overlayStatus);
 }
 
 // Read layerGroup status from window.overlayStatus if it was added to map,
 // read from cookie if it has not added to map yet.
-// return true if both overlayStatus and cookie didn't have the record
-window.isLayerGroupDisplayed = function(name) {
+// return 'defaultDisplay' if both overlayStatus and cookie didn't have the record
+window.isLayerGroupDisplayed = function(name, defaultDisplay) {
   if(typeof(overlayStatus[name]) !== 'undefined') return overlayStatus[name];
 
-  var layersJSON = readCookie('ingress.intelmap.layergroupdisplayed');
-  if(!layersJSON) return true;
+  convertCookieToLocalStorage('ingress.intelmap.layergroupdisplayed');
+  var layersJSON = localStorage['ingress.intelmap.layergroupdisplayed'];
+  if(!layersJSON) return defaultDisplay;
 
   var layers = JSON.parse(layersJSON);
   // keep latest overlayStatus
   overlayStatus = $.extend(layers, overlayStatus);
-  if(typeof(overlayStatus[name]) === 'undefined') return true;
+  if(typeof(overlayStatus[name]) === 'undefined') return defaultDisplay;
   return overlayStatus[name];
+}
+
+window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
+  if(isLayerGroupDisplayed(name, defaultDisplay)) map.addLayer(layerGroup);
+  layerChooser.addOverlay(layerGroup, name);
+}
+
+window.clampLat = function(lat) {
+  if (lat > 90.0)
+    lat = 90.0;
+  else if (lat < -90.0)
+    lat = -90.0;
+  return lat;
+}
+
+window.clampLng = function(lng) {
+  if (lng > 180.0)
+    lng = 180.0
+  else if (lng < -180.0)
+    lng = -180.0;
+  return lng;
+}
+
+
+window.clampLatLng = function(latlng) {
+  return new L.LatLng ( clampLat(latlng.lat), clampLng(latlng.lng) );
+}
+
+window.clampLatLngBounds = function(bounds) {
+  return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
 
 
@@ -1274,47 +1622,22 @@ window.isLayerGroupDisplayed = function(name) {
 // created a basic framework. All of these functions should only ever
 // be run once.
 
-
-window.setupBackButton = function() {
-  var c = window.isSmartphone()
-    ? window.smartphone.mapButton
-    : $('#chatcontrols a.active');
-
-  window.setupBackButton._actions = [c.get(0)];
-  $('#chatcontrols a').click(function() {
-    // ignore shrink button
-    if($(this).hasClass('toggle')) return;
-    window.setupBackButton._actions.push(this);
-    window.setupBackButton._actions = window.setupBackButton._actions.slice(-2);
-  });
-
-  window.goBack = function() {
-    var a = window.setupBackButton._actions[0];
-    if(!a) return;
-    $(a).click();
-    window.setupBackButton._actions = [a];
-  }
-}
-
-
-
+// Used to disable on multitouch devices
+window.showZoom = true;
+window.showLayerChooser = true;
 
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
-    var ex = $('#largepreview');
-    if(ex.length > 0) {
-      ex.remove();
-      return;
-    }
     var img = $(this).find('img')[0];
-    var w = img.naturalWidth/2;
-    var h = img.naturalHeight/2;
-    var c = $('#portaldetails').attr('class');
-    $('body').append(
-      '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img.outerHTML + '</div>'
-    );
-    $('#largepreview').click(function() { $(this).remove() });
-  });
+    //dialogs have 12px padding around the content
+    var dlgWidth = Math.max(img.naturalWidth+24,400);
+    dialog({
+      html: '<div style="text-align: center">' + img.outerHTML + '</div>',
+      title: $(this).parent().find('h3.title').text(),
+      width: dlgWidth,
+    });
+
+   });
 }
 
 // adds listeners to the layer chooser such that a long press hides
@@ -1396,24 +1719,14 @@ window.setupMap = function() {
   //OpenStreetMap attribution - required by several of the layers
   osmAttribution = 'Map data © OpenStreetMap contributors';
 
-  //OpenStreetMap tiles - we shouldn't use these by default, or even an option - https://wiki.openstreetmap.org/wiki/Tile_usage_policy
-  // "Heavy use (e.g. distributing an app that uses tiles from openstreetmap.org) is forbidden without prior permission from the System Administrators"
-  //var osmOpt = {attribution: osmAttribution, maxZoom: 18, detectRetina: true};
-  //var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
-
-  //CloudMade layers - only 500,000 tiles/month in their free plan. nowhere near enough for IITC
-  var cmOpt = {attribution: osmAttribution+', Imagery © CloudMade', maxZoom: 18, detectRetina: true};
-  //var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/22677/256/{z}/{x}/{y}.png', cmOpt);
-  //var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/999/256/{z}/{x}/{y}.png', cmOpt);
-
   //MapQuest offer tiles - http://developer.mapquest.com/web/products/open/map
   //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
   var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
-  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, detectRetena: true, subdomains: mqSubdomains};
+  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
-  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
+  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, subdomains: mqSubdomains};
   //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
 
   var views = [
@@ -1427,8 +1740,15 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: true}
+    {zoomControl: window.showZoom}
   ));
+
+  // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
+  // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
+  if(!isSmartphone()) {
+    // chat window area
+    $(window.map._controlCorners['bottomleft']).append($('<div>').width(708).height(108).addClass('leaflet-control').css('margin','0'));
+  }
 
   var addLayers = {};
   var hiddenLayer = [];
@@ -1440,20 +1760,20 @@ window.setupMap = function() {
     var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
     // Store it in hiddenLayer to remove later
-    if(!isLayerGroupDisplayed(t)) hiddenLayer.push(portalsLayers[i]);
+    if(!isLayerGroupDisplayed(t, true)) hiddenLayer.push(portalsLayers[i]);
   }
 
   fieldsLayer = L.layerGroup([]);
   map.addLayer(fieldsLayer, true);
   addLayers['Fields'] = fieldsLayer;
   // Store it in hiddenLayer to remove later
-  if(!isLayerGroupDisplayed('Fields')) hiddenLayer.push(fieldsLayer);
+  if(!isLayerGroupDisplayed('Fields', true)) hiddenLayer.push(fieldsLayer);
 
   linksLayer = L.layerGroup([]);
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
   // Store it in hiddenLayer to remove later
-  if(!isLayerGroupDisplayed('Links')) hiddenLayer.push(linksLayer);
+  if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],
@@ -1463,19 +1783,13 @@ window.setupMap = function() {
     'Google Hybrid':  views[4],
     'Google Terrain': views[5]
     }, addLayers);
+
   // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
   $.each(hiddenLayer, function(ind, layer){
     map.removeLayer(layer);
   });
 
   map.addControl(window.layerChooser);
-
-  // set the map AFTER adding the layer chooser, or Chrome reorders the
-  // layers. This likely leads to broken layer selection because the
-  // views/cookie order does not match the layer chooser order.
-  try {
-    map.addLayer(views[readCookie('ingress.intelmap.type')]);
-  } catch(e) { map.addLayer(views[0]); }
 
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
@@ -1497,20 +1811,13 @@ window.setupMap = function() {
     console.log('Remove all resonators');
   });
 
-  map.on('baselayerchange', function () {
-    var selInd = $('[name=leaflet-base-layers]:checked').parent().index();
-    writeCookie('ingress.intelmap.type', selInd);
-  });
 
-  // map update status handling
-  map.on('movestart zoomstart', function() { window.mapRunsUserAction = true });
-  map.on('moveend zoomend', function() { window.mapRunsUserAction = false });
+  // map update status handling & update map hooks
+  // ensures order of calls
+  map.on('movestart zoomstart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
+  map.on('moveend zoomend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
-  // update map hooks
-  map.on('movestart zoomstart', window.requests.abort);
-  map.on('moveend zoomend', function() { console.log('map moveend'); window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
-
-  window.addResumeFunction(window.requestData);
+  window.addResumeFunction(function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
   window.requests.addRefreshFunction(window.requestData);
 
   // start the refresh process with a small timeout, so the first data request happens quickly
@@ -1519,6 +1826,43 @@ window.setupMap = function() {
   window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
 
 };
+
+//adds a base layer to the map. done separately from the above, so that plugins that add base layers can be the default
+window.setMapBaseLayer = function() {
+  //create a map name -> layer mapping - depends on internals of L.Control.Layers
+  var nameToLayer = {};
+  var firstLayer = null;
+
+  for (i in window.layerChooser._layers) {
+    var obj = window.layerChooser._layers[i];
+    if (!obj.overlay) {
+      nameToLayer[obj.name] = obj.layer;
+      if (!firstLayer) firstLayer = obj.layer;
+    }
+  }
+
+  var baseLayer = nameToLayer[localStorage['iitc-base-map']] || firstLayer;
+  map.addLayer(baseLayer);
+
+  //after choosing a base layer, ensure the zoom is valid for this layer
+  //(needs to be done here - as we don't know the base layer zoom limit before this)
+  map.setZoom(map.getZoom());
+
+
+  //event to track layer changes and store the name
+  map.on('baselayerchange', function(info) {
+    for(i in window.layerChooser._layers) {
+      var obj = window.layerChooser._layers[i];
+      if (info.layer === obj.layer) {
+        localStorage['iitc-base-map'] = obj.name;
+        break;
+      }
+    }
+
+  });
+
+
+}
 
 // renders player details into the website. Since the player info is
 // included as inline script in the original site, the data is static
@@ -1548,7 +1892,7 @@ window.setupPlayerStat = function() {
         + 'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n'
         + 'AP:\t' + digits(ap) + '\n'
         + (level < 8 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Congrats! (neeeeerd)')
-        + '\n\Invites:\t'+PLAYER.available_invites;
+        + '\n\Invites:\t'+PLAYER.available_invites
         + '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
   $('#playerstat').html(''
@@ -1607,22 +1951,6 @@ window.setupTooltips = function(element) {
   if(!window.tooltipClearerHasBeenSetup) {
     window.tooltipClearerHasBeenSetup = true;
     $(document).on('click', '.ui-tooltip', function() { $(this).remove(); });
-  }
-}
-
-window.setupDialogs = function() {
-  $('#dialog').dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: [
-      { text: 'OK', click: function() { if($(this).data("closeCallback")) {$(this).data("closeCallback")();} $(this).dialog('close'); } }
-    ]
-  });
-
-  window.alert = function(text, isHTML, closeCallback) {
-    var h = isHTML ? text : window.convertTextToTableMagic(text);
-    $('#dialog').data("closeCallback", closeCallback);
-    $('#dialog').html(h).dialog('open');
   }
 }
 
@@ -1769,13 +2097,88 @@ d+"px").css("background-color",a.isDark(e,i)?h.foreground:h.background).appendTo
 
 }
 
+window.setupLayerChooserApi = function() {
+  // hide layer chooser on mobile devices running desktop mode
+  if (!window.showLayerChooser) {
+    $('.leaflet-control-layers').hide();
+  }
+
+  //hook some additional code into the LayerControl so it's easy for the mobile app to interface with it
+  //WARNING: does depend on internals of the L.Control.Layers code
+  window.layerChooser.getLayers = function() {
+    var baseLayers = new Array();
+    var overlayLayers = new Array();
+
+    for (i in this._layers) {
+      var obj = this._layers[i];
+      var layerActive = window.map.hasLayer(obj.layer);
+      var info = {
+        layerId: L.stamp(obj.layer),
+        name: obj.name,
+        active: layerActive
+      }
+      if (obj.overlay) {
+        overlayLayers.push(info);
+      } else {
+        baseLayers.push(info);
+      }
+    }
+
+    var overlayLayersJSON = JSON.stringify(overlayLayers);
+    var baseLayersJSON = JSON.stringify(baseLayers);
+
+    if (typeof android !== 'undefined' && android && android.setLayers) {
+        android.setLayers(baseLayersJSON, overlayLayersJSON);
+    }
+
+    return {
+      baseLayers: baseLayers,
+      overlayLayers: overlayLayers
+    }
+  }
+
+  window.layerChooser.showLayer = function(id,show) {
+    if (show === undefined) show = true;
+    obj = this._layers[id];
+    if (!obj) return false;
+
+    if(show) {
+      if (!this._map.hasLayer(obj.layer)) {
+        //the layer to show is not currently active
+        this._map.addLayer(obj.layer);
+
+        //if it's a base layer, remove any others
+        if (!obj.overlay) {
+          for(i in this._layers) {
+            if (i != id) {
+              var other = this._layers[i];
+              if (!other.overlay && this._map.hasLayer(other.layer)) this._map.removeLayer(other.layer);
+            }
+          }
+        }
+      }
+    } else {
+      if (this._map.hasLayer(obj.layer)) {
+        this._map.removeLayer(obj.layer);
+      }
+    }
+
+    //below logic based on code in L.Control.Layers _onInputClick
+    if(!obj.overlay) {
+      this._map.setZoom(this._map.getZoom());
+      this._map.fire('baselayerchange', {layer: obj.layer});
+    }
+
+    return true;
+  }
+}
 
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
-  console.log('loading done, booting. Built: 2013-05-02-021312');
+  console.log('loading done, booting. Built: 2013-07-01-174507');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
@@ -1809,7 +2212,6 @@ function boot() {
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();
-  window.setupBackButton();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortalLL = getURLParam('pll');
@@ -1826,7 +2228,16 @@ function boot() {
   $('#sidebar').show();
 
   if(window.bootPlugins)
-    $.each(window.bootPlugins, function(ind, ref) { ref(); });
+    $.each(window.bootPlugins, function(ind, ref) {
+      try {
+        ref();
+      } catch(err) {
+        console.log("error starting plugin: index "+ind+", error: "+err);
+      }
+    });
+
+  window.setMapBaseLayer();
+  window.setupLayerChooserApi();
 
   window.runOnSmartphonesAfterBoot();
 
@@ -1834,6 +2245,7 @@ function boot() {
   setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
+  window.runHooks('iitcLoaded');
 }
 
 // this is the minified load.js script that allows us to easily load
@@ -1847,10 +2259,10 @@ try { console.log('Loading included JS now'); } catch(e) {}
  Leaflet, a JavaScript library for mobile-friendly interactive maps. http://leafletjs.com
  (c) 2010-2013, Vladimir Agafonkin, CloudMade
 */
-(function(t,e,i){var n,o;typeof exports!=i+""?n=exports:(o=t.L,n={},n.noConflict=function(){return t.L=o,this},t.L=n),n.version="0.5.1",n.Util={extend:function(t){var e,i,n,o,s=Array.prototype.slice.call(arguments,1);for(i=0,n=s.length;n>i;i++){o=s[i]||{};for(e in o)o.hasOwnProperty(e)&&(t[e]=o[e])}return t},bind:function(t,e){var i=arguments.length>2?Array.prototype.slice.call(arguments,2):null;return function(){return t.apply(e,i||arguments)}},stamp:function(){var t=0,e="_leaflet_id";return function(i){return i[e]=i[e]||++t,i[e]}}(),limitExecByInterval:function(t,e,n){var o,s;return function a(){var r=arguments;return o?(s=!0,i):(o=!0,setTimeout(function(){o=!1,s&&(a.apply(n,r),s=!1)},e),t.apply(n,r),i)}},falseFn:function(){return!1},formatNum:function(t,e){var i=Math.pow(10,e||5);return Math.round(t*i)/i},splitWords:function(t){return t.replace(/^\s+|\s+$/g,"").split(/\s+/)},setOptions:function(t,e){return t.options=n.extend({},t.options,e),t.options},getParamString:function(t,e){var i=[];for(var n in t)t.hasOwnProperty(n)&&i.push(n+"="+t[n]);return(e&&-1!==e.indexOf("?")?"&":"?")+i.join("&")},template:function(t,e){return t.replace(/\{ *([\w_]+) *\}/g,function(t,i){var n=e[i];if(!e.hasOwnProperty(i))throw Error("No value provided for variable "+t);return n})},isArray:function(t){return"[object Array]"===Object.prototype.toString.call(t)},emptyImageUrl:"data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="},function(){function e(e){var i,n,o=["webkit","moz","o","ms"];for(i=0;o.length>i&&!n;i++)n=t[o[i]+e];return n}function o(e){var i=+new Date,n=Math.max(0,16-(i-s));return s=i+n,t.setTimeout(e,n)}var s=0,a=t.requestAnimationFrame||e("RequestAnimationFrame")||o,r=t.cancelAnimationFrame||e("CancelAnimationFrame")||e("CancelRequestAnimationFrame")||function(e){t.clearTimeout(e)};n.Util.requestAnimFrame=function(e,s,r,h){return e=n.bind(e,s),r&&a===o?(e(),i):a.call(t,e,h)},n.Util.cancelAnimFrame=function(e){e&&r.call(t,e)}}(),n.extend=n.Util.extend,n.bind=n.Util.bind,n.stamp=n.Util.stamp,n.setOptions=n.Util.setOptions,n.Class=function(){},n.Class.extend=function(t){var e=function(){this.initialize&&this.initialize.apply(this,arguments),this._initHooks&&this.callInitHooks()},i=function(){};i.prototype=this.prototype;var o=new i;o.constructor=e,e.prototype=o;for(var s in this)this.hasOwnProperty(s)&&"prototype"!==s&&(e[s]=this[s]);t.statics&&(n.extend(e,t.statics),delete t.statics),t.includes&&(n.Util.extend.apply(null,[o].concat(t.includes)),delete t.includes),t.options&&o.options&&(t.options=n.extend({},o.options,t.options)),n.extend(o,t),o._initHooks=[];var a=this;return o.callInitHooks=function(){if(!this._initHooksCalled){a.prototype.callInitHooks&&a.prototype.callInitHooks.call(this),this._initHooksCalled=!0;for(var t=0,e=o._initHooks.length;e>t;t++)o._initHooks[t].call(this)}},e},n.Class.include=function(t){n.extend(this.prototype,t)},n.Class.mergeOptions=function(t){n.extend(this.prototype.options,t)},n.Class.addInitHook=function(t){var e=Array.prototype.slice.call(arguments,1),i="function"==typeof t?t:function(){this[t].apply(this,e)};this.prototype._initHooks=this.prototype._initHooks||[],this.prototype._initHooks.push(i)};var s="_leaflet_events";n.Mixin={},n.Mixin.Events={addEventListener:function(t,e,i){var o,a,r,h=this[s]=this[s]||{};if("object"==typeof t){for(o in t)t.hasOwnProperty(o)&&this.addEventListener(o,t[o],e);return this}for(t=n.Util.splitWords(t),a=0,r=t.length;r>a;a++)h[t[a]]=h[t[a]]||[],h[t[a]].push({action:e,context:i||this});return this},hasEventListeners:function(t){return s in this&&t in this[s]&&this[s][t].length>0},removeEventListener:function(t,e,i){var o,a,r,h,l,u=this[s];if("object"==typeof t){for(o in t)t.hasOwnProperty(o)&&this.removeEventListener(o,t[o],e);return this}for(t=n.Util.splitWords(t),a=0,r=t.length;r>a;a++)if(this.hasEventListeners(t[a]))for(h=u[t[a]],l=h.length-1;l>=0;l--)e&&h[l].action!==e||i&&h[l].context!==i||h.splice(l,1);return this},fireEvent:function(t,e){if(!this.hasEventListeners(t))return this;for(var i=n.extend({type:t,target:this},e),o=this[s][t].slice(),a=0,r=o.length;r>a;a++)o[a].action.call(o[a].context||this,i);return this}},n.Mixin.Events.on=n.Mixin.Events.addEventListener,n.Mixin.Events.off=n.Mixin.Events.removeEventListener,n.Mixin.Events.fire=n.Mixin.Events.fireEvent,function(){var o=!!t.ActiveXObject,s=o&&!t.XMLHttpRequest,a=o&&!e.querySelector,r=navigator.userAgent.toLowerCase(),h=-1!==r.indexOf("webkit"),l=-1!==r.indexOf("chrome"),u=-1!==r.indexOf("android"),c=-1!==r.search("android [23]"),_=typeof orientation!=i+"",d=t.navigator&&t.navigator.msPointerEnabled&&t.navigator.msMaxTouchPoints,p="devicePixelRatio"in t&&t.devicePixelRatio>1||"matchMedia"in t&&t.matchMedia("(min-resolution:144dpi)")&&t.matchMedia("(min-resolution:144dpi)").matches,m=e.documentElement,f=o&&"transition"in m.style,g="WebKitCSSMatrix"in t&&"m11"in new t.WebKitCSSMatrix,v="MozPerspective"in m.style,y="OTransition"in m.style,L=!t.L_DISABLE_3D&&(f||g||v||y),P=!t.L_NO_TOUCH&&function(){var t="ontouchstart";if(d||t in m)return!0;var i=e.createElement("div"),n=!1;return i.setAttribute?(i.setAttribute(t,"return;"),"function"==typeof i[t]&&(n=!0),i.removeAttribute(t),i=null,n):!1}();n.Browser={ie:o,ie6:s,ie7:a,webkit:h,android:u,android23:c,chrome:l,ie3d:f,webkit3d:g,gecko3d:v,opera3d:y,any3d:L,mobile:_,mobileWebkit:_&&h,mobileWebkit3d:_&&g,mobileOpera:_&&t.opera,touch:P,msTouch:d,retina:p}}(),n.Point=function(t,e,i){this.x=i?Math.round(t):t,this.y=i?Math.round(e):e},n.Point.prototype={clone:function(){return new n.Point(this.x,this.y)},add:function(t){return this.clone()._add(n.point(t))},_add:function(t){return this.x+=t.x,this.y+=t.y,this},subtract:function(t){return this.clone()._subtract(n.point(t))},_subtract:function(t){return this.x-=t.x,this.y-=t.y,this},divideBy:function(t){return this.clone()._divideBy(t)},_divideBy:function(t){return this.x/=t,this.y/=t,this},multiplyBy:function(t){return this.clone()._multiplyBy(t)},_multiplyBy:function(t){return this.x*=t,this.y*=t,this},round:function(){return this.clone()._round()},_round:function(){return this.x=Math.round(this.x),this.y=Math.round(this.y),this},floor:function(){return this.clone()._floor()},_floor:function(){return this.x=Math.floor(this.x),this.y=Math.floor(this.y),this},distanceTo:function(t){t=n.point(t);var e=t.x-this.x,i=t.y-this.y;return Math.sqrt(e*e+i*i)},equals:function(t){return t.x===this.x&&t.y===this.y},toString:function(){return"Point("+n.Util.formatNum(this.x)+", "+n.Util.formatNum(this.y)+")"}},n.point=function(t,e,i){return t instanceof n.Point?t:n.Util.isArray(t)?new n.Point(t[0],t[1]):isNaN(t)?t:new n.Point(t,e,i)},n.Bounds=function(t,e){if(t)for(var i=e?[t,e]:t,n=0,o=i.length;o>n;n++)this.extend(i[n])},n.Bounds.prototype={extend:function(t){return t=n.point(t),this.min||this.max?(this.min.x=Math.min(t.x,this.min.x),this.max.x=Math.max(t.x,this.max.x),this.min.y=Math.min(t.y,this.min.y),this.max.y=Math.max(t.y,this.max.y)):(this.min=t.clone(),this.max=t.clone()),this},getCenter:function(t){return new n.Point((this.min.x+this.max.x)/2,(this.min.y+this.max.y)/2,t)},getBottomLeft:function(){return new n.Point(this.min.x,this.max.y)},getTopRight:function(){return new n.Point(this.max.x,this.min.y)},getSize:function(){return this.max.subtract(this.min)},contains:function(t){var e,i;return t="number"==typeof t[0]||t instanceof n.Point?n.point(t):n.bounds(t),t instanceof n.Bounds?(e=t.min,i=t.max):e=i=t,e.x>=this.min.x&&i.x<=this.max.x&&e.y>=this.min.y&&i.y<=this.max.y},intersects:function(t){t=n.bounds(t);var e=this.min,i=this.max,o=t.min,s=t.max,a=s.x>=e.x&&o.x<=i.x,r=s.y>=e.y&&o.y<=i.y;return a&&r},isValid:function(){return!(!this.min||!this.max)}},n.bounds=function(t,e){return!t||t instanceof n.Bounds?t:new n.Bounds(t,e)},n.Transformation=function(t,e,i,n){this._a=t,this._b=e,this._c=i,this._d=n},n.Transformation.prototype={transform:function(t,e){return this._transform(t.clone(),e)},_transform:function(t,e){return e=e||1,t.x=e*(this._a*t.x+this._b),t.y=e*(this._c*t.y+this._d),t},untransform:function(t,e){return e=e||1,new n.Point((t.x/e-this._b)/this._a,(t.y/e-this._d)/this._c)}},n.DomUtil={get:function(t){return"string"==typeof t?e.getElementById(t):t},getStyle:function(t,i){var n=t.style[i];if(!n&&t.currentStyle&&(n=t.currentStyle[i]),(!n||"auto"===n)&&e.defaultView){var o=e.defaultView.getComputedStyle(t,null);n=o?o[i]:null}return"auto"===n?null:n},getViewportOffset:function(t){var i,o=0,s=0,a=t,r=e.body,h=n.Browser.ie7;do{if(o+=a.offsetTop||0,s+=a.offsetLeft||0,o+=parseInt(n.DomUtil.getStyle(a,"borderTopWidth"),10)||0,s+=parseInt(n.DomUtil.getStyle(a,"borderLeftWidth"),10)||0,i=n.DomUtil.getStyle(a,"position"),a.offsetParent===r&&"absolute"===i)break;if("fixed"===i){o+=r.scrollTop||0,s+=r.scrollLeft||0;break}a=a.offsetParent}while(a);a=t;do{if(a===r)break;o-=a.scrollTop||0,s-=a.scrollLeft||0,n.DomUtil.documentIsLtr()||!n.Browser.webkit&&!h||(s+=a.scrollWidth-a.clientWidth,h&&"hidden"!==n.DomUtil.getStyle(a,"overflow-y")&&"hidden"!==n.DomUtil.getStyle(a,"overflow")&&(s+=17)),a=a.parentNode}while(a);return new n.Point(s,o)},documentIsLtr:function(){return n.DomUtil._docIsLtrCached||(n.DomUtil._docIsLtrCached=!0,n.DomUtil._docIsLtr="ltr"===n.DomUtil.getStyle(e.body,"direction")),n.DomUtil._docIsLtr},create:function(t,i,n){var o=e.createElement(t);return o.className=i,n&&n.appendChild(o),o},disableTextSelection:function(){e.selection&&e.selection.empty&&e.selection.empty(),this._onselectstart||(this._onselectstart=e.onselectstart||null,e.onselectstart=n.Util.falseFn)},enableTextSelection:function(){e.onselectstart===n.Util.falseFn&&(e.onselectstart=this._onselectstart,this._onselectstart=null)},hasClass:function(t,e){return t.className.length>0&&RegExp("(^|\\s)"+e+"(\\s|$)").test(t.className)},addClass:function(t,e){n.DomUtil.hasClass(t,e)||(t.className+=(t.className?" ":"")+e)},removeClass:function(t,e){function i(t,i){return i===e?"":t}t.className=t.className.replace(/(\S+)\s*/g,i).replace(/(^\s+|\s+$)/,"")},setOpacity:function(t,e){if("opacity"in t.style)t.style.opacity=e;else if("filter"in t.style){var i=!1,n="DXImageTransform.Microsoft.Alpha";try{i=t.filters.item(n)}catch(o){}e=Math.round(100*e),i?(i.Enabled=100!==e,i.Opacity=e):t.style.filter+=" progid:"+n+"(opacity="+e+")"}},testProp:function(t){for(var i=e.documentElement.style,n=0;t.length>n;n++)if(t[n]in i)return t[n];return!1},getTranslateString:function(t){var e=n.Browser.webkit3d,i="translate"+(e?"3d":"")+"(",o=(e?",0":"")+")";return i+t.x+"px,"+t.y+"px"+o},getScaleString:function(t,e){var i=n.DomUtil.getTranslateString(e.add(e.multiplyBy(-1*t))),o=" scale("+t+") ";return i+o},setPosition:function(t,e,i){t._leaflet_pos=e,!i&&n.Browser.any3d?(t.style[n.DomUtil.TRANSFORM]=n.DomUtil.getTranslateString(e),n.Browser.mobileWebkit3d&&(t.style.WebkitBackfaceVisibility="hidden")):(t.style.left=e.x+"px",t.style.top=e.y+"px")},getPosition:function(t){return t._leaflet_pos}},n.DomUtil.TRANSFORM=n.DomUtil.testProp(["transform","WebkitTransform","OTransform","MozTransform","msTransform"]),n.DomUtil.TRANSITION=n.DomUtil.testProp(["webkitTransition","transition","OTransition","MozTransition","msTransition"]),n.DomUtil.TRANSITION_END="webkitTransition"===n.DomUtil.TRANSITION||"OTransition"===n.DomUtil.TRANSITION?n.DomUtil.TRANSITION+"End":"transitionend",n.LatLng=function(t,e){var i=parseFloat(t),n=parseFloat(e);if(isNaN(i)||isNaN(n))throw Error("Invalid LatLng object: ("+t+", "+e+")");this.lat=i,this.lng=n},n.extend(n.LatLng,{DEG_TO_RAD:Math.PI/180,RAD_TO_DEG:180/Math.PI,MAX_MARGIN:1e-9}),n.LatLng.prototype={equals:function(t){if(!t)return!1;t=n.latLng(t);var e=Math.max(Math.abs(this.lat-t.lat),Math.abs(this.lng-t.lng));return n.LatLng.MAX_MARGIN>=e},toString:function(t){return"LatLng("+n.Util.formatNum(this.lat,t)+", "+n.Util.formatNum(this.lng,t)+")"},distanceTo:function(t){t=n.latLng(t);var e=6378137,i=n.LatLng.DEG_TO_RAD,o=(t.lat-this.lat)*i,s=(t.lng-this.lng)*i,a=this.lat*i,r=t.lat*i,h=Math.sin(o/2),l=Math.sin(s/2),u=h*h+l*l*Math.cos(a)*Math.cos(r);return 2*e*Math.atan2(Math.sqrt(u),Math.sqrt(1-u))},wrap:function(t,e){var i=this.lng;return t=t||-180,e=e||180,i=(i+e)%(e-t)+(t>i||i===e?e:t),new n.LatLng(this.lat,i)}},n.latLng=function(t,e){return t instanceof n.LatLng?t:n.Util.isArray(t)?new n.LatLng(t[0],t[1]):isNaN(t)?t:new n.LatLng(t,e)},n.LatLngBounds=function(t,e){if(t)for(var i=e?[t,e]:t,n=0,o=i.length;o>n;n++)this.extend(i[n])},n.LatLngBounds.prototype={extend:function(t){return t="number"==typeof t[0]||"string"==typeof t[0]||t instanceof n.LatLng?n.latLng(t):n.latLngBounds(t),t instanceof n.LatLng?this._southWest||this._northEast?(this._southWest.lat=Math.min(t.lat,this._southWest.lat),this._southWest.lng=Math.min(t.lng,this._southWest.lng),this._northEast.lat=Math.max(t.lat,this._northEast.lat),this._northEast.lng=Math.max(t.lng,this._northEast.lng)):(this._southWest=new n.LatLng(t.lat,t.lng),this._northEast=new n.LatLng(t.lat,t.lng)):t instanceof n.LatLngBounds&&(this.extend(t._southWest),this.extend(t._northEast)),this},pad:function(t){var e=this._southWest,i=this._northEast,o=Math.abs(e.lat-i.lat)*t,s=Math.abs(e.lng-i.lng)*t;return new n.LatLngBounds(new n.LatLng(e.lat-o,e.lng-s),new n.LatLng(i.lat+o,i.lng+s))},getCenter:function(){return new n.LatLng((this._southWest.lat+this._northEast.lat)/2,(this._southWest.lng+this._northEast.lng)/2)},getSouthWest:function(){return this._southWest},getNorthEast:function(){return this._northEast},getNorthWest:function(){return new n.LatLng(this._northEast.lat,this._southWest.lng)},getSouthEast:function(){return new n.LatLng(this._southWest.lat,this._northEast.lng)},contains:function(t){t="number"==typeof t[0]||t instanceof n.LatLng?n.latLng(t):n.latLngBounds(t);var e,i,o=this._southWest,s=this._northEast;return t instanceof n.LatLngBounds?(e=t.getSouthWest(),i=t.getNorthEast()):e=i=t,e.lat>=o.lat&&i.lat<=s.lat&&e.lng>=o.lng&&i.lng<=s.lng},intersects:function(t){t=n.latLngBounds(t);var e=this._southWest,i=this._northEast,o=t.getSouthWest(),s=t.getNorthEast(),a=s.lat>=e.lat&&o.lat<=i.lat,r=s.lng>=e.lng&&o.lng<=i.lng;return a&&r},toBBoxString:function(){var t=this._southWest,e=this._northEast;return[t.lng,t.lat,e.lng,e.lat].join(",")},equals:function(t){return t?(t=n.latLngBounds(t),this._southWest.equals(t.getSouthWest())&&this._northEast.equals(t.getNorthEast())):!1},isValid:function(){return!(!this._southWest||!this._northEast)}},n.latLngBounds=function(t,e){return!t||t instanceof n.LatLngBounds?t:new n.LatLngBounds(t,e)},n.Projection={},n.Projection.SphericalMercator={MAX_LATITUDE:85.0511287798,project:function(t){var e=n.LatLng.DEG_TO_RAD,i=this.MAX_LATITUDE,o=Math.max(Math.min(i,t.lat),-i),s=t.lng*e,a=o*e;return a=Math.log(Math.tan(Math.PI/4+a/2)),new n.Point(s,a)},unproject:function(t){var e=n.LatLng.RAD_TO_DEG,i=t.x*e,o=(2*Math.atan(Math.exp(t.y))-Math.PI/2)*e;return new n.LatLng(o,i)}},n.Projection.LonLat={project:function(t){return new n.Point(t.lng,t.lat)},unproject:function(t){return new n.LatLng(t.y,t.x)}},n.CRS={latLngToPoint:function(t,e){var i=this.projection.project(t),n=this.scale(e);return this.transformation._transform(i,n)},pointToLatLng:function(t,e){var i=this.scale(e),n=this.transformation.untransform(t,i);return this.projection.unproject(n)},project:function(t){return this.projection.project(t)},scale:function(t){return 256*Math.pow(2,t)}},n.CRS.Simple=n.extend({},n.CRS,{projection:n.Projection.LonLat,transformation:new n.Transformation(1,0,-1,0),scale:function(t){return Math.pow(2,t)}}),n.CRS.EPSG3857=n.extend({},n.CRS,{code:"EPSG:3857",projection:n.Projection.SphericalMercator,transformation:new n.Transformation(.5/Math.PI,.5,-.5/Math.PI,.5),project:function(t){var e=this.projection.project(t),i=6378137;return e.multiplyBy(i)}}),n.CRS.EPSG900913=n.extend({},n.CRS.EPSG3857,{code:"EPSG:900913"}),n.CRS.EPSG4326=n.extend({},n.CRS,{code:"EPSG:4326",projection:n.Projection.LonLat,transformation:new n.Transformation(1/360,.5,-1/360,.5)}),n.Map=n.Class.extend({includes:n.Mixin.Events,options:{crs:n.CRS.EPSG3857,fadeAnimation:n.DomUtil.TRANSITION&&!n.Browser.android23,trackResize:!0,markerZoomAnimation:n.DomUtil.TRANSITION&&n.Browser.any3d},initialize:function(t,e){e=n.setOptions(this,e),this._initContainer(t),this._initLayout(),this.callInitHooks(),this._initEvents(),e.maxBounds&&this.setMaxBounds(e.maxBounds),e.center&&e.zoom!==i&&this.setView(n.latLng(e.center),e.zoom,!0),this._initLayers(e.layers)},setView:function(t,e){return this._resetView(n.latLng(t),this._limitZoom(e)),this},setZoom:function(t){return this.setView(this.getCenter(),t)},zoomIn:function(t){return this.setZoom(this._zoom+(t||1))},zoomOut:function(t){return this.setZoom(this._zoom-(t||1))},fitBounds:function(t){var e=this.getBoundsZoom(t);return this.setView(n.latLngBounds(t).getCenter(),e)},fitWorld:function(){var t=new n.LatLng(-60,-170),e=new n.LatLng(85,179);return this.fitBounds(new n.LatLngBounds(t,e))},panTo:function(t){return this.setView(t,this._zoom)},panBy:function(t){return this.fire("movestart"),this._rawPanBy(n.point(t)),this.fire("move"),this.fire("moveend")},setMaxBounds:function(t){if(t=n.latLngBounds(t),this.options.maxBounds=t,!t)return this._boundsMinZoom=null,this;var e=this.getBoundsZoom(t,!0);return this._boundsMinZoom=e,this._loaded&&(e>this._zoom?this.setView(t.getCenter(),e):this.panInsideBounds(t)),this},panInsideBounds:function(t){t=n.latLngBounds(t);var e=this.getBounds(),i=this.project(e.getSouthWest()),o=this.project(e.getNorthEast()),s=this.project(t.getSouthWest()),a=this.project(t.getNorthEast()),r=0,h=0;return o.y<a.y&&(h=a.y-o.y),o.x>a.x&&(r=a.x-o.x),i.y>s.y&&(h=s.y-i.y),i.x<s.x&&(r=s.x-i.x),this.panBy(new n.Point(r,h,!0))},addLayer:function(t){var e=n.stamp(t);return this._layers[e]?this:(this._layers[e]=t,!t.options||isNaN(t.options.maxZoom)&&isNaN(t.options.minZoom)||(this._zoomBoundLayers[e]=t,this._updateZoomLevels()),this.options.zoomAnimation&&n.TileLayer&&t instanceof n.TileLayer&&(this._tileLayersNum++,this._tileLayersToLoad++,t.on("load",this._onTileLayerLoad,this)),this.whenReady(function(){t.onAdd(this),this.fire("layeradd",{layer:t})},this),this)},removeLayer:function(t){var e=n.stamp(t);if(this._layers[e])return t.onRemove(this),delete this._layers[e],this._zoomBoundLayers[e]&&(delete this._zoomBoundLayers[e],this._updateZoomLevels()),this.options.zoomAnimation&&n.TileLayer&&t instanceof n.TileLayer&&(this._tileLayersNum--,this._tileLayersToLoad--,t.off("load",this._onTileLayerLoad,this)),this.fire("layerremove",{layer:t})},hasLayer:function(t){var e=n.stamp(t);return this._layers.hasOwnProperty(e)},invalidateSize:function(t){var e=this.getSize();if(this._sizeChanged=!0,this.options.maxBounds&&this.setMaxBounds(this.options.maxBounds),!this._loaded)return this;var i=e._subtract(this.getSize())._divideBy(2)._round();return t===!0?this.panBy(i):(this._rawPanBy(i),this.fire("move"),clearTimeout(this._sizeTimer),this._sizeTimer=setTimeout(n.bind(this.fire,this,"moveend"),200)),this},addHandler:function(t,e){return e?(this[t]=new e(this),this.options[t]&&this[t].enable(),this):i},getCenter:function(){return this.layerPointToLatLng(this._getCenterLayerPoint())},getZoom:function(){return this._zoom},getBounds:function(){var t=this.getPixelBounds(),e=this.unproject(t.getBottomLeft()),i=this.unproject(t.getTopRight());return new n.LatLngBounds(e,i)},getMinZoom:function(){var t=this.options.minZoom||0,e=this._layersMinZoom||0,i=this._boundsMinZoom||0;return Math.max(t,e,i)},getMaxZoom:function(){var t=this.options.maxZoom===i?1/0:this.options.maxZoom,e=this._layersMaxZoom===i?1/0:this._layersMaxZoom;return Math.min(t,e)},getBoundsZoom:function(t,e){t=n.latLngBounds(t);var i,o,s,a=this.getSize(),r=this.options.minZoom||0,h=this.getMaxZoom(),l=t.getNorthEast(),u=t.getSouthWest(),c=!0;e&&r--;do r++,o=this.project(l,r),s=this.project(u,r),i=new n.Point(Math.abs(o.x-s.x),Math.abs(s.y-o.y)),c=e?i.x<a.x||i.y<a.y:i.x<=a.x&&i.y<=a.y;while(c&&h>=r);return c&&e?null:e?r:r-1},getSize:function(){return(!this._size||this._sizeChanged)&&(this._size=new n.Point(this._container.clientWidth,this._container.clientHeight),this._sizeChanged=!1),this._size.clone()},getPixelBounds:function(){var t=this._getTopLeftPoint();return new n.Bounds(t,t.add(this.getSize()))},getPixelOrigin:function(){return this._initialTopLeftPoint},getPanes:function(){return this._panes},getContainer:function(){return this._container},getZoomScale:function(t){var e=this.options.crs;return e.scale(t)/e.scale(this._zoom)},getScaleZoom:function(t){return this._zoom+Math.log(t)/Math.LN2},project:function(t,e){return e=e===i?this._zoom:e,this.options.crs.latLngToPoint(n.latLng(t),e)},unproject:function(t,e){return e=e===i?this._zoom:e,this.options.crs.pointToLatLng(n.point(t),e)},layerPointToLatLng:function(t){var e=n.point(t).add(this._initialTopLeftPoint);return this.unproject(e)},latLngToLayerPoint:function(t){var e=this.project(n.latLng(t))._round();return e._subtract(this._initialTopLeftPoint)},containerPointToLayerPoint:function(t){return n.point(t).subtract(this._getMapPanePos())},layerPointToContainerPoint:function(t){return n.point(t).add(this._getMapPanePos())},containerPointToLatLng:function(t){var e=this.containerPointToLayerPoint(n.point(t));return this.layerPointToLatLng(e)},latLngToContainerPoint:function(t){return this.layerPointToContainerPoint(this.latLngToLayerPoint(n.latLng(t)))},mouseEventToContainerPoint:function(t){return n.DomEvent.getMousePosition(t,this._container)},mouseEventToLayerPoint:function(t){return this.containerPointToLayerPoint(this.mouseEventToContainerPoint(t))},mouseEventToLatLng:function(t){return this.layerPointToLatLng(this.mouseEventToLayerPoint(t))},_initContainer:function(t){var e=this._container=n.DomUtil.get(t);if(e._leaflet)throw Error("Map container is already initialized.");e._leaflet=!0},_initLayout:function(){var t=this._container;n.DomUtil.addClass(t,"leaflet-container"),n.Browser.touch&&n.DomUtil.addClass(t,"leaflet-touch"),this.options.fadeAnimation&&n.DomUtil.addClass(t,"leaflet-fade-anim");var e=n.DomUtil.getStyle(t,"position");"absolute"!==e&&"relative"!==e&&"fixed"!==e&&(t.style.position="relative"),this._initPanes(),this._initControlPos&&this._initControlPos()},_initPanes:function(){var t=this._panes={};this._mapPane=t.mapPane=this._createPane("leaflet-map-pane",this._container),this._tilePane=t.tilePane=this._createPane("leaflet-tile-pane",this._mapPane),t.objectsPane=this._createPane("leaflet-objects-pane",this._mapPane),t.shadowPane=this._createPane("leaflet-shadow-pane"),t.overlayPane=this._createPane("leaflet-overlay-pane"),t.markerPane=this._createPane("leaflet-marker-pane"),t.popupPane=this._createPane("leaflet-popup-pane");var e=" leaflet-zoom-hide";this.options.markerZoomAnimation||(n.DomUtil.addClass(t.markerPane,e),n.DomUtil.addClass(t.shadowPane,e),n.DomUtil.addClass(t.popupPane,e))},_createPane:function(t,e){return n.DomUtil.create("div",t,e||this._panes.objectsPane)},_initLayers:function(t){t=t?n.Util.isArray(t)?t:[t]:[],this._layers={},this._zoomBoundLayers={},this._tileLayersNum=0;var e,i;for(e=0,i=t.length;i>e;e++)this.addLayer(t[e])},_resetView:function(t,e,i,o){var s=this._zoom!==e;o||(this.fire("movestart"),s&&this.fire("zoomstart")),this._zoom=e,this._initialTopLeftPoint=this._getNewTopLeftPoint(t),i?this._initialTopLeftPoint._add(this._getMapPanePos()):n.DomUtil.setPosition(this._mapPane,new n.Point(0,0)),this._tileLayersToLoad=this._tileLayersNum;var a=!this._loaded;this._loaded=!0,this.fire("viewreset",{hard:!i}),this.fire("move"),(s||o)&&this.fire("zoomend"),this.fire("moveend",{hard:!i}),a&&this.fire("load")},_rawPanBy:function(t){n.DomUtil.setPosition(this._mapPane,this._getMapPanePos().subtract(t))},_updateZoomLevels:function(){var t,e=1/0,n=-1/0;for(t in this._zoomBoundLayers)if(this._zoomBoundLayers.hasOwnProperty(t)){var o=this._zoomBoundLayers[t];isNaN(o.options.minZoom)||(e=Math.min(e,o.options.minZoom)),isNaN(o.options.maxZoom)||(n=Math.max(n,o.options.maxZoom))}t===i?this._layersMaxZoom=this._layersMinZoom=i:(this._layersMaxZoom=n,this._layersMinZoom=e)},_initEvents:function(){if(n.DomEvent){n.DomEvent.on(this._container,"click",this._onMouseClick,this);var e,i,o=["dblclick","mousedown","mouseup","mouseenter","mouseleave","mousemove","contextmenu"];for(e=0,i=o.length;i>e;e++)n.DomEvent.on(this._container,o[e],this._fireMouseEvent,this);this.options.trackResize&&n.DomEvent.on(t,"resize",this._onResize,this)}},_onResize:function(){n.Util.cancelAnimFrame(this._resizeRequest),this._resizeRequest=n.Util.requestAnimFrame(this.invalidateSize,this,!1,this._container)},_onMouseClick:function(t){!this._loaded||this.dragging&&this.dragging.moved()||(this.fire("preclick"),this._fireMouseEvent(t))},_fireMouseEvent:function(t){if(this._loaded){var e=t.type;if(e="mouseenter"===e?"mouseover":"mouseleave"===e?"mouseout":e,this.hasEventListeners(e)){"contextmenu"===e&&n.DomEvent.preventDefault(t);var i=this.mouseEventToContainerPoint(t),o=this.containerPointToLayerPoint(i),s=this.layerPointToLatLng(o);this.fire(e,{latlng:s,layerPoint:o,containerPoint:i,originalEvent:t})}}},_onTileLayerLoad:function(){this._tileLayersToLoad--,this._tileLayersNum&&!this._tileLayersToLoad&&this._tileBg&&(clearTimeout(this._clearTileBgTimer),this._clearTileBgTimer=setTimeout(n.bind(this._clearTileBg,this),500))},whenReady:function(t,e){return this._loaded?t.call(e||this,this):this.on("load",t,e),this},_getMapPanePos:function(){return n.DomUtil.getPosition(this._mapPane)},_getTopLeftPoint:function(){if(!this._loaded)throw Error("Set map center and zoom first.");return this._initialTopLeftPoint.subtract(this._getMapPanePos())},_getNewTopLeftPoint:function(t,e){var i=this.getSize()._divideBy(2);return this.project(t,e)._subtract(i)._round()},_latLngToNewLayerPoint:function(t,e,i){var n=this._getNewTopLeftPoint(i,e).add(this._getMapPanePos());return this.project(t,e)._subtract(n)},_getCenterLayerPoint:function(){return this.containerPointToLayerPoint(this.getSize()._divideBy(2))},_getCenterOffset:function(t){return this.latLngToLayerPoint(t).subtract(this._getCenterLayerPoint())},_limitZoom:function(t){var e=this.getMinZoom(),i=this.getMaxZoom();return Math.max(e,Math.min(i,t))}}),n.map=function(t,e){return new n.Map(t,e)},n.Projection.Mercator={MAX_LATITUDE:85.0840591556,R_MINOR:6356752.3142,R_MAJOR:6378137,project:function(t){var e=n.LatLng.DEG_TO_RAD,i=this.MAX_LATITUDE,o=Math.max(Math.min(i,t.lat),-i),s=this.R_MAJOR,a=this.R_MINOR,r=t.lng*e*s,h=o*e,l=a/s,u=Math.sqrt(1-l*l),c=u*Math.sin(h);c=Math.pow((1-c)/(1+c),.5*u);var _=Math.tan(.5*(.5*Math.PI-h))/c;return h=-a*Math.log(_),new n.Point(r,h)},unproject:function(t){for(var e,i=n.LatLng.RAD_TO_DEG,o=this.R_MAJOR,s=this.R_MINOR,a=t.x*i/o,r=s/o,h=Math.sqrt(1-r*r),l=Math.exp(-t.y/s),u=Math.PI/2-2*Math.atan(l),c=15,_=1e-7,d=c,p=.1;Math.abs(p)>_&&--d>0;)e=h*Math.sin(u),p=Math.PI/2-2*Math.atan(l*Math.pow((1-e)/(1+e),.5*h))-u,u+=p;return new n.LatLng(u*i,a)}},n.CRS.EPSG3395=n.extend({},n.CRS,{code:"EPSG:3395",projection:n.Projection.Mercator,transformation:function(){var t=n.Projection.Mercator,e=t.R_MAJOR,i=t.R_MINOR;return new n.Transformation(.5/(Math.PI*e),.5,-.5/(Math.PI*i),.5)}()}),n.TileLayer=n.Class.extend({includes:n.Mixin.Events,options:{minZoom:0,maxZoom:18,tileSize:256,subdomains:"abc",errorTileUrl:"",attribution:"",zoomOffset:0,opacity:1,unloadInvisibleTiles:n.Browser.mobile,updateWhenIdle:n.Browser.mobile},initialize:function(t,e){e=n.setOptions(this,e),e.detectRetina&&n.Browser.retina&&e.maxZoom>0&&(e.tileSize=Math.floor(e.tileSize/2),e.zoomOffset++,e.minZoom>0&&e.minZoom--,this.options.maxZoom--),this._url=t;var i=this.options.subdomains;"string"==typeof i&&(this.options.subdomains=i.split(""))},onAdd:function(t){this._map=t,this._initContainer(),this._createTileProto(),t.on({viewreset:this._resetCallback,moveend:this._update},this),this.options.updateWhenIdle||(this._limitedUpdate=n.Util.limitExecByInterval(this._update,150,this),t.on("move",this._limitedUpdate,this)),this._reset(),this._update()},addTo:function(t){return t.addLayer(this),this},onRemove:function(t){this._container.parentNode.removeChild(this._container),t.off({viewreset:this._resetCallback,moveend:this._update},this),this.options.updateWhenIdle||t.off("move",this._limitedUpdate,this),this._container=null,this._map=null},bringToFront:function(){var t=this._map._panes.tilePane;return this._container&&(t.appendChild(this._container),this._setAutoZIndex(t,Math.max)),this},bringToBack:function(){var t=this._map._panes.tilePane;return this._container&&(t.insertBefore(this._container,t.firstChild),this._setAutoZIndex(t,Math.min)),this},getAttribution:function(){return this.options.attribution},setOpacity:function(t){return this.options.opacity=t,this._map&&this._updateOpacity(),this},setZIndex:function(t){return this.options.zIndex=t,this._updateZIndex(),this},setUrl:function(t,e){return this._url=t,e||this.redraw(),this},redraw:function(){return this._map&&(this._map._panes.tilePane.empty=!1,this._reset(!0),this._update()),this},_updateZIndex:function(){this._container&&this.options.zIndex!==i&&(this._container.style.zIndex=this.options.zIndex)},_setAutoZIndex:function(t,e){var i,n,o,s=t.children,a=-e(1/0,-1/0);for(n=0,o=s.length;o>n;n++)s[n]!==this._container&&(i=parseInt(s[n].style.zIndex,10),isNaN(i)||(a=e(a,i)));this.options.zIndex=this._container.style.zIndex=(isFinite(a)?a:0)+e(1,-1)},_updateOpacity:function(){n.DomUtil.setOpacity(this._container,this.options.opacity);var t,e=this._tiles;if(n.Browser.webkit)for(t in e)e.hasOwnProperty(t)&&(e[t].style.webkitTransform+=" translate(0,0)")},_initContainer:function(){var t=this._map._panes.tilePane;(!this._container||t.empty)&&(this._container=n.DomUtil.create("div","leaflet-layer"),this._updateZIndex(),t.appendChild(this._container),1>this.options.opacity&&this._updateOpacity())},_resetCallback:function(t){this._reset(t.hard)},_reset:function(t){var e=this._tiles;for(var i in e)e.hasOwnProperty(i)&&this.fire("tileunload",{tile:e[i]});this._tiles={},this._tilesToLoad=0,this.options.reuseTiles&&(this._unusedTiles=[]),t&&this._container&&(this._container.innerHTML=""),this._initContainer()},_update:function(){if(this._map){var t=this._map.getPixelBounds(),e=this._map.getZoom(),i=this.options.tileSize;if(!(e>this.options.maxZoom||this.options.minZoom>e)){var o=new n.Point(Math.floor(t.min.x/i),Math.floor(t.min.y/i)),s=new n.Point(Math.floor(t.max.x/i),Math.floor(t.max.y/i)),a=new n.Bounds(o,s);this._addTilesFromCenterOut(a),(this.options.unloadInvisibleTiles||this.options.reuseTiles)&&this._removeOtherTiles(a)}}},_addTilesFromCenterOut:function(t){var i,o,s,a=[],r=t.getCenter();for(i=t.min.y;t.max.y>=i;i++)for(o=t.min.x;t.max.x>=o;o++)s=new n.Point(o,i),this._tileShouldBeLoaded(s)&&a.push(s);var h=a.length;if(0!==h){a.sort(function(t,e){return t.distanceTo(r)-e.distanceTo(r)});var l=e.createDocumentFragment();for(this._tilesToLoad||this.fire("loading"),this._tilesToLoad+=h,o=0;h>o;o++)this._addTile(a[o],l);this._container.appendChild(l)}},_tileShouldBeLoaded:function(t){if(t.x+":"+t.y in this._tiles)return!1;if(!this.options.continuousWorld){var e=this._getWrapTileNum();if(this.options.noWrap&&(0>t.x||t.x>=e)||0>t.y||t.y>=e)return!1}return!0},_removeOtherTiles:function(t){var e,i,n,o;for(o in this._tiles)this._tiles.hasOwnProperty(o)&&(e=o.split(":"),i=parseInt(e[0],10),n=parseInt(e[1],10),(t.min.x>i||i>t.max.x||t.min.y>n||n>t.max.y)&&this._removeTile(o))},_removeTile:function(t){var e=this._tiles[t];this.fire("tileunload",{tile:e,url:e.src}),this.options.reuseTiles?(n.DomUtil.removeClass(e,"leaflet-tile-loaded"),this._unusedTiles.push(e)):e.parentNode===this._container&&this._container.removeChild(e),n.Browser.android||(e.src=n.Util.emptyImageUrl),delete this._tiles[t]},_addTile:function(t,e){var i=this._getTilePos(t),o=this._getTile();n.DomUtil.setPosition(o,i,n.Browser.chrome||n.Browser.android23),this._tiles[t.x+":"+t.y]=o,this._loadTile(o,t),o.parentNode!==this._container&&e.appendChild(o)
-},_getZoomForUrl:function(){var t=this.options,e=this._map.getZoom();return t.zoomReverse&&(e=t.maxZoom-e),e+t.zoomOffset},_getTilePos:function(t){var e=this._map.getPixelOrigin(),i=this.options.tileSize;return t.multiplyBy(i).subtract(e)},getTileUrl:function(t){return this._adjustTilePoint(t),n.Util.template(this._url,n.extend({s:this._getSubdomain(t),z:this._getZoomForUrl(),x:t.x,y:t.y},this.options))},_getWrapTileNum:function(){return Math.pow(2,this._getZoomForUrl())},_adjustTilePoint:function(t){var e=this._getWrapTileNum();this.options.continuousWorld||this.options.noWrap||(t.x=(t.x%e+e)%e),this.options.tms&&(t.y=e-t.y-1)},_getSubdomain:function(t){var e=(t.x+t.y)%this.options.subdomains.length;return this.options.subdomains[e]},_createTileProto:function(){var t=this._tileImg=n.DomUtil.create("img","leaflet-tile");t.style.width=t.style.height=this.options.tileSize+"px",t.galleryimg="no"},_getTile:function(){if(this.options.reuseTiles&&this._unusedTiles.length>0){var t=this._unusedTiles.pop();return this._resetTile(t),t}return this._createTile()},_resetTile:function(){},_createTile:function(){var t=this._tileImg.cloneNode(!1);return t.onselectstart=t.onmousemove=n.Util.falseFn,t},_loadTile:function(t,e){t._layer=this,t.onload=this._tileOnLoad,t.onerror=this._tileOnError,t.src=this.getTileUrl(e)},_tileLoaded:function(){this._tilesToLoad--,this._tilesToLoad||this.fire("load")},_tileOnLoad:function(){var t=this._layer;this.src!==n.Util.emptyImageUrl&&(n.DomUtil.addClass(this,"leaflet-tile-loaded"),t.fire("tileload",{tile:this,url:this.src})),t._tileLoaded()},_tileOnError:function(){var t=this._layer;t.fire("tileerror",{tile:this,url:this.src});var e=t.options.errorTileUrl;e&&(this.src=e),t._tileLoaded()}}),n.tileLayer=function(t,e){return new n.TileLayer(t,e)},n.TileLayer.WMS=n.TileLayer.extend({defaultWmsParams:{service:"WMS",request:"GetMap",version:"1.1.1",layers:"",styles:"",format:"image/jpeg",transparent:!1},initialize:function(t,e){this._url=t;var i=n.extend({},this.defaultWmsParams);i.width=i.height=e.detectRetina&&n.Browser.retina?2*this.options.tileSize:this.options.tileSize;for(var o in e)this.options.hasOwnProperty(o)||(i[o]=e[o]);this.wmsParams=i,n.setOptions(this,e)},onAdd:function(t){var e=parseFloat(this.wmsParams.version)>=1.3?"crs":"srs";this.wmsParams[e]=t.options.crs.code,n.TileLayer.prototype.onAdd.call(this,t)},getTileUrl:function(t,e){this._adjustTilePoint(t);var i=this._map,o=i.options.crs,s=this.options.tileSize,a=t.multiplyBy(s),r=a.add(new n.Point(s,s)),h=o.project(i.unproject(a,e)),l=o.project(i.unproject(r,e)),u=[h.x,l.y,l.x,h.y].join(","),c=n.Util.template(this._url,{s:this._getSubdomain(t)});return c+n.Util.getParamString(this.wmsParams,c)+"&bbox="+u},setParams:function(t,e){return n.extend(this.wmsParams,t),e||this.redraw(),this}}),n.tileLayer.wms=function(t,e){return new n.TileLayer.WMS(t,e)},n.TileLayer.Canvas=n.TileLayer.extend({options:{async:!1},initialize:function(t){n.setOptions(this,t)},redraw:function(){var t=this._tiles;for(var e in t)t.hasOwnProperty(e)&&this._redrawTile(t[e])},_redrawTile:function(t){this.drawTile(t,t._tilePoint,this._map._zoom)},_createTileProto:function(){var t=this._canvasProto=n.DomUtil.create("canvas","leaflet-tile");t.width=t.height=this.options.tileSize},_createTile:function(){var t=this._canvasProto.cloneNode(!1);return t.onselectstart=t.onmousemove=n.Util.falseFn,t},_loadTile:function(t,e){t._layer=this,t._tilePoint=e,this._redrawTile(t),this.options.async||this.tileDrawn(t)},drawTile:function(){},tileDrawn:function(t){this._tileOnLoad.call(t)}}),n.tileLayer.canvas=function(t){return new n.TileLayer.Canvas(t)},n.ImageOverlay=n.Class.extend({includes:n.Mixin.Events,options:{opacity:1},initialize:function(t,e,i){this._url=t,this._bounds=n.latLngBounds(e),n.setOptions(this,i)},onAdd:function(t){this._map=t,this._image||this._initImage(),t._panes.overlayPane.appendChild(this._image),t.on("viewreset",this._reset,this),t.options.zoomAnimation&&n.Browser.any3d&&t.on("zoomanim",this._animateZoom,this),this._reset()},onRemove:function(t){t.getPanes().overlayPane.removeChild(this._image),t.off("viewreset",this._reset,this),t.options.zoomAnimation&&t.off("zoomanim",this._animateZoom,this)},addTo:function(t){return t.addLayer(this),this},setOpacity:function(t){return this.options.opacity=t,this._updateOpacity(),this},bringToFront:function(){return this._image&&this._map._panes.overlayPane.appendChild(this._image),this},bringToBack:function(){var t=this._map._panes.overlayPane;return this._image&&t.insertBefore(this._image,t.firstChild),this},_initImage:function(){this._image=n.DomUtil.create("img","leaflet-image-layer"),this._map.options.zoomAnimation&&n.Browser.any3d?n.DomUtil.addClass(this._image,"leaflet-zoom-animated"):n.DomUtil.addClass(this._image,"leaflet-zoom-hide"),this._updateOpacity(),n.extend(this._image,{galleryimg:"no",onselectstart:n.Util.falseFn,onmousemove:n.Util.falseFn,onload:n.bind(this._onImageLoad,this),src:this._url})},_animateZoom:function(t){var e=this._map,i=this._image,o=e.getZoomScale(t.zoom),s=this._bounds.getNorthWest(),a=this._bounds.getSouthEast(),r=e._latLngToNewLayerPoint(s,t.zoom,t.center),h=e._latLngToNewLayerPoint(a,t.zoom,t.center)._subtract(r),l=r._add(h._multiplyBy(.5*(1-1/o)));i.style[n.DomUtil.TRANSFORM]=n.DomUtil.getTranslateString(l)+" scale("+o+") "},_reset:function(){var t=this._image,e=this._map.latLngToLayerPoint(this._bounds.getNorthWest()),i=this._map.latLngToLayerPoint(this._bounds.getSouthEast())._subtract(e);n.DomUtil.setPosition(t,e),t.style.width=i.x+"px",t.style.height=i.y+"px"},_onImageLoad:function(){this.fire("load")},_updateOpacity:function(){n.DomUtil.setOpacity(this._image,this.options.opacity)}}),n.imageOverlay=function(t,e,i){return new n.ImageOverlay(t,e,i)},n.Icon=n.Class.extend({options:{className:""},initialize:function(t){n.setOptions(this,t)},createIcon:function(){return this._createIcon("icon")},createShadow:function(){return this._createIcon("shadow")},_createIcon:function(t){var e=this._getIconUrl(t);if(!e){if("icon"===t)throw Error("iconUrl not set in Icon options (see the docs).");return null}var i=this._createImg(e);return this._setIconStyles(i,t),i},_setIconStyles:function(t,e){var i,o=this.options,s=n.point(o[e+"Size"]);i="shadow"===e?n.point(o.shadowAnchor||o.iconAnchor):n.point(o.iconAnchor),!i&&s&&(i=s.divideBy(2,!0)),t.className="leaflet-marker-"+e+" "+o.className,i&&(t.style.marginLeft=-i.x+"px",t.style.marginTop=-i.y+"px"),s&&(t.style.width=s.x+"px",t.style.height=s.y+"px")},_createImg:function(t){var i;return n.Browser.ie6?(i=e.createElement("div"),i.style.filter='progid:DXImageTransform.Microsoft.AlphaImageLoader(src="'+t+'")'):(i=e.createElement("img"),i.src=t),i},_getIconUrl:function(t){return n.Browser.retina&&this.options[t+"RetinaUrl"]?this.options[t+"RetinaUrl"]:this.options[t+"Url"]}}),n.icon=function(t){return new n.Icon(t)},n.Icon.Default=n.Icon.extend({options:{iconSize:new n.Point(25,41),iconAnchor:new n.Point(12,41),popupAnchor:new n.Point(1,-34),shadowSize:new n.Point(41,41)},_getIconUrl:function(t){var e=t+"Url";if(this.options[e])return this.options[e];n.Browser.retina&&"icon"===t&&(t+="@2x");var i=n.Icon.Default.imagePath;if(!i)throw Error("Couldn't autodetect L.Icon.Default.imagePath, set it manually.");return i+"/marker-"+t+".png"}}),n.Icon.Default.imagePath=function(){var t,i,n,o,s=e.getElementsByTagName("script"),a=/\/?leaflet[\-\._]?([\w\-\._]*)\.js\??/;for(t=0,i=s.length;i>t;t++)if(n=s[t].src,o=n.match(a))return n.split(a)[0]+"/images"}(),n.Marker=n.Class.extend({includes:n.Mixin.Events,options:{icon:new n.Icon.Default,title:"",clickable:!0,draggable:!1,zIndexOffset:0,opacity:1,riseOnHover:!1,riseOffset:250},initialize:function(t,e){n.setOptions(this,e),this._latlng=n.latLng(t)},onAdd:function(t){this._map=t,t.on("viewreset",this.update,this),this._initIcon(),this.update(),t.options.zoomAnimation&&t.options.markerZoomAnimation&&t.on("zoomanim",this._animateZoom,this)},addTo:function(t){return t.addLayer(this),this},onRemove:function(t){this._removeIcon(),this.fire("remove"),t.off({viewreset:this.update,zoomanim:this._animateZoom},this),this._map=null},getLatLng:function(){return this._latlng},setLatLng:function(t){return this._latlng=n.latLng(t),this.update(),this.fire("move",{latlng:this._latlng})},setZIndexOffset:function(t){return this.options.zIndexOffset=t,this.update(),this},setIcon:function(t){return this._map&&this._removeIcon(),this.options.icon=t,this._map&&(this._initIcon(),this.update()),this},update:function(){if(this._icon){var t=this._map.latLngToLayerPoint(this._latlng).round();this._setPos(t)}return this},_initIcon:function(){var t=this.options,e=this._map,i=e.options.zoomAnimation&&e.options.markerZoomAnimation,o=i?"leaflet-zoom-animated":"leaflet-zoom-hide",s=!1;this._icon||(this._icon=t.icon.createIcon(),t.title&&(this._icon.title=t.title),this._initInteraction(),s=1>this.options.opacity,n.DomUtil.addClass(this._icon,o),t.riseOnHover&&n.DomEvent.on(this._icon,"mouseover",this._bringToFront,this).on(this._icon,"mouseout",this._resetZIndex,this)),this._shadow||(this._shadow=t.icon.createShadow(),this._shadow&&(n.DomUtil.addClass(this._shadow,o),s=1>this.options.opacity)),s&&this._updateOpacity();var a=this._map._panes;a.markerPane.appendChild(this._icon),this._shadow&&a.shadowPane.appendChild(this._shadow)},_removeIcon:function(){var t=this._map._panes;this.options.riseOnHover&&n.DomEvent.off(this._icon,"mouseover",this._bringToFront).off(this._icon,"mouseout",this._resetZIndex),t.markerPane.removeChild(this._icon),this._shadow&&t.shadowPane.removeChild(this._shadow),this._icon=this._shadow=null},_setPos:function(t){n.DomUtil.setPosition(this._icon,t),this._shadow&&n.DomUtil.setPosition(this._shadow,t),this._zIndex=t.y+this.options.zIndexOffset,this._resetZIndex()},_updateZIndex:function(t){this._icon.style.zIndex=this._zIndex+t},_animateZoom:function(t){var e=this._map._latLngToNewLayerPoint(this._latlng,t.zoom,t.center);this._setPos(e)},_initInteraction:function(){if(this.options.clickable){var t=this._icon,e=["dblclick","mousedown","mouseover","mouseout","contextmenu"];n.DomUtil.addClass(t,"leaflet-clickable"),n.DomEvent.on(t,"click",this._onMouseClick,this);for(var i=0;e.length>i;i++)n.DomEvent.on(t,e[i],this._fireMouseEvent,this);n.Handler.MarkerDrag&&(this.dragging=new n.Handler.MarkerDrag(this),this.options.draggable&&this.dragging.enable())}},_onMouseClick:function(t){var e=this.dragging&&this.dragging.moved();(this.hasEventListeners(t.type)||e)&&n.DomEvent.stopPropagation(t),e||(this.dragging&&this.dragging._enabled||!this._map.dragging||!this._map.dragging.moved())&&this.fire(t.type,{originalEvent:t})},_fireMouseEvent:function(t){this.fire(t.type,{originalEvent:t}),"contextmenu"===t.type&&this.hasEventListeners(t.type)&&n.DomEvent.preventDefault(t),"mousedown"!==t.type&&n.DomEvent.stopPropagation(t)},setOpacity:function(t){this.options.opacity=t,this._map&&this._updateOpacity()},_updateOpacity:function(){n.DomUtil.setOpacity(this._icon,this.options.opacity),this._shadow&&n.DomUtil.setOpacity(this._shadow,this.options.opacity)},_bringToFront:function(){this._updateZIndex(this.options.riseOffset)},_resetZIndex:function(){this._updateZIndex(0)}}),n.marker=function(t,e){return new n.Marker(t,e)},n.DivIcon=n.Icon.extend({options:{iconSize:new n.Point(12,12),className:"leaflet-div-icon"},createIcon:function(){var t=e.createElement("div"),i=this.options;return i.html&&(t.innerHTML=i.html),i.bgPos&&(t.style.backgroundPosition=-i.bgPos.x+"px "+-i.bgPos.y+"px"),this._setIconStyles(t,"icon"),t},createShadow:function(){return null}}),n.divIcon=function(t){return new n.DivIcon(t)},n.Map.mergeOptions({closePopupOnClick:!0}),n.Popup=n.Class.extend({includes:n.Mixin.Events,options:{minWidth:50,maxWidth:300,maxHeight:null,autoPan:!0,closeButton:!0,offset:new n.Point(0,6),autoPanPadding:new n.Point(5,5),className:"",zoomAnimation:!0},initialize:function(t,e){n.setOptions(this,t),this._source=e,this._animated=n.Browser.any3d&&this.options.zoomAnimation},onAdd:function(t){this._map=t,this._container||this._initLayout(),this._updateContent();var e=t.options.fadeAnimation;e&&n.DomUtil.setOpacity(this._container,0),t._panes.popupPane.appendChild(this._container),t.on("viewreset",this._updatePosition,this),this._animated&&t.on("zoomanim",this._zoomAnimation,this),t.options.closePopupOnClick&&t.on("preclick",this._close,this),this._update(),e&&n.DomUtil.setOpacity(this._container,1)},addTo:function(t){return t.addLayer(this),this},openOn:function(t){return t.openPopup(this),this},onRemove:function(t){t._panes.popupPane.removeChild(this._container),n.Util.falseFn(this._container.offsetWidth),t.off({viewreset:this._updatePosition,preclick:this._close,zoomanim:this._zoomAnimation},this),t.options.fadeAnimation&&n.DomUtil.setOpacity(this._container,0),this._map=null},setLatLng:function(t){return this._latlng=n.latLng(t),this._update(),this},setContent:function(t){return this._content=t,this._update(),this},_close:function(){var t=this._map;t&&(t._popup=null,t.removeLayer(this).fire("popupclose",{popup:this}))},_initLayout:function(){var t,e="leaflet-popup",i=e+" "+this.options.className+" leaflet-zoom-"+(this._animated?"animated":"hide"),o=this._container=n.DomUtil.create("div",i);this.options.closeButton&&(t=this._closeButton=n.DomUtil.create("a",e+"-close-button",o),t.href="#close",t.innerHTML="&#215;",n.DomEvent.on(t,"click",this._onCloseButtonClick,this));var s=this._wrapper=n.DomUtil.create("div",e+"-content-wrapper",o);n.DomEvent.disableClickPropagation(s),this._contentNode=n.DomUtil.create("div",e+"-content",s),n.DomEvent.on(this._contentNode,"mousewheel",n.DomEvent.stopPropagation),this._tipContainer=n.DomUtil.create("div",e+"-tip-container",o),this._tip=n.DomUtil.create("div",e+"-tip",this._tipContainer)},_update:function(){this._map&&(this._container.style.visibility="hidden",this._updateContent(),this._updateLayout(),this._updatePosition(),this._container.style.visibility="",this._adjustPan())},_updateContent:function(){if(this._content){if("string"==typeof this._content)this._contentNode.innerHTML=this._content;else{for(;this._contentNode.hasChildNodes();)this._contentNode.removeChild(this._contentNode.firstChild);this._contentNode.appendChild(this._content)}this.fire("contentupdate")}},_updateLayout:function(){var t=this._contentNode,e=t.style;e.width="",e.whiteSpace="nowrap";var i=t.offsetWidth;i=Math.min(i,this.options.maxWidth),i=Math.max(i,this.options.minWidth),e.width=i+1+"px",e.whiteSpace="",e.height="";var o=t.offsetHeight,s=this.options.maxHeight,a="leaflet-popup-scrolled";s&&o>s?(e.height=s+"px",n.DomUtil.addClass(t,a)):n.DomUtil.removeClass(t,a),this._containerWidth=this._container.offsetWidth},_updatePosition:function(){if(this._map){var t=this._map.latLngToLayerPoint(this._latlng),e=this._animated,i=this.options.offset;e&&n.DomUtil.setPosition(this._container,t),this._containerBottom=-i.y-(e?0:t.y),this._containerLeft=-Math.round(this._containerWidth/2)+i.x+(e?0:t.x),this._container.style.bottom=this._containerBottom+"px",this._container.style.left=this._containerLeft+"px"}},_zoomAnimation:function(t){var e=this._map._latLngToNewLayerPoint(this._latlng,t.zoom,t.center);n.DomUtil.setPosition(this._container,e)},_adjustPan:function(){if(this.options.autoPan){var t=this._map,e=this._container.offsetHeight,i=this._containerWidth,o=new n.Point(this._containerLeft,-e-this._containerBottom);this._animated&&o._add(n.DomUtil.getPosition(this._container));var s=t.layerPointToContainerPoint(o),a=this.options.autoPanPadding,r=t.getSize(),h=0,l=0;0>s.x&&(h=s.x-a.x),s.x+i>r.x&&(h=s.x+i-r.x+a.x),0>s.y&&(l=s.y-a.y),s.y+e>r.y&&(l=s.y+e-r.y+a.y),(h||l)&&t.panBy(new n.Point(h,l))}},_onCloseButtonClick:function(t){this._close(),n.DomEvent.stop(t)}}),n.popup=function(t,e){return new n.Popup(t,e)},n.Marker.include({openPopup:function(){return this._popup&&this._map&&(this._popup.setLatLng(this._latlng),this._map.openPopup(this._popup)),this},closePopup:function(){return this._popup&&this._popup._close(),this},bindPopup:function(t,e){var i=n.point(this.options.icon.options.popupAnchor)||new n.Point(0,0);return i=i.add(n.Popup.prototype.options.offset),e&&e.offset&&(i=i.add(e.offset)),e=n.extend({offset:i},e),this._popup||this.on("click",this.openPopup,this).on("remove",this.closePopup,this).on("move",this._movePopup,this),this._popup=new n.Popup(e,this).setContent(t),this},unbindPopup:function(){return this._popup&&(this._popup=null,this.off("click",this.openPopup).off("remove",this.closePopup).off("move",this._movePopup)),this},_movePopup:function(t){this._popup.setLatLng(t.latlng)}}),n.Map.include({openPopup:function(t){return this.closePopup(),this._popup=t,this.addLayer(t).fire("popupopen",{popup:this._popup})},closePopup:function(){return this._popup&&this._popup._close(),this}}),n.LayerGroup=n.Class.extend({initialize:function(t){this._layers={};var e,i;if(t)for(e=0,i=t.length;i>e;e++)this.addLayer(t[e])},addLayer:function(t){var e=n.stamp(t);return this._layers[e]=t,this._map&&this._map.addLayer(t),this},removeLayer:function(t){var e=n.stamp(t);return delete this._layers[e],this._map&&this._map.removeLayer(t),this},clearLayers:function(){return this.eachLayer(this.removeLayer,this),this},invoke:function(t){var e,i,n=Array.prototype.slice.call(arguments,1);for(e in this._layers)this._layers.hasOwnProperty(e)&&(i=this._layers[e],i[t]&&i[t].apply(i,n));return this},onAdd:function(t){this._map=t,this.eachLayer(t.addLayer,t)},onRemove:function(t){this.eachLayer(t.removeLayer,t),this._map=null},addTo:function(t){return t.addLayer(this),this},eachLayer:function(t,e){for(var i in this._layers)this._layers.hasOwnProperty(i)&&t.call(e,this._layers[i])},setZIndex:function(t){return this.invoke("setZIndex",t)}}),n.layerGroup=function(t){return new n.LayerGroup(t)},n.FeatureGroup=n.LayerGroup.extend({includes:n.Mixin.Events,statics:{EVENTS:"click dblclick mouseover mouseout mousemove contextmenu"},addLayer:function(t){return this._layers[n.stamp(t)]?this:(t.on(n.FeatureGroup.EVENTS,this._propagateEvent,this),n.LayerGroup.prototype.addLayer.call(this,t),this._popupContent&&t.bindPopup&&t.bindPopup(this._popupContent,this._popupOptions),this.fire("layeradd",{layer:t}))},removeLayer:function(t){return t.off(n.FeatureGroup.EVENTS,this._propagateEvent,this),n.LayerGroup.prototype.removeLayer.call(this,t),this._popupContent&&this.invoke("unbindPopup"),this.fire("layerremove",{layer:t})},bindPopup:function(t,e){return this._popupContent=t,this._popupOptions=e,this.invoke("bindPopup",t,e)},setStyle:function(t){return this.invoke("setStyle",t)},bringToFront:function(){return this.invoke("bringToFront")},bringToBack:function(){return this.invoke("bringToBack")},getBounds:function(){var t=new n.LatLngBounds;return this.eachLayer(function(e){t.extend(e instanceof n.Marker?e.getLatLng():e.getBounds())}),t},_propagateEvent:function(t){t.layer=t.target,t.target=this,this.fire(t.type,t)}}),n.featureGroup=function(t){return new n.FeatureGroup(t)},n.Path=n.Class.extend({includes:[n.Mixin.Events],statics:{CLIP_PADDING:n.Browser.mobile?Math.max(0,Math.min(.5,(1280/Math.max(t.innerWidth,t.innerHeight)-1)/2)):.5},options:{stroke:!0,color:"#0033ff",dashArray:null,weight:5,opacity:.5,fill:!1,fillColor:null,fillOpacity:.2,clickable:!0},initialize:function(t){n.setOptions(this,t)},onAdd:function(t){this._map=t,this._container||(this._initElements(),this._initEvents()),this.projectLatlngs(),this._updatePath(),this._container&&this._map._pathRoot.appendChild(this._container),this.fire("add"),t.on({viewreset:this.projectLatlngs,moveend:this._updatePath},this)},addTo:function(t){return t.addLayer(this),this},onRemove:function(t){t._pathRoot.removeChild(this._container),this.fire("remove"),this._map=null,n.Browser.vml&&(this._container=null,this._stroke=null,this._fill=null),t.off({viewreset:this.projectLatlngs,moveend:this._updatePath},this)},projectLatlngs:function(){},setStyle:function(t){return n.setOptions(this,t),this._container&&this._updateStyle(),this},redraw:function(){return this._map&&(this.projectLatlngs(),this._updatePath()),this}}),n.Map.include({_updatePathViewport:function(){var t=n.Path.CLIP_PADDING,e=this.getSize(),i=n.DomUtil.getPosition(this._mapPane),o=i.multiplyBy(-1)._subtract(e.multiplyBy(t)._round()),s=o.add(e.multiplyBy(1+2*t)._round());this._pathViewport=new n.Bounds(o,s)}}),n.Path.SVG_NS="http://www.w3.org/2000/svg",n.Browser.svg=!(!e.createElementNS||!e.createElementNS(n.Path.SVG_NS,"svg").createSVGRect),n.Path=n.Path.extend({statics:{SVG:n.Browser.svg},bringToFront:function(){var t=this._map._pathRoot,e=this._container;return e&&t.lastChild!==e&&t.appendChild(e),this},bringToBack:function(){var t=this._map._pathRoot,e=this._container,i=t.firstChild;return e&&i!==e&&t.insertBefore(e,i),this},getPathString:function(){},_createElement:function(t){return e.createElementNS(n.Path.SVG_NS,t)},_initElements:function(){this._map._initPathRoot(),this._initPath(),this._initStyle()},_initPath:function(){this._container=this._createElement("g"),this._path=this._createElement("path"),this._container.appendChild(this._path)},_initStyle:function(){this.options.stroke&&(this._path.setAttribute("stroke-linejoin","round"),this._path.setAttribute("stroke-linecap","round")),this.options.fill&&this._path.setAttribute("fill-rule","evenodd"),this._updateStyle()},_updateStyle:function(){this.options.stroke?(this._path.setAttribute("stroke",this.options.color),this._path.setAttribute("stroke-opacity",this.options.opacity),this._path.setAttribute("stroke-width",this.options.weight),this.options.dashArray?this._path.setAttribute("stroke-dasharray",this.options.dashArray):this._path.removeAttribute("stroke-dasharray")):this._path.setAttribute("stroke","none"),this.options.fill?(this._path.setAttribute("fill",this.options.fillColor||this.options.color),this._path.setAttribute("fill-opacity",this.options.fillOpacity)):this._path.setAttribute("fill","none")},_updatePath:function(){var t=this.getPathString();t||(t="M0 0"),this._path.setAttribute("d",t)},_initEvents:function(){if(this.options.clickable){(n.Browser.svg||!n.Browser.vml)&&this._path.setAttribute("class","leaflet-clickable"),n.DomEvent.on(this._container,"click",this._onMouseClick,this);for(var t=["dblclick","mousedown","mouseover","mouseout","mousemove","contextmenu"],e=0;t.length>e;e++)n.DomEvent.on(this._container,t[e],this._fireMouseEvent,this)}},_onMouseClick:function(t){this._map.dragging&&this._map.dragging.moved()||this._fireMouseEvent(t)},_fireMouseEvent:function(t){if(this.hasEventListeners(t.type)){var e=this._map,i=e.mouseEventToContainerPoint(t),o=e.containerPointToLayerPoint(i),s=e.layerPointToLatLng(o);this.fire(t.type,{latlng:s,layerPoint:o,containerPoint:i,originalEvent:t}),"contextmenu"===t.type&&n.DomEvent.preventDefault(t),"mousemove"!==t.type&&n.DomEvent.stopPropagation(t)}}}),n.Map.include({_initPathRoot:function(){this._pathRoot||(this._pathRoot=n.Path.prototype._createElement("svg"),this._panes.overlayPane.appendChild(this._pathRoot),this.options.zoomAnimation&&n.Browser.any3d?(this._pathRoot.setAttribute("class"," leaflet-zoom-animated"),this.on({zoomanim:this._animatePathZoom,zoomend:this._endPathZoom})):this._pathRoot.setAttribute("class"," leaflet-zoom-hide"),this.on("moveend",this._updateSvgViewport),this._updateSvgViewport())},_animatePathZoom:function(t){var e=this.getZoomScale(t.zoom),i=this._getCenterOffset(t.center)._multiplyBy(-e)._add(this._pathViewport.min);this._pathRoot.style[n.DomUtil.TRANSFORM]=n.DomUtil.getTranslateString(i)+" scale("+e+") ",this._pathZooming=!0},_endPathZoom:function(){this._pathZooming=!1},_updateSvgViewport:function(){if(!this._pathZooming){this._updatePathViewport();var t=this._pathViewport,e=t.min,i=t.max,o=i.x-e.x,s=i.y-e.y,a=this._pathRoot,r=this._panes.overlayPane;n.Browser.mobileWebkit&&r.removeChild(a),n.DomUtil.setPosition(a,e),a.setAttribute("width",o),a.setAttribute("height",s),a.setAttribute("viewBox",[e.x,e.y,o,s].join(" ")),n.Browser.mobileWebkit&&r.appendChild(a)}}}),n.Path.include({bindPopup:function(t,e){return(!this._popup||e)&&(this._popup=new n.Popup(e,this)),this._popup.setContent(t),this._popupHandlersAdded||(this.on("click",this._openPopup,this).on("remove",this.closePopup,this),this._popupHandlersAdded=!0),this},unbindPopup:function(){return this._popup&&(this._popup=null,this.off("click",this._openPopup).off("remove",this.closePopup),this._popupHandlersAdded=!1),this},openPopup:function(t){return this._popup&&(t=t||this._latlng||this._latlngs[Math.floor(this._latlngs.length/2)],this._openPopup({latlng:t})),this},closePopup:function(){return this._popup&&this._popup._close(),this},_openPopup:function(t){this._popup.setLatLng(t.latlng),this._map.openPopup(this._popup)}}),n.Browser.vml=!n.Browser.svg&&function(){try{var t=e.createElement("div");t.innerHTML='<v:shape adj="1"/>';var i=t.firstChild;return i.style.behavior="url(#default#VML)",i&&"object"==typeof i.adj}catch(n){return!1}}(),n.Path=n.Browser.svg||!n.Browser.vml?n.Path:n.Path.extend({statics:{VML:!0,CLIP_PADDING:.02},_createElement:function(){try{return e.namespaces.add("lvml","urn:schemas-microsoft-com:vml"),function(t){return e.createElement("<lvml:"+t+' class="lvml">')}}catch(t){return function(t){return e.createElement("<"+t+' xmlns="urn:schemas-microsoft.com:vml" class="lvml">')}}}(),_initPath:function(){var t=this._container=this._createElement("shape");n.DomUtil.addClass(t,"leaflet-vml-shape"),this.options.clickable&&n.DomUtil.addClass(t,"leaflet-clickable"),t.coordsize="1 1",this._path=this._createElement("path"),t.appendChild(this._path),this._map._pathRoot.appendChild(t)},_initStyle:function(){this._updateStyle()},_updateStyle:function(){var t=this._stroke,e=this._fill,i=this.options,n=this._container;n.stroked=i.stroke,n.filled=i.fill,i.stroke?(t||(t=this._stroke=this._createElement("stroke"),t.endcap="round",n.appendChild(t)),t.weight=i.weight+"px",t.color=i.color,t.opacity=i.opacity,t.dashStyle=i.dashArray?i.dashArray instanceof Array?i.dashArray.join(" "):i.dashArray.replace(/ *, */g," "):""):t&&(n.removeChild(t),this._stroke=null),i.fill?(e||(e=this._fill=this._createElement("fill"),n.appendChild(e)),e.color=i.fillColor||i.color,e.opacity=i.fillOpacity):e&&(n.removeChild(e),this._fill=null)},_updatePath:function(){var t=this._container.style;t.display="none",this._path.v=this.getPathString()+" ",t.display=""}}),n.Map.include(n.Browser.svg||!n.Browser.vml?{}:{_initPathRoot:function(){if(!this._pathRoot){var t=this._pathRoot=e.createElement("div");t.className="leaflet-vml-container",this._panes.overlayPane.appendChild(t),this.on("moveend",this._updatePathViewport),this._updatePathViewport()}}}),n.Browser.canvas=function(){return!!e.createElement("canvas").getContext}(),n.Path=n.Path.SVG&&!t.L_PREFER_CANVAS||!n.Browser.canvas?n.Path:n.Path.extend({statics:{CANVAS:!0,SVG:!1},redraw:function(){return this._map&&(this.projectLatlngs(),this._requestUpdate()),this},setStyle:function(t){return n.setOptions(this,t),this._map&&(this._updateStyle(),this._requestUpdate()),this},onRemove:function(t){t.off("viewreset",this.projectLatlngs,this).off("moveend",this._updatePath,this),this.options.clickable&&this._map.off("click",this._onClick,this),this._requestUpdate(),this._map=null},_requestUpdate:function(){this._map&&!n.Path._updateRequest&&(n.Path._updateRequest=n.Util.requestAnimFrame(this._fireMapMoveEnd,this._map))},_fireMapMoveEnd:function(){n.Path._updateRequest=null,this.fire("moveend")},_initElements:function(){this._map._initPathRoot(),this._ctx=this._map._canvasCtx},_updateStyle:function(){var t=this.options;t.stroke&&(this._ctx.lineWidth=t.weight,this._ctx.strokeStyle=t.color),t.fill&&(this._ctx.fillStyle=t.fillColor||t.color)},_drawPath:function(){var t,e,i,o,s,a;for(this._ctx.beginPath(),t=0,i=this._parts.length;i>t;t++){for(e=0,o=this._parts[t].length;o>e;e++)s=this._parts[t][e],a=(0===e?"move":"line")+"To",this._ctx[a](s.x,s.y);this instanceof n.Polygon&&this._ctx.closePath()}},_checkIfEmpty:function(){return!this._parts.length},_updatePath:function(){if(!this._checkIfEmpty()){var t=this._ctx,e=this.options;this._drawPath(),t.save(),this._updateStyle(),e.fill&&(t.globalAlpha=e.fillOpacity,t.fill()),e.stroke&&(t.globalAlpha=e.opacity,t.stroke()),t.restore()}},_initEvents:function(){this.options.clickable&&this._map.on("click",this._onClick,this)},_onClick:function(t){this._containsPoint(t.layerPoint)&&this.fire("click",{latlng:t.latlng,layerPoint:t.layerPoint,containerPoint:t.containerPoint,originalEvent:t})}}),n.Map.include(n.Path.SVG&&!t.L_PREFER_CANVAS||!n.Browser.canvas?{}:{_initPathRoot:function(){var t,i=this._pathRoot;i||(i=this._pathRoot=e.createElement("canvas"),i.style.position="absolute",t=this._canvasCtx=i.getContext("2d"),t.lineCap="round",t.lineJoin="round",this._panes.overlayPane.appendChild(i),this.options.zoomAnimation&&(this._pathRoot.className="leaflet-zoom-animated",this.on("zoomanim",this._animatePathZoom),this.on("zoomend",this._endPathZoom)),this.on("moveend",this._updateCanvasViewport),this._updateCanvasViewport())},_updateCanvasViewport:function(){if(!this._pathZooming){this._updatePathViewport();var t=this._pathViewport,e=t.min,i=t.max.subtract(e),o=this._pathRoot;n.DomUtil.setPosition(o,e),o.width=i.x,o.height=i.y,o.getContext("2d").translate(-e.x,-e.y)}}}),n.LineUtil={simplify:function(t,e){if(!e||!t.length)return t.slice();var i=e*e;return t=this._reducePoints(t,i),t=this._simplifyDP(t,i)},pointToSegmentDistance:function(t,e,i){return Math.sqrt(this._sqClosestPointOnSegment(t,e,i,!0))},closestPointOnSegment:function(t,e,i){return this._sqClosestPointOnSegment(t,e,i)},_simplifyDP:function(t,e){var n=t.length,o=typeof Uint8Array!=i+""?Uint8Array:Array,s=new o(n);s[0]=s[n-1]=1,this._simplifyDPStep(t,s,e,0,n-1);var a,r=[];for(a=0;n>a;a++)s[a]&&r.push(t[a]);return r},_simplifyDPStep:function(t,e,i,n,o){var s,a,r,h=0;for(a=n+1;o-1>=a;a++)r=this._sqClosestPointOnSegment(t[a],t[n],t[o],!0),r>h&&(s=a,h=r);h>i&&(e[s]=1,this._simplifyDPStep(t,e,i,n,s),this._simplifyDPStep(t,e,i,s,o))},_reducePoints:function(t,e){for(var i=[t[0]],n=1,o=0,s=t.length;s>n;n++)this._sqDist(t[n],t[o])>e&&(i.push(t[n]),o=n);return s-1>o&&i.push(t[s-1]),i},clipSegment:function(t,e,i,n){var o,s,a,r=n?this._lastCode:this._getBitCode(t,i),h=this._getBitCode(e,i);for(this._lastCode=h;;){if(!(r|h))return[t,e];if(r&h)return!1;o=r||h,s=this._getEdgeIntersection(t,e,o,i),a=this._getBitCode(s,i),o===r?(t=s,r=a):(e=s,h=a)}},_getEdgeIntersection:function(t,e,o,s){var a=e.x-t.x,r=e.y-t.y,h=s.min,l=s.max;return 8&o?new n.Point(t.x+a*(l.y-t.y)/r,l.y):4&o?new n.Point(t.x+a*(h.y-t.y)/r,h.y):2&o?new n.Point(l.x,t.y+r*(l.x-t.x)/a):1&o?new n.Point(h.x,t.y+r*(h.x-t.x)/a):i},_getBitCode:function(t,e){var i=0;return t.x<e.min.x?i|=1:t.x>e.max.x&&(i|=2),t.y<e.min.y?i|=4:t.y>e.max.y&&(i|=8),i},_sqDist:function(t,e){var i=e.x-t.x,n=e.y-t.y;return i*i+n*n},_sqClosestPointOnSegment:function(t,e,i,o){var s,a=e.x,r=e.y,h=i.x-a,l=i.y-r,u=h*h+l*l;return u>0&&(s=((t.x-a)*h+(t.y-r)*l)/u,s>1?(a=i.x,r=i.y):s>0&&(a+=h*s,r+=l*s)),h=t.x-a,l=t.y-r,o?h*h+l*l:new n.Point(a,r)}},n.Polyline=n.Path.extend({initialize:function(t,e){n.Path.prototype.initialize.call(this,e),this._latlngs=this._convertLatLngs(t)},options:{smoothFactor:1,noClip:!1},projectLatlngs:function(){this._originalPoints=[];for(var t=0,e=this._latlngs.length;e>t;t++)this._originalPoints[t]=this._map.latLngToLayerPoint(this._latlngs[t])},getPathString:function(){for(var t=0,e=this._parts.length,i="";e>t;t++)i+=this._getPathPartStr(this._parts[t]);return i},getLatLngs:function(){return this._latlngs},setLatLngs:function(t){return this._latlngs=this._convertLatLngs(t),this.redraw()},addLatLng:function(t){return this._latlngs.push(n.latLng(t)),this.redraw()},spliceLatLngs:function(){var t=[].splice.apply(this._latlngs,arguments);return this._convertLatLngs(this._latlngs),this.redraw(),t},closestLayerPoint:function(t){for(var e,i,o=1/0,s=this._parts,a=null,r=0,h=s.length;h>r;r++)for(var l=s[r],u=1,c=l.length;c>u;u++){e=l[u-1],i=l[u];
-var _=n.LineUtil._sqClosestPointOnSegment(t,e,i,!0);o>_&&(o=_,a=n.LineUtil._sqClosestPointOnSegment(t,e,i))}return a&&(a.distance=Math.sqrt(o)),a},getBounds:function(){var t,e,i=new n.LatLngBounds,o=this.getLatLngs();for(t=0,e=o.length;e>t;t++)i.extend(o[t]);return i},_convertLatLngs:function(t){var e,i;for(e=0,i=t.length;i>e;e++){if(n.Util.isArray(t[e])&&"number"!=typeof t[e][0])return;t[e]=n.latLng(t[e])}return t},_initEvents:function(){n.Path.prototype._initEvents.call(this)},_getPathPartStr:function(t){for(var e,i=n.Path.VML,o=0,s=t.length,a="";s>o;o++)e=t[o],i&&e._round(),a+=(o?"L":"M")+e.x+" "+e.y;return a},_clipPoints:function(){var t,e,o,s=this._originalPoints,a=s.length;if(this.options.noClip)return this._parts=[s],i;this._parts=[];var r=this._parts,h=this._map._pathViewport,l=n.LineUtil;for(t=0,e=0;a-1>t;t++)o=l.clipSegment(s[t],s[t+1],h,t),o&&(r[e]=r[e]||[],r[e].push(o[0]),(o[1]!==s[t+1]||t===a-2)&&(r[e].push(o[1]),e++))},_simplifyPoints:function(){for(var t=this._parts,e=n.LineUtil,i=0,o=t.length;o>i;i++)t[i]=e.simplify(t[i],this.options.smoothFactor)},_updatePath:function(){this._map&&(this._clipPoints(),this._simplifyPoints(),n.Path.prototype._updatePath.call(this))}}),n.polyline=function(t,e){return new n.Polyline(t,e)},n.PolyUtil={},n.PolyUtil.clipPolygon=function(t,e){var i,o,s,a,r,h,l,u,c,_=[1,4,2,8],d=n.LineUtil;for(o=0,l=t.length;l>o;o++)t[o]._code=d._getBitCode(t[o],e);for(a=0;4>a;a++){for(u=_[a],i=[],o=0,l=t.length,s=l-1;l>o;s=o++)r=t[o],h=t[s],r._code&u?h._code&u||(c=d._getEdgeIntersection(h,r,u,e),c._code=d._getBitCode(c,e),i.push(c)):(h._code&u&&(c=d._getEdgeIntersection(h,r,u,e),c._code=d._getBitCode(c,e),i.push(c)),i.push(r));t=i}return t},n.Polygon=n.Polyline.extend({options:{fill:!0},initialize:function(t,e){n.Polyline.prototype.initialize.call(this,t,e),t&&n.Util.isArray(t[0])&&"number"!=typeof t[0][0]&&(this._latlngs=this._convertLatLngs(t[0]),this._holes=t.slice(1))},projectLatlngs:function(){if(n.Polyline.prototype.projectLatlngs.call(this),this._holePoints=[],this._holes){var t,e,i,o;for(t=0,i=this._holes.length;i>t;t++)for(this._holePoints[t]=[],e=0,o=this._holes[t].length;o>e;e++)this._holePoints[t][e]=this._map.latLngToLayerPoint(this._holes[t][e])}},_clipPoints:function(){var t=this._originalPoints,e=[];if(this._parts=[t].concat(this._holePoints),!this.options.noClip){for(var i=0,o=this._parts.length;o>i;i++){var s=n.PolyUtil.clipPolygon(this._parts[i],this._map._pathViewport);s.length&&e.push(s)}this._parts=e}},_getPathPartStr:function(t){var e=n.Polyline.prototype._getPathPartStr.call(this,t);return e+(n.Browser.svg?"z":"x")}}),n.polygon=function(t,e){return new n.Polygon(t,e)},function(){function t(t){return n.FeatureGroup.extend({initialize:function(t,e){this._layers={},this._options=e,this.setLatLngs(t)},setLatLngs:function(e){var i=0,n=e.length;for(this.eachLayer(function(t){n>i?t.setLatLngs(e[i++]):this.removeLayer(t)},this);n>i;)this.addLayer(new t(e[i++],this._options));return this}})}n.MultiPolyline=t(n.Polyline),n.MultiPolygon=t(n.Polygon),n.multiPolyline=function(t,e){return new n.MultiPolyline(t,e)},n.multiPolygon=function(t,e){return new n.MultiPolygon(t,e)}}(),n.Rectangle=n.Polygon.extend({initialize:function(t,e){n.Polygon.prototype.initialize.call(this,this._boundsToLatLngs(t),e)},setBounds:function(t){this.setLatLngs(this._boundsToLatLngs(t))},_boundsToLatLngs:function(t){return t=n.latLngBounds(t),[t.getSouthWest(),t.getNorthWest(),t.getNorthEast(),t.getSouthEast()]}}),n.rectangle=function(t,e){return new n.Rectangle(t,e)},n.Circle=n.Path.extend({initialize:function(t,e,i){n.Path.prototype.initialize.call(this,i),this._latlng=n.latLng(t),this._mRadius=e},options:{fill:!0},setLatLng:function(t){return this._latlng=n.latLng(t),this.redraw()},setRadius:function(t){return this._mRadius=t,this.redraw()},projectLatlngs:function(){var t=this._getLngRadius(),e=new n.LatLng(this._latlng.lat,this._latlng.lng-t),i=this._map.latLngToLayerPoint(e);this._point=this._map.latLngToLayerPoint(this._latlng),this._radius=Math.max(Math.round(this._point.x-i.x),1)},getBounds:function(){var t=this._getLngRadius(),e=360*(this._mRadius/40075017),i=this._latlng,o=new n.LatLng(i.lat-e,i.lng-t),s=new n.LatLng(i.lat+e,i.lng+t);return new n.LatLngBounds(o,s)},getLatLng:function(){return this._latlng},getPathString:function(){var t=this._point,e=this._radius;return this._checkIfEmpty()?"":n.Browser.svg?"M"+t.x+","+(t.y-e)+"A"+e+","+e+",0,1,1,"+(t.x-.1)+","+(t.y-e)+" z":(t._round(),e=Math.round(e),"AL "+t.x+","+t.y+" "+e+","+e+" 0,"+23592600)},getRadius:function(){return this._mRadius},_getLatRadius:function(){return 360*(this._mRadius/40075017)},_getLngRadius:function(){return this._getLatRadius()/Math.cos(n.LatLng.DEG_TO_RAD*this._latlng.lat)},_checkIfEmpty:function(){if(!this._map)return!1;var t=this._map._pathViewport,e=this._radius,i=this._point;return i.x-e>t.max.x||i.y-e>t.max.y||i.x+e<t.min.x||i.y+e<t.min.y}}),n.circle=function(t,e,i){return new n.Circle(t,e,i)},n.CircleMarker=n.Circle.extend({options:{radius:10,weight:2},initialize:function(t,e){n.Circle.prototype.initialize.call(this,t,null,e),this._radius=this.options.radius},projectLatlngs:function(){this._point=this._map.latLngToLayerPoint(this._latlng)},_updateStyle:function(){n.Circle.prototype._updateStyle.call(this),this.setRadius(this.options.radius)},setRadius:function(t){return this.options.radius=this._radius=t,this.redraw()}}),n.circleMarker=function(t,e){return new n.CircleMarker(t,e)},n.Polyline.include(n.Path.CANVAS?{_containsPoint:function(t,e){var i,o,s,a,r,h,l,u=this.options.weight/2;for(n.Browser.touch&&(u+=10),i=0,a=this._parts.length;a>i;i++)for(l=this._parts[i],o=0,r=l.length,s=r-1;r>o;s=o++)if((e||0!==o)&&(h=n.LineUtil.pointToSegmentDistance(t,l[s],l[o]),u>=h))return!0;return!1}}:{}),n.Polygon.include(n.Path.CANVAS?{_containsPoint:function(t){var e,i,o,s,a,r,h,l,u=!1;if(n.Polyline.prototype._containsPoint.call(this,t,!0))return!0;for(s=0,h=this._parts.length;h>s;s++)for(e=this._parts[s],a=0,l=e.length,r=l-1;l>a;r=a++)i=e[a],o=e[r],i.y>t.y!=o.y>t.y&&t.x<(o.x-i.x)*(t.y-i.y)/(o.y-i.y)+i.x&&(u=!u);return u}}:{}),n.Circle.include(n.Path.CANVAS?{_drawPath:function(){var t=this._point;this._ctx.beginPath(),this._ctx.arc(t.x,t.y,this._radius,0,2*Math.PI,!1)},_containsPoint:function(t){var e=this._point,i=this.options.stroke?this.options.weight/2:0;return t.distanceTo(e)<=this._radius+i}}:{}),n.GeoJSON=n.FeatureGroup.extend({initialize:function(t,e){n.setOptions(this,e),this._layers={},t&&this.addData(t)},addData:function(t){var e,i,o=n.Util.isArray(t)?t:t.features;if(o){for(e=0,i=o.length;i>e;e++)(o[e].geometries||o[e].geometry||o[e].features)&&this.addData(o[e]);return this}var s=this.options;if(!s.filter||s.filter(t)){var a=n.GeoJSON.geometryToLayer(t,s.pointToLayer);return a.feature=t,a.defaultOptions=a.options,this.resetStyle(a),s.onEachFeature&&s.onEachFeature(t,a),this.addLayer(a)}},resetStyle:function(t){var e=this.options.style;e&&(n.Util.extend(t.options,t.defaultOptions),this._setLayerStyle(t,e))},setStyle:function(t){this.eachLayer(function(e){this._setLayerStyle(e,t)},this)},_setLayerStyle:function(t,e){"function"==typeof e&&(e=e(t.feature)),t.setStyle&&t.setStyle(e)}}),n.extend(n.GeoJSON,{geometryToLayer:function(t,e){var i,o,s,a,r,h="Feature"===t.type?t.geometry:t,l=h.coordinates,u=[];switch(h.type){case"Point":return i=this.coordsToLatLng(l),e?e(t,i):new n.Marker(i);case"MultiPoint":for(s=0,a=l.length;a>s;s++)i=this.coordsToLatLng(l[s]),r=e?e(t,i):new n.Marker(i),u.push(r);return new n.FeatureGroup(u);case"LineString":return o=this.coordsToLatLngs(l),new n.Polyline(o);case"Polygon":return o=this.coordsToLatLngs(l,1),new n.Polygon(o);case"MultiLineString":return o=this.coordsToLatLngs(l,1),new n.MultiPolyline(o);case"MultiPolygon":return o=this.coordsToLatLngs(l,2),new n.MultiPolygon(o);case"GeometryCollection":for(s=0,a=h.geometries.length;a>s;s++)r=this.geometryToLayer({geometry:h.geometries[s],type:"Feature",properties:t.properties},e),u.push(r);return new n.FeatureGroup(u);default:throw Error("Invalid GeoJSON object.")}},coordsToLatLng:function(t,e){var i=parseFloat(t[e?0:1]),o=parseFloat(t[e?1:0]);return new n.LatLng(i,o)},coordsToLatLngs:function(t,e,i){var n,o,s,a=[];for(o=0,s=t.length;s>o;o++)n=e?this.coordsToLatLngs(t[o],e-1,i):this.coordsToLatLng(t[o],i),a.push(n);return a}}),n.geoJson=function(t,e){return new n.GeoJSON(t,e)},n.DomEvent={addListener:function(t,e,o,s){var a,r,h,l=n.stamp(o),u="_leaflet_"+e+l;return t[u]?this:(a=function(e){return o.call(s||t,e||n.DomEvent._getEvent())},n.Browser.msTouch&&0===e.indexOf("touch")?this.addMsTouchListener(t,e,a,l):(n.Browser.touch&&"dblclick"===e&&this.addDoubleTapListener&&this.addDoubleTapListener(t,a,l),"addEventListener"in t?"mousewheel"===e?(t.addEventListener("DOMMouseScroll",a,!1),t.addEventListener(e,a,!1)):"mouseenter"===e||"mouseleave"===e?(r=a,h="mouseenter"===e?"mouseover":"mouseout",a=function(e){return n.DomEvent._checkMouse(t,e)?r(e):i},t.addEventListener(h,a,!1)):t.addEventListener(e,a,!1):"attachEvent"in t&&t.attachEvent("on"+e,a),t[u]=a,this))},removeListener:function(t,e,i){var o=n.stamp(i),s="_leaflet_"+e+o,a=t[s];if(a)return n.Browser.msTouch&&0===e.indexOf("touch")?this.removeMsTouchListener(t,e,o):n.Browser.touch&&"dblclick"===e&&this.removeDoubleTapListener?this.removeDoubleTapListener(t,o):"removeEventListener"in t?"mousewheel"===e?(t.removeEventListener("DOMMouseScroll",a,!1),t.removeEventListener(e,a,!1)):"mouseenter"===e||"mouseleave"===e?t.removeEventListener("mouseenter"===e?"mouseover":"mouseout",a,!1):t.removeEventListener(e,a,!1):"detachEvent"in t&&t.detachEvent("on"+e,a),t[s]=null,this},stopPropagation:function(t){return t.stopPropagation?t.stopPropagation():t.cancelBubble=!0,this},disableClickPropagation:function(t){for(var e=n.DomEvent.stopPropagation,i=n.Draggable.START.length-1;i>=0;i--)n.DomEvent.addListener(t,n.Draggable.START[i],e);return n.DomEvent.addListener(t,"click",e).addListener(t,"dblclick",e)},preventDefault:function(t){return t.preventDefault?t.preventDefault():t.returnValue=!1,this},stop:function(t){return n.DomEvent.preventDefault(t).stopPropagation(t)},getMousePosition:function(t,i){var o=e.body,s=e.documentElement,a=t.pageX?t.pageX:t.clientX+o.scrollLeft+s.scrollLeft,r=t.pageY?t.pageY:t.clientY+o.scrollTop+s.scrollTop,h=new n.Point(a,r);return i?h._subtract(n.DomUtil.getViewportOffset(i)):h},getWheelDelta:function(t){var e=0;return t.wheelDelta&&(e=t.wheelDelta/120),t.detail&&(e=-t.detail/3),e},_checkMouse:function(t,e){var i=e.relatedTarget;if(!i)return!0;try{for(;i&&i!==t;)i=i.parentNode}catch(n){return!1}return i!==t},_getEvent:function(){var e=t.event;if(!e)for(var i=arguments.callee.caller;i&&(e=i.arguments[0],!e||t.Event!==e.constructor);)i=i.caller;return e}},n.DomEvent.on=n.DomEvent.addListener,n.DomEvent.off=n.DomEvent.removeListener,n.Draggable=n.Class.extend({includes:n.Mixin.Events,statics:{START:n.Browser.touch?["touchstart","mousedown"]:["mousedown"],END:{mousedown:"mouseup",touchstart:"touchend",MSPointerDown:"touchend"},MOVE:{mousedown:"mousemove",touchstart:"touchmove",MSPointerDown:"touchmove"},TAP_TOLERANCE:15},initialize:function(t,e,i){this._element=t,this._dragStartTarget=e||t,this._longPress=i&&!n.Browser.msTouch},enable:function(){if(!this._enabled){for(var t=n.Draggable.START.length-1;t>=0;t--)n.DomEvent.on(this._dragStartTarget,n.Draggable.START[t],this._onDown,this);this._enabled=!0}},disable:function(){if(this._enabled){for(var t=n.Draggable.START.length-1;t>=0;t--)n.DomEvent.off(this._dragStartTarget,n.Draggable.START[t],this._onDown,this);this._enabled=!1,this._moved=!1}},_onDown:function(t){if(!(!n.Browser.touch&&t.shiftKey||1!==t.which&&1!==t.button&&!t.touches||(n.DomEvent.preventDefault(t),n.DomEvent.stopPropagation(t),n.Draggable._disabled))){if(this._simulateClick=!0,t.touches&&t.touches.length>1)return this._simulateClick=!1,clearTimeout(this._longPressTimeout),i;var o=t.touches&&1===t.touches.length?t.touches[0]:t,s=o.target;n.Browser.touch&&"a"===s.tagName.toLowerCase()&&n.DomUtil.addClass(s,"leaflet-active"),this._moved=!1,this._moving||(this._startPoint=new n.Point(o.clientX,o.clientY),this._startPos=this._newPos=n.DomUtil.getPosition(this._element),t.touches&&1===t.touches.length&&n.Browser.touch&&this._longPress&&(this._longPressTimeout=setTimeout(n.bind(function(){var t=this._newPos&&this._newPos.distanceTo(this._startPos)||0;n.Draggable.TAP_TOLERANCE>t&&(this._simulateClick=!1,this._onUp(),this._simulateEvent("contextmenu",o))},this),1e3)),n.DomEvent.on(e,n.Draggable.MOVE[t.type],this._onMove,this),n.DomEvent.on(e,n.Draggable.END[t.type],this._onUp,this))}},_onMove:function(t){if(!(t.touches&&t.touches.length>1)){var e=t.touches&&1===t.touches.length?t.touches[0]:t,i=new n.Point(e.clientX,e.clientY),o=i.subtract(this._startPoint);(o.x||o.y)&&(n.DomEvent.preventDefault(t),this._moved||(this.fire("dragstart"),this._moved=!0,this._startPos=n.DomUtil.getPosition(this._element).subtract(o),n.Browser.touch||(n.DomUtil.disableTextSelection(),this._setMovingCursor())),this._newPos=this._startPos.add(o),this._moving=!0,n.Util.cancelAnimFrame(this._animRequest),this._animRequest=n.Util.requestAnimFrame(this._updatePosition,this,!0,this._dragStartTarget))}},_updatePosition:function(){this.fire("predrag"),n.DomUtil.setPosition(this._element,this._newPos),this.fire("drag")},_onUp:function(t){var i;if(clearTimeout(this._longPressTimeout),this._simulateClick&&t.changedTouches){var o=t.changedTouches[0],s=o.target,a=this._newPos&&this._newPos.distanceTo(this._startPos)||0;"a"===s.tagName.toLowerCase()&&n.DomUtil.removeClass(s,"leaflet-active"),n.Draggable.TAP_TOLERANCE>a&&(i=o)}n.Browser.touch||(n.DomUtil.enableTextSelection(),this._restoreCursor());for(var r in n.Draggable.MOVE)n.Draggable.MOVE.hasOwnProperty(r)&&(n.DomEvent.off(e,n.Draggable.MOVE[r],this._onMove),n.DomEvent.off(e,n.Draggable.END[r],this._onUp));this._moved&&(n.Util.cancelAnimFrame(this._animRequest),this.fire("dragend")),this._moving=!1,i&&(this._moved=!1,this._simulateEvent("click",i))},_setMovingCursor:function(){n.DomUtil.addClass(e.body,"leaflet-dragging")},_restoreCursor:function(){n.DomUtil.removeClass(e.body,"leaflet-dragging")},_simulateEvent:function(i,n){var o=e.createEvent("MouseEvents");o.initMouseEvent(i,!0,!0,t,1,n.screenX,n.screenY,n.clientX,n.clientY,!1,!1,!1,!1,0,null),n.target.dispatchEvent(o)}}),n.Handler=n.Class.extend({initialize:function(t){this._map=t},enable:function(){this._enabled||(this._enabled=!0,this.addHooks())},disable:function(){this._enabled&&(this._enabled=!1,this.removeHooks())},enabled:function(){return!!this._enabled}}),n.Map.mergeOptions({dragging:!0,inertia:!n.Browser.android23,inertiaDeceleration:3400,inertiaMaxSpeed:1/0,inertiaThreshold:n.Browser.touch?32:18,easeLinearity:.25,longPress:!0,worldCopyJump:!1}),n.Map.Drag=n.Handler.extend({addHooks:function(){if(!this._draggable){var t=this._map;this._draggable=new n.Draggable(t._mapPane,t._container,t.options.longPress),this._draggable.on({dragstart:this._onDragStart,drag:this._onDrag,dragend:this._onDragEnd},this),t.options.worldCopyJump&&(this._draggable.on("predrag",this._onPreDrag,this),t.on("viewreset",this._onViewReset,this))}this._draggable.enable()},removeHooks:function(){this._draggable.disable()},moved:function(){return this._draggable&&this._draggable._moved},_onDragStart:function(){var t=this._map;t._panAnim&&t._panAnim.stop(),t.fire("movestart").fire("dragstart"),t.options.inertia&&(this._positions=[],this._times=[])},_onDrag:function(){if(this._map.options.inertia){var t=this._lastTime=+new Date,e=this._lastPos=this._draggable._newPos;this._positions.push(e),this._times.push(t),t-this._times[0]>200&&(this._positions.shift(),this._times.shift())}this._map.fire("move").fire("drag")},_onViewReset:function(){var t=this._map.getSize()._divideBy(2),e=this._map.latLngToLayerPoint(new n.LatLng(0,0));this._initialWorldOffset=e.subtract(t).x,this._worldWidth=this._map.project(new n.LatLng(0,180)).x},_onPreDrag:function(){var t=this._worldWidth,e=Math.round(t/2),i=this._initialWorldOffset,n=this._draggable._newPos.x,o=(n-e+i)%t+e-i,s=(n+e+i)%t-e-i,a=Math.abs(o+i)<Math.abs(s+i)?o:s;this._draggable._newPos.x=a},_onDragEnd:function(){var t=this._map,e=t.options,i=+new Date-this._lastTime,o=!e.inertia||i>e.inertiaThreshold||!this._positions[0];if(o)t.fire("moveend");else{var s=this._lastPos.subtract(this._positions[0]),a=(this._lastTime+i-this._times[0])/1e3,r=e.easeLinearity,h=s.multiplyBy(r/a),l=h.distanceTo(new n.Point(0,0)),u=Math.min(e.inertiaMaxSpeed,l),c=h.multiplyBy(u/l),_=u/(e.inertiaDeceleration*r),d=c.multiplyBy(-_/2).round();n.Util.requestAnimFrame(function(){t.panBy(d,_,r)})}t.fire("dragend"),e.maxBounds&&n.Util.requestAnimFrame(this._panInsideMaxBounds,t,!0,t._container)},_panInsideMaxBounds:function(){this.panInsideBounds(this.options.maxBounds)}}),n.Map.addInitHook("addHandler","dragging",n.Map.Drag),n.Map.mergeOptions({doubleClickZoom:!0}),n.Map.DoubleClickZoom=n.Handler.extend({addHooks:function(){this._map.on("dblclick",this._onDoubleClick)},removeHooks:function(){this._map.off("dblclick",this._onDoubleClick)},_onDoubleClick:function(t){this.setView(t.latlng,this._zoom+1)}}),n.Map.addInitHook("addHandler","doubleClickZoom",n.Map.DoubleClickZoom),n.Map.mergeOptions({scrollWheelZoom:!0}),n.Map.ScrollWheelZoom=n.Handler.extend({addHooks:function(){n.DomEvent.on(this._map._container,"mousewheel",this._onWheelScroll,this),this._delta=0},removeHooks:function(){n.DomEvent.off(this._map._container,"mousewheel",this._onWheelScroll)},_onWheelScroll:function(t){var e=n.DomEvent.getWheelDelta(t);this._delta+=e,this._lastMousePos=this._map.mouseEventToContainerPoint(t),this._startTime||(this._startTime=+new Date);var i=Math.max(40-(+new Date-this._startTime),0);clearTimeout(this._timer),this._timer=setTimeout(n.bind(this._performZoom,this),i),n.DomEvent.preventDefault(t),n.DomEvent.stopPropagation(t)},_performZoom:function(){var t=this._map,e=this._delta,i=t.getZoom();if(e=e>0?Math.ceil(e):Math.round(e),e=Math.max(Math.min(e,4),-4),e=t._limitZoom(i+e)-i,this._delta=0,this._startTime=null,e){var n=i+e,o=this._getCenterForScrollWheelZoom(n);t.setView(o,n)}},_getCenterForScrollWheelZoom:function(t){var e=this._map,i=e.getZoomScale(t),n=e.getSize()._divideBy(2),o=this._lastMousePos._subtract(n)._multiplyBy(1-1/i),s=e._getTopLeftPoint()._add(n)._add(o);return e.unproject(s)}}),n.Map.addInitHook("addHandler","scrollWheelZoom",n.Map.ScrollWheelZoom),n.extend(n.DomEvent,{_touchstart:n.Browser.msTouch?"MSPointerDown":"touchstart",_touchend:n.Browser.msTouch?"MSPointerUp":"touchend",addDoubleTapListener:function(t,i,o){function s(t){var e;if(n.Browser.msTouch?(p.push(t.pointerId),e=p.length):e=t.touches.length,!(e>1)){var i=Date.now(),o=i-(r||i);h=t.touches?t.touches[0]:t,l=o>0&&u>=o,r=i}}function a(t){if(n.Browser.msTouch){var e=p.indexOf(t.pointerId);if(-1===e)return;p.splice(e,1)}if(l){if(n.Browser.msTouch){var o,s={};for(var a in h)o=h[a],s[a]="function"==typeof o?o.bind(h):o;h=s}h.type="dblclick",i(h),r=null}}var r,h,l=!1,u=250,c="_leaflet_",_=this._touchstart,d=this._touchend,p=[];t[c+_+o]=s,t[c+d+o]=a;var m=n.Browser.msTouch?e.documentElement:t;return t.addEventListener(_,s,!1),m.addEventListener(d,a,!1),n.Browser.msTouch&&m.addEventListener("MSPointerCancel",a,!1),this},removeDoubleTapListener:function(t,i){var o="_leaflet_";return t.removeEventListener(this._touchstart,t[o+this._touchstart+i],!1),(n.Browser.msTouch?e.documentElement:t).removeEventListener(this._touchend,t[o+this._touchend+i],!1),n.Browser.msTouch&&e.documentElement.removeEventListener("MSPointerCancel",t[o+this._touchend+i],!1),this}}),n.extend(n.DomEvent,{_msTouches:[],_msDocumentListener:!1,addMsTouchListener:function(t,e,i,n){switch(e){case"touchstart":return this.addMsTouchListenerStart(t,e,i,n);case"touchend":return this.addMsTouchListenerEnd(t,e,i,n);case"touchmove":return this.addMsTouchListenerMove(t,e,i,n);default:throw"Unknown touch event type"}},addMsTouchListenerStart:function(t,i,n,o){var s="_leaflet_",a=this._msTouches,r=function(t){for(var e=!1,i=0;a.length>i;i++)if(a[i].pointerId===t.pointerId){e=!0;break}e||a.push(t),t.touches=a.slice(),t.changedTouches=[t],n(t)};if(t[s+"touchstart"+o]=r,t.addEventListener("MSPointerDown",r,!1),!this._msDocumentListener){var h=function(t){for(var e=0;a.length>e;e++)if(a[e].pointerId===t.pointerId){a.splice(e,1);break}};e.documentElement.addEventListener("MSPointerUp",h,!1),e.documentElement.addEventListener("MSPointerCancel",h,!1),this._msDocumentListener=!0}return this},addMsTouchListenerMove:function(t,e,i,n){function o(t){if(t.pointerType!==t.MSPOINTER_TYPE_MOUSE||0!==t.buttons){for(var e=0;a.length>e;e++)if(a[e].pointerId===t.pointerId){a[e]=t;break}t.touches=a.slice(),t.changedTouches=[t],i(t)}}var s="_leaflet_",a=this._msTouches;return t[s+"touchmove"+n]=o,t.addEventListener("MSPointerMove",o,!1),this},addMsTouchListenerEnd:function(t,e,i,n){var o="_leaflet_",s=this._msTouches,a=function(t){for(var e=0;s.length>e;e++)if(s[e].pointerId===t.pointerId){s.splice(e,1);break}t.touches=s.slice(),t.changedTouches=[t],i(t)};return t[o+"touchend"+n]=a,t.addEventListener("MSPointerUp",a,!1),t.addEventListener("MSPointerCancel",a,!1),this},removeMsTouchListener:function(t,e,i){var n="_leaflet_",o=t[n+e+i];switch(e){case"touchstart":t.removeEventListener("MSPointerDown",o,!1);break;case"touchmove":t.removeEventListener("MSPointerMove",o,!1);break;case"touchend":t.removeEventListener("MSPointerUp",o,!1),t.removeEventListener("MSPointerCancel",o,!1)}return this}}),n.Map.mergeOptions({touchZoom:n.Browser.touch&&!n.Browser.android23}),n.Map.TouchZoom=n.Handler.extend({addHooks:function(){n.DomEvent.on(this._map._container,"touchstart",this._onTouchStart,this)},removeHooks:function(){n.DomEvent.off(this._map._container,"touchstart",this._onTouchStart,this)},_onTouchStart:function(t){var i=this._map;if(t.touches&&2===t.touches.length&&!i._animatingZoom&&!this._zooming){var o=i.mouseEventToLayerPoint(t.touches[0]),s=i.mouseEventToLayerPoint(t.touches[1]),a=i._getCenterLayerPoint();this._startCenter=o.add(s)._divideBy(2),this._startDist=o.distanceTo(s),this._moved=!1,this._zooming=!0,this._centerOffset=a.subtract(this._startCenter),i._panAnim&&i._panAnim.stop(),n.DomEvent.on(e,"touchmove",this._onTouchMove,this).on(e,"touchend",this._onTouchEnd,this),n.DomEvent.preventDefault(t)}},_onTouchMove:function(t){if(t.touches&&2===t.touches.length){var e=this._map,i=e.mouseEventToLayerPoint(t.touches[0]),o=e.mouseEventToLayerPoint(t.touches[1]);this._scale=i.distanceTo(o)/this._startDist,this._delta=i._add(o)._divideBy(2)._subtract(this._startCenter),1!==this._scale&&(this._moved||(n.DomUtil.addClass(e._mapPane,"leaflet-zoom-anim leaflet-touching"),e.fire("movestart").fire("zoomstart")._prepareTileBg(),this._moved=!0),n.Util.cancelAnimFrame(this._animRequest),this._animRequest=n.Util.requestAnimFrame(this._updateOnMove,this,!0,this._map._container),n.DomEvent.preventDefault(t))}},_updateOnMove:function(){var t=this._map,e=this._getScaleOrigin(),i=t.layerPointToLatLng(e);t.fire("zoomanim",{center:i,zoom:t.getScaleZoom(this._scale)}),t._tileBg.style[n.DomUtil.TRANSFORM]=n.DomUtil.getTranslateString(this._delta)+" "+n.DomUtil.getScaleString(this._scale,this._startCenter)},_onTouchEnd:function(){if(this._moved&&this._zooming){var t=this._map;this._zooming=!1,n.DomUtil.removeClass(t._mapPane,"leaflet-touching"),n.DomEvent.off(e,"touchmove",this._onTouchMove).off(e,"touchend",this._onTouchEnd);var i=this._getScaleOrigin(),o=t.layerPointToLatLng(i),s=t.getZoom(),a=t.getScaleZoom(this._scale)-s,r=a>0?Math.ceil(a):Math.floor(a),h=t._limitZoom(s+r);t.fire("zoomanim",{center:o,zoom:h}),t._runAnimation(o,h,t.getZoomScale(h)/this._scale,i,!0)}},_getScaleOrigin:function(){var t=this._centerOffset.subtract(this._delta).divideBy(this._scale);return this._startCenter.add(t)}}),n.Map.addInitHook("addHandler","touchZoom",n.Map.TouchZoom),n.Map.mergeOptions({boxZoom:!0}),n.Map.BoxZoom=n.Handler.extend({initialize:function(t){this._map=t,this._container=t._container,this._pane=t._panes.overlayPane},addHooks:function(){n.DomEvent.on(this._container,"mousedown",this._onMouseDown,this)},removeHooks:function(){n.DomEvent.off(this._container,"mousedown",this._onMouseDown)},_onMouseDown:function(t){return!t.shiftKey||1!==t.which&&1!==t.button?!1:(n.DomUtil.disableTextSelection(),this._startLayerPoint=this._map.mouseEventToLayerPoint(t),this._box=n.DomUtil.create("div","leaflet-zoom-box",this._pane),n.DomUtil.setPosition(this._box,this._startLayerPoint),this._container.style.cursor="crosshair",n.DomEvent.on(e,"mousemove",this._onMouseMove,this).on(e,"mouseup",this._onMouseUp,this).preventDefault(t),this._map.fire("boxzoomstart"),i)},_onMouseMove:function(t){var e=this._startLayerPoint,i=this._box,o=this._map.mouseEventToLayerPoint(t),s=o.subtract(e),a=new n.Point(Math.min(o.x,e.x),Math.min(o.y,e.y));n.DomUtil.setPosition(i,a),i.style.width=Math.max(0,Math.abs(s.x)-4)+"px",i.style.height=Math.max(0,Math.abs(s.y)-4)+"px"},_onMouseUp:function(t){this._pane.removeChild(this._box),this._container.style.cursor="",n.DomUtil.enableTextSelection(),n.DomEvent.off(e,"mousemove",this._onMouseMove).off(e,"mouseup",this._onMouseUp);var i=this._map,o=i.mouseEventToLayerPoint(t);if(!this._startLayerPoint.equals(o)){var s=new n.LatLngBounds(i.layerPointToLatLng(this._startLayerPoint),i.layerPointToLatLng(o));i.fitBounds(s),i.fire("boxzoomend",{boxZoomBounds:s})}}}),n.Map.addInitHook("addHandler","boxZoom",n.Map.BoxZoom),n.Map.mergeOptions({keyboard:!0,keyboardPanOffset:80,keyboardZoomOffset:1}),n.Map.Keyboard=n.Handler.extend({keyCodes:{left:[37],right:[39],down:[40],up:[38],zoomIn:[187,107,61],zoomOut:[189,109,173]},initialize:function(t){this._map=t,this._setPanOffset(t.options.keyboardPanOffset),this._setZoomOffset(t.options.keyboardZoomOffset)},addHooks:function(){var t=this._map._container;-1===t.tabIndex&&(t.tabIndex="0"),n.DomEvent.on(t,"focus",this._onFocus,this).on(t,"blur",this._onBlur,this).on(t,"mousedown",this._onMouseDown,this),this._map.on("focus",this._addHooks,this).on("blur",this._removeHooks,this)},removeHooks:function(){this._removeHooks();var t=this._map._container;n.DomEvent.off(t,"focus",this._onFocus,this).off(t,"blur",this._onBlur,this).off(t,"mousedown",this._onMouseDown,this),this._map.off("focus",this._addHooks,this).off("blur",this._removeHooks,this)},_onMouseDown:function(){this._focused||this._map._container.focus()},_onFocus:function(){this._focused=!0,this._map.fire("focus")},_onBlur:function(){this._focused=!1,this._map.fire("blur")},_setPanOffset:function(t){var e,i,n=this._panKeys={},o=this.keyCodes;for(e=0,i=o.left.length;i>e;e++)n[o.left[e]]=[-1*t,0];for(e=0,i=o.right.length;i>e;e++)n[o.right[e]]=[t,0];for(e=0,i=o.down.length;i>e;e++)n[o.down[e]]=[0,t];for(e=0,i=o.up.length;i>e;e++)n[o.up[e]]=[0,-1*t]},_setZoomOffset:function(t){var e,i,n=this._zoomKeys={},o=this.keyCodes;for(e=0,i=o.zoomIn.length;i>e;e++)n[o.zoomIn[e]]=t;for(e=0,i=o.zoomOut.length;i>e;e++)n[o.zoomOut[e]]=-t},_addHooks:function(){n.DomEvent.on(e,"keydown",this._onKeyDown,this)},_removeHooks:function(){n.DomEvent.off(e,"keydown",this._onKeyDown,this)},_onKeyDown:function(t){var e=t.keyCode,i=this._map;if(this._panKeys.hasOwnProperty(e))i.panBy(this._panKeys[e]),i.options.maxBounds&&i.panInsideBounds(i.options.maxBounds);else{if(!this._zoomKeys.hasOwnProperty(e))return;i.setZoom(i.getZoom()+this._zoomKeys[e])}n.DomEvent.stop(t)}}),n.Map.addInitHook("addHandler","keyboard",n.Map.Keyboard),n.Handler.MarkerDrag=n.Handler.extend({initialize:function(t){this._marker=t},addHooks:function(){var t=this._marker._icon;this._draggable||(this._draggable=new n.Draggable(t,t).on("dragstart",this._onDragStart,this).on("drag",this._onDrag,this).on("dragend",this._onDragEnd,this)),this._draggable.enable()},removeHooks:function(){this._draggable.disable()},moved:function(){return this._draggable&&this._draggable._moved},_onDragStart:function(){this._marker.closePopup().fire("movestart").fire("dragstart")},_onDrag:function(){var t=this._marker,e=t._shadow,i=n.DomUtil.getPosition(t._icon),o=t._map.layerPointToLatLng(i);e&&n.DomUtil.setPosition(e,i),t._latlng=o,t.fire("move",{latlng:o}).fire("drag")},_onDragEnd:function(){this._marker.fire("moveend").fire("dragend")}}),n.Handler.PolyEdit=n.Handler.extend({options:{icon:new n.DivIcon({iconSize:new n.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon"})},initialize:function(t,e){this._poly=t,n.setOptions(this,e)},addHooks:function(){this._poly._map&&(this._markerGroup||this._initMarkers(),this._poly._map.addLayer(this._markerGroup))},removeHooks:function(){this._poly._map&&(this._poly._map.removeLayer(this._markerGroup),delete this._markerGroup,delete this._markers)},updateMarkers:function(){this._markerGroup.clearLayers(),this._initMarkers()},_initMarkers:function(){this._markerGroup||(this._markerGroup=new n.LayerGroup),this._markers=[];var t,e,i,o,s=this._poly._latlngs;for(t=0,i=s.length;i>t;t++)o=this._createMarker(s[t],t),o.on("click",this._onMarkerClick,this),this._markers.push(o);var a,r;for(t=0,e=i-1;i>t;e=t++)(0!==t||n.Polygon&&this._poly instanceof n.Polygon)&&(a=this._markers[e],r=this._markers[t],this._createMiddleMarker(a,r),this._updatePrevNext(a,r))},_createMarker:function(t,e){var i=new n.Marker(t,{draggable:!0,icon:this.options.icon});return i._origLatLng=t,i._index=e,i.on("drag",this._onMarkerDrag,this),i.on("dragend",this._fireEdit,this),this._markerGroup.addLayer(i),i},_fireEdit:function(){this._poly.fire("edit")},_onMarkerDrag:function(t){var e=t.target;n.extend(e._origLatLng,e._latlng),e._middleLeft&&e._middleLeft.setLatLng(this._getMiddleLatLng(e._prev,e)),e._middleRight&&e._middleRight.setLatLng(this._getMiddleLatLng(e,e._next)),this._poly.redraw()},_onMarkerClick:function(t){if(!(3>this._poly._latlngs.length)){var e=t.target,i=e._index;this._markerGroup.removeLayer(e),this._markers.splice(i,1),this._poly.spliceLatLngs(i,1),this._updateIndexes(i,-1),this._updatePrevNext(e._prev,e._next),e._middleLeft&&this._markerGroup.removeLayer(e._middleLeft),e._middleRight&&this._markerGroup.removeLayer(e._middleRight),e._prev&&e._next?this._createMiddleMarker(e._prev,e._next):e._prev?e._next||(e._prev._middleRight=null):e._next._middleLeft=null,this._poly.fire("edit")}},_updateIndexes:function(t,e){this._markerGroup.eachLayer(function(i){i._index>t&&(i._index+=e)})},_createMiddleMarker:function(t,e){var i,n,o,s=this._getMiddleLatLng(t,e),a=this._createMarker(s);a.setOpacity(.6),t._middleRight=e._middleLeft=a,n=function(){var n=e._index;a._index=n,a.off("click",i).on("click",this._onMarkerClick,this),s.lat=a.getLatLng().lat,s.lng=a.getLatLng().lng,this._poly.spliceLatLngs(n,0,s),this._markers.splice(n,0,a),a.setOpacity(1),this._updateIndexes(n,1),e._index++,this._updatePrevNext(t,a),this._updatePrevNext(a,e)},o=function(){a.off("dragstart",n,this),a.off("dragend",o,this),this._createMiddleMarker(t,a),this._createMiddleMarker(a,e)},i=function(){n.call(this),o.call(this),this._poly.fire("edit")},a.on("click",i,this).on("dragstart",n,this).on("dragend",o,this),this._markerGroup.addLayer(a)},_updatePrevNext:function(t,e){t&&(t._next=e),e&&(e._prev=t)},_getMiddleLatLng:function(t,e){var i=this._poly._map,n=i.latLngToLayerPoint(t.getLatLng()),o=i.latLngToLayerPoint(e.getLatLng());return i.layerPointToLatLng(n._add(o)._divideBy(2))}}),n.Polyline.addInitHook(function(){n.Handler.PolyEdit&&(this.editing=new n.Handler.PolyEdit(this),this.options.editable&&this.editing.enable()),this.on("add",function(){this.editing&&this.editing.enabled()&&this.editing.addHooks()}),this.on("remove",function(){this.editing&&this.editing.enabled()&&this.editing.removeHooks()})}),n.Control=n.Class.extend({options:{position:"topright"},initialize:function(t){n.setOptions(this,t)},getPosition:function(){return this.options.position},setPosition:function(t){var e=this._map;return e&&e.removeControl(this),this.options.position=t,e&&e.addControl(this),this
-},addTo:function(t){this._map=t;var e=this._container=this.onAdd(t),i=this.getPosition(),o=t._controlCorners[i];return n.DomUtil.addClass(e,"leaflet-control"),-1!==i.indexOf("bottom")?o.insertBefore(e,o.firstChild):o.appendChild(e),this},removeFrom:function(t){var e=this.getPosition(),i=t._controlCorners[e];return i.removeChild(this._container),this._map=null,this.onRemove&&this.onRemove(t),this}}),n.control=function(t){return new n.Control(t)},n.Map.include({addControl:function(t){return t.addTo(this),this},removeControl:function(t){return t.removeFrom(this),this},_initControlPos:function(){function t(t,s){var a=i+t+" "+i+s;e[t+s]=n.DomUtil.create("div",a,o)}var e=this._controlCorners={},i="leaflet-",o=this._controlContainer=n.DomUtil.create("div",i+"control-container",this._container);t("top","left"),t("top","right"),t("bottom","left"),t("bottom","right")}}),n.Control.Zoom=n.Control.extend({options:{position:"topleft"},onAdd:function(t){var e="leaflet-control-zoom",i="leaflet-bar",o=i+"-part",s=n.DomUtil.create("div",e+" "+i);return this._map=t,this._zoomInButton=this._createButton("+","Zoom in",e+"-in "+o+" "+o+"-top",s,this._zoomIn,this),this._zoomOutButton=this._createButton("-","Zoom out",e+"-out "+o+" "+o+"-bottom",s,this._zoomOut,this),t.on("zoomend",this._updateDisabled,this),s},onRemove:function(t){t.off("zoomend",this._updateDisabled,this)},_zoomIn:function(t){this._map.zoomIn(t.shiftKey?3:1)},_zoomOut:function(t){this._map.zoomOut(t.shiftKey?3:1)},_createButton:function(t,e,i,o,s,a){var r=n.DomUtil.create("a",i,o);r.innerHTML=t,r.href="#",r.title=e;var h=n.DomEvent.stopPropagation;return n.DomEvent.on(r,"click",h).on(r,"mousedown",h).on(r,"dblclick",h).on(r,"click",n.DomEvent.preventDefault).on(r,"click",s,a),r},_updateDisabled:function(){var t=this._map,e="leaflet-control-zoom-disabled";n.DomUtil.removeClass(this._zoomInButton,e),n.DomUtil.removeClass(this._zoomOutButton,e),t._zoom===t.getMinZoom()&&n.DomUtil.addClass(this._zoomOutButton,e),t._zoom===t.getMaxZoom()&&n.DomUtil.addClass(this._zoomInButton,e)}}),n.Map.mergeOptions({zoomControl:!0}),n.Map.addInitHook(function(){this.options.zoomControl&&(this.zoomControl=new n.Control.Zoom,this.addControl(this.zoomControl))}),n.control.zoom=function(t){return new n.Control.Zoom(t)},n.Control.Attribution=n.Control.extend({options:{position:"bottomright",prefix:'Powered by <a href="http://leafletjs.com">Leaflet</a>'},initialize:function(t){n.setOptions(this,t),this._attributions={}},onAdd:function(t){return this._container=n.DomUtil.create("div","leaflet-control-attribution"),n.DomEvent.disableClickPropagation(this._container),t.on("layeradd",this._onLayerAdd,this).on("layerremove",this._onLayerRemove,this),this._update(),this._container},onRemove:function(t){t.off("layeradd",this._onLayerAdd).off("layerremove",this._onLayerRemove)},setPrefix:function(t){return this.options.prefix=t,this._update(),this},addAttribution:function(t){return t?(this._attributions[t]||(this._attributions[t]=0),this._attributions[t]++,this._update(),this):i},removeAttribution:function(t){return t?(this._attributions[t]--,this._update(),this):i},_update:function(){if(this._map){var t=[];for(var e in this._attributions)this._attributions.hasOwnProperty(e)&&this._attributions[e]&&t.push(e);var i=[];this.options.prefix&&i.push(this.options.prefix),t.length&&i.push(t.join(", ")),this._container.innerHTML=i.join(" &#8212; ")}},_onLayerAdd:function(t){t.layer.getAttribution&&this.addAttribution(t.layer.getAttribution())},_onLayerRemove:function(t){t.layer.getAttribution&&this.removeAttribution(t.layer.getAttribution())}}),n.Map.mergeOptions({attributionControl:!0}),n.Map.addInitHook(function(){this.options.attributionControl&&(this.attributionControl=(new n.Control.Attribution).addTo(this))}),n.control.attribution=function(t){return new n.Control.Attribution(t)},n.Control.Scale=n.Control.extend({options:{position:"bottomleft",maxWidth:100,metric:!0,imperial:!0,updateWhenIdle:!1},onAdd:function(t){this._map=t;var e="leaflet-control-scale",i=n.DomUtil.create("div",e),o=this.options;return this._addScales(o,e,i),t.on(o.updateWhenIdle?"moveend":"move",this._update,this),t.whenReady(this._update,this),i},onRemove:function(t){t.off(this.options.updateWhenIdle?"moveend":"move",this._update,this)},_addScales:function(t,e,i){t.metric&&(this._mScale=n.DomUtil.create("div",e+"-line",i)),t.imperial&&(this._iScale=n.DomUtil.create("div",e+"-line",i))},_update:function(){var t=this._map.getBounds(),e=t.getCenter().lat,i=6378137*Math.PI*Math.cos(e*Math.PI/180),n=i*(t.getNorthEast().lng-t.getSouthWest().lng)/180,o=this._map.getSize(),s=this.options,a=0;o.x>0&&(a=n*(s.maxWidth/o.x)),this._updateScales(s,a)},_updateScales:function(t,e){t.metric&&e&&this._updateMetric(e),t.imperial&&e&&this._updateImperial(e)},_updateMetric:function(t){var e=this._getRoundNum(t);this._mScale.style.width=this._getScaleWidth(e/t)+"px",this._mScale.innerHTML=1e3>e?e+" m":e/1e3+" km"},_updateImperial:function(t){var e,i,n,o=3.2808399*t,s=this._iScale;o>5280?(e=o/5280,i=this._getRoundNum(e),s.style.width=this._getScaleWidth(i/e)+"px",s.innerHTML=i+" mi"):(n=this._getRoundNum(o),s.style.width=this._getScaleWidth(n/o)+"px",s.innerHTML=n+" ft")},_getScaleWidth:function(t){return Math.round(this.options.maxWidth*t)-10},_getRoundNum:function(t){var e=Math.pow(10,(Math.floor(t)+"").length-1),i=t/e;return i=i>=10?10:i>=5?5:i>=3?3:i>=2?2:1,e*i}}),n.control.scale=function(t){return new n.Control.Scale(t)},n.Control.Layers=n.Control.extend({options:{collapsed:!0,position:"topright",autoZIndex:!0},initialize:function(t,e,i){n.setOptions(this,i),this._layers={},this._lastZIndex=0,this._handlingClick=!1;for(var o in t)t.hasOwnProperty(o)&&this._addLayer(t[o],o);for(o in e)e.hasOwnProperty(o)&&this._addLayer(e[o],o,!0)},onAdd:function(t){return this._initLayout(),this._update(),t.on("layeradd",this._onLayerChange,this).on("layerremove",this._onLayerChange,this),this._container},onRemove:function(t){t.off("layeradd",this._onLayerChange).off("layerremove",this._onLayerChange)},addBaseLayer:function(t,e){return this._addLayer(t,e),this._update(),this},addOverlay:function(t,e){return this._addLayer(t,e,!0),this._update(),this},removeLayer:function(t){var e=n.stamp(t);return delete this._layers[e],this._update(),this},_initLayout:function(){var t="leaflet-control-layers",e=this._container=n.DomUtil.create("div",t);n.Browser.touch?n.DomEvent.on(e,"click",n.DomEvent.stopPropagation):(n.DomEvent.disableClickPropagation(e),n.DomEvent.on(e,"mousewheel",n.DomEvent.stopPropagation));var i=this._form=n.DomUtil.create("form",t+"-list");if(this.options.collapsed){n.DomEvent.on(e,"mouseover",this._expand,this).on(e,"mouseout",this._collapse,this);var o=this._layersLink=n.DomUtil.create("a",t+"-toggle",e);o.href="#",o.title="Layers",n.Browser.touch?n.DomEvent.on(o,"click",n.DomEvent.stopPropagation).on(o,"click",n.DomEvent.preventDefault).on(o,"click",this._expand,this):n.DomEvent.on(o,"focus",this._expand,this),this._map.on("movestart",this._collapse,this)}else this._expand();this._baseLayersList=n.DomUtil.create("div",t+"-base",i),this._separator=n.DomUtil.create("div",t+"-separator",i),this._overlaysList=n.DomUtil.create("div",t+"-overlays",i),e.appendChild(i)},_addLayer:function(t,e,i){var o=n.stamp(t);this._layers[o]={layer:t,name:e,overlay:i},this.options.autoZIndex&&t.setZIndex&&(this._lastZIndex++,t.setZIndex(this._lastZIndex))},_update:function(){if(this._container){this._baseLayersList.innerHTML="",this._overlaysList.innerHTML="";var t=!1,e=!1;for(var i in this._layers)if(this._layers.hasOwnProperty(i)){var n=this._layers[i];this._addItem(n),e=e||n.overlay,t=t||!n.overlay}this._separator.style.display=e&&t?"":"none"}},_onLayerChange:function(t){var e=n.stamp(t.layer);this._layers[e]&&!this._handlingClick&&this._update()},_createRadioElement:function(t,i){var n='<input type="radio" class="leaflet-control-layers-selector" name="'+t+'"';i&&(n+=' checked="checked"'),n+="/>";var o=e.createElement("div");return o.innerHTML=n,o.firstChild},_addItem:function(t){var i,o=e.createElement("label"),s=this._map.hasLayer(t.layer);t.overlay?(i=e.createElement("input"),i.type="checkbox",i.className="leaflet-control-layers-selector",i.defaultChecked=s):i=this._createRadioElement("leaflet-base-layers",s),i.layerId=n.stamp(t.layer),n.DomEvent.on(i,"click",this._onInputClick,this);var a=e.createElement("span");a.innerHTML=" "+t.name,o.appendChild(i),o.appendChild(a);var r=t.overlay?this._overlaysList:this._baseLayersList;return r.appendChild(o),o},_onInputClick:function(){var t,e,i,n,o=this._form.getElementsByTagName("input"),s=o.length;for(this._handlingClick=!0,t=0;s>t;t++)e=o[t],i=this._layers[e.layerId],e.checked&&!this._map.hasLayer(i.layer)?(this._map.addLayer(i.layer),i.overlay||(n=i.layer)):!e.checked&&this._map.hasLayer(i.layer)&&this._map.removeLayer(i.layer);n&&(this._map.setZoom(this._map.getZoom()),this._map.fire("baselayerchange",{layer:n})),this._handlingClick=!1},_expand:function(){n.DomUtil.addClass(this._container,"leaflet-control-layers-expanded")},_collapse:function(){this._container.className=this._container.className.replace(" leaflet-control-layers-expanded","")}}),n.control.layers=function(t,e,i){return new n.Control.Layers(t,e,i)},n.PosAnimation=n.Class.extend({includes:n.Mixin.Events,run:function(t,e,i,o){this.stop(),this._el=t,this._inProgress=!0,this.fire("start"),t.style[n.DomUtil.TRANSITION]="all "+(i||.25)+"s cubic-bezier(0,0,"+(o||.5)+",1)",n.DomEvent.on(t,n.DomUtil.TRANSITION_END,this._onTransitionEnd,this),n.DomUtil.setPosition(t,e),n.Util.falseFn(t.offsetWidth),this._stepTimer=setInterval(n.bind(this.fire,this,"step"),50)},stop:function(){this._inProgress&&(n.DomUtil.setPosition(this._el,this._getPos()),this._onTransitionEnd(),n.Util.falseFn(this._el.offsetWidth))},_transformRe:/(-?[\d\.]+), (-?[\d\.]+)\)/,_getPos:function(){var e,i,o,s=this._el,a=t.getComputedStyle(s);return n.Browser.any3d?(o=a[n.DomUtil.TRANSFORM].match(this._transformRe),e=parseFloat(o[1]),i=parseFloat(o[2])):(e=parseFloat(a.left),i=parseFloat(a.top)),new n.Point(e,i,!0)},_onTransitionEnd:function(){n.DomEvent.off(this._el,n.DomUtil.TRANSITION_END,this._onTransitionEnd,this),this._inProgress&&(this._inProgress=!1,this._el.style[n.DomUtil.TRANSITION]="",clearInterval(this._stepTimer),this.fire("step").fire("end"))}}),n.Map.include({setView:function(t,e,i){e=this._limitZoom(e);var n=this._zoom!==e;if(this._loaded&&!i&&this._layers){this._panAnim&&this._panAnim.stop();var o=n?this._zoomToIfClose&&this._zoomToIfClose(t,e):this._panByIfClose(t);if(o)return clearTimeout(this._sizeTimer),this}return this._resetView(t,e),this},panBy:function(t,e,i){if(t=n.point(t),!t.x&&!t.y)return this;this._panAnim||(this._panAnim=new n.PosAnimation,this._panAnim.on({step:this._onPanTransitionStep,end:this._onPanTransitionEnd},this)),this.fire("movestart"),n.DomUtil.addClass(this._mapPane,"leaflet-pan-anim");var o=n.DomUtil.getPosition(this._mapPane).subtract(t)._round();return this._panAnim.run(this._mapPane,o,e||.25,i),this},_onPanTransitionStep:function(){this.fire("move")},_onPanTransitionEnd:function(){n.DomUtil.removeClass(this._mapPane,"leaflet-pan-anim"),this.fire("moveend")},_panByIfClose:function(t){var e=this._getCenterOffset(t)._floor();return this._offsetIsWithinView(e)?(this.panBy(e),!0):!1},_offsetIsWithinView:function(t,e){var i=e||1,n=this.getSize();return Math.abs(t.x)<=n.x*i&&Math.abs(t.y)<=n.y*i}}),n.PosAnimation=n.DomUtil.TRANSITION?n.PosAnimation:n.PosAnimation.extend({run:function(t,e,i,o){this.stop(),this._el=t,this._inProgress=!0,this._duration=i||.25,this._easeOutPower=1/Math.max(o||.5,.2),this._startPos=n.DomUtil.getPosition(t),this._offset=e.subtract(this._startPos),this._startTime=+new Date,this.fire("start"),this._animate()},stop:function(){this._inProgress&&(this._step(),this._complete())},_animate:function(){this._animId=n.Util.requestAnimFrame(this._animate,this),this._step()},_step:function(){var t=+new Date-this._startTime,e=1e3*this._duration;e>t?this._runFrame(this._easeOut(t/e)):(this._runFrame(1),this._complete())},_runFrame:function(t){var e=this._startPos.add(this._offset.multiplyBy(t));n.DomUtil.setPosition(this._el,e),this.fire("step")},_complete:function(){n.Util.cancelAnimFrame(this._animId),this._inProgress=!1,this.fire("end")},_easeOut:function(t){return 1-Math.pow(1-t,this._easeOutPower)}}),n.Map.mergeOptions({zoomAnimation:n.DomUtil.TRANSITION&&!n.Browser.android23&&!n.Browser.mobileOpera}),n.DomUtil.TRANSITION&&n.Map.addInitHook(function(){n.DomEvent.on(this._mapPane,n.DomUtil.TRANSITION_END,this._catchTransitionEnd,this)}),n.Map.include(n.DomUtil.TRANSITION?{_zoomToIfClose:function(t,e){if(this._animatingZoom)return!0;if(!this.options.zoomAnimation)return!1;var i=this.getZoomScale(e),o=this._getCenterOffset(t)._divideBy(1-1/i);if(!this._offsetIsWithinView(o,1))return!1;n.DomUtil.addClass(this._mapPane,"leaflet-zoom-anim"),this.fire("movestart").fire("zoomstart"),this.fire("zoomanim",{center:t,zoom:e});var s=this._getCenterLayerPoint().add(o);return this._prepareTileBg(),this._runAnimation(t,e,i,s),!0},_catchTransitionEnd:function(){this._animatingZoom&&this._onZoomTransitionEnd()},_runAnimation:function(t,e,i,o,s){this._animateToCenter=t,this._animateToZoom=e,this._animatingZoom=!0,n.Draggable&&(n.Draggable._disabled=!0);var a=n.DomUtil.TRANSFORM,r=this._tileBg;clearTimeout(this._clearTileBgTimer),n.Util.falseFn(r.offsetWidth);var h=n.DomUtil.getScaleString(i,o),l=r.style[a];r.style[a]=s?l+" "+h:h+" "+l},_prepareTileBg:function(){var t=this._tilePane,e=this._tileBg;if(e&&this._getLoadedTilesPercentage(e)>.5&&.5>this._getLoadedTilesPercentage(t))return t.style.visibility="hidden",t.empty=!0,this._stopLoadingImages(t),i;e||(e=this._tileBg=this._createPane("leaflet-tile-pane",this._mapPane),e.style.zIndex=1),e.style[n.DomUtil.TRANSFORM]="",e.style.visibility="hidden",e.empty=!0,t.empty=!1,this._tilePane=this._panes.tilePane=e;var o=this._tileBg=t;n.DomUtil.addClass(o,"leaflet-zoom-animated"),this._stopLoadingImages(o)},_getLoadedTilesPercentage:function(t){var e,i,n=t.getElementsByTagName("img"),o=0;for(e=0,i=n.length;i>e;e++)n[e].complete&&o++;return o/i},_stopLoadingImages:function(t){var e,i,o,s=Array.prototype.slice.call(t.getElementsByTagName("img"));for(e=0,i=s.length;i>e;e++)o=s[e],o.complete||(o.onload=n.Util.falseFn,o.onerror=n.Util.falseFn,o.src=n.Util.emptyImageUrl,o.parentNode.removeChild(o))},_onZoomTransitionEnd:function(){this._restoreTileFront(),n.DomUtil.removeClass(this._mapPane,"leaflet-zoom-anim"),n.Util.falseFn(this._tileBg.offsetWidth),this._animatingZoom=!1,this._resetView(this._animateToCenter,this._animateToZoom,!0,!0),n.Draggable&&(n.Draggable._disabled=!1)},_restoreTileFront:function(){this._tilePane.innerHTML="",this._tilePane.style.visibility="",this._tilePane.style.zIndex=2,this._tileBg.style.zIndex=1},_clearTileBg:function(){this._animatingZoom||this.touchZoom._zooming||(this._tileBg.innerHTML="")}}:{}),n.Map.include({_defaultLocateOptions:{watch:!1,setView:!1,maxZoom:1/0,timeout:1e4,maximumAge:0,enableHighAccuracy:!1},locate:function(t){if(t=this._locationOptions=n.extend(this._defaultLocateOptions,t),!navigator.geolocation)return this._handleGeolocationError({code:0,message:"Geolocation not supported."}),this;var e=n.bind(this._handleGeolocationResponse,this),i=n.bind(this._handleGeolocationError,this);return t.watch?this._locationWatchId=navigator.geolocation.watchPosition(e,i,t):navigator.geolocation.getCurrentPosition(e,i,t),this},stopLocate:function(){return navigator.geolocation&&navigator.geolocation.clearWatch(this._locationWatchId),this},_handleGeolocationError:function(t){var e=t.code,i=t.message||(1===e?"permission denied":2===e?"position unavailable":"timeout");this._locationOptions.setView&&!this._loaded&&this.fitWorld(),this.fire("locationerror",{code:e,message:"Geolocation error: "+i+"."})},_handleGeolocationResponse:function(t){var e=180*t.coords.accuracy/4e7,i=2*e,o=t.coords.latitude,s=t.coords.longitude,a=new n.LatLng(o,s),r=new n.LatLng(o-e,s-i),h=new n.LatLng(o+e,s+i),l=new n.LatLngBounds(r,h),u=this._locationOptions;if(u.setView){var c=Math.min(this.getBoundsZoom(l),u.maxZoom);this.setView(a,c)}this.fire("locationfound",{latlng:a,bounds:l,accuracy:t.coords.accuracy})}})})(this,document);
+!function(t,e,i){var n=t.L,o={};o.version="0.6-dev","object"==typeof module&&"object"==typeof module.exports?module.exports=o:"function"==typeof define&&define.amd&&define("leaflet",[],function(){return o}),o.noConflict=function(){return t.L=n,this},t.L=o,o.Util={extend:function(t){var e,i,n,o,s=Array.prototype.slice.call(arguments,1);for(i=0,n=s.length;n>i;i++){o=s[i]||{};for(e in o)o.hasOwnProperty(e)&&(t[e]=o[e])}return t},bind:function(t,e){var i=arguments.length>2?Array.prototype.slice.call(arguments,2):null;return function(){return t.apply(e,i||arguments)}},stamp:function(){var t=0,e="_leaflet_id";return function(i){return i[e]=i[e]||++t,i[e]}}(),invokeEach:function(t,e,i){var n,o;if("object"==typeof t){o=Array.prototype.slice.call(arguments,3);for(n in t)e.apply(i,[n,t[n]].concat(o));return!0}return!1},limitExecByInterval:function(t,e,i){var n,o;return function s(){var a=arguments;return n?(o=!0,void 0):(n=!0,setTimeout(function(){n=!1,o&&(s.apply(i,a),o=!1)},e),t.apply(i,a),void 0)}},falseFn:function(){return!1},formatNum:function(t,e){var i=Math.pow(10,e||5);return Math.round(t*i)/i},trim:function(t){return t.trim?t.trim():t.replace(/^\s+|\s+$/g,"")},splitWords:function(t){return o.Util.trim(t).split(/\s+/)},setOptions:function(t,e){return t.options=o.extend({},t.options,e),t.options},getParamString:function(t,e){var i=[];for(var n in t)i.push(encodeURIComponent(n)+"="+encodeURIComponent(t[n]));return(e&&-1!==e.indexOf("?")?"&":"?")+i.join("&")},template:function(t,e){return t.replace(/\{ *([\w_]+) *\}/g,function(t,n){var o=e[n];if(o===i)throw new Error("No value provided for variable "+t);return"function"==typeof o&&(o=o(e)),o})},isArray:function(t){return"[object Array]"===Object.prototype.toString.call(t)},emptyImageUrl:"data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="},function(){function e(e){var i,n,o=["webkit","moz","o","ms"];for(i=0;i<o.length&&!n;i++)n=t[o[i]+e];return n}function i(e){var i=+new Date,o=Math.max(0,16-(i-n));return n=i+o,t.setTimeout(e,o)}var n=0,s=t.requestAnimationFrame||e("RequestAnimationFrame")||i,a=t.cancelAnimationFrame||e("CancelAnimationFrame")||e("CancelRequestAnimationFrame")||function(e){t.clearTimeout(e)};o.Util.requestAnimFrame=function(e,n,a,r){return e=o.bind(e,n),a&&s===i?(e(),void 0):s.call(t,e,r)},o.Util.cancelAnimFrame=function(e){e&&a.call(t,e)}}(),o.extend=o.Util.extend,o.bind=o.Util.bind,o.stamp=o.Util.stamp,o.setOptions=o.Util.setOptions,o.Class=function(){},o.Class.extend=function(t){var e=function(){this.initialize&&this.initialize.apply(this,arguments),this._initHooks&&this.callInitHooks()},i=function(){};i.prototype=this.prototype;var n=new i;n.constructor=e,e.prototype=n;for(var s in this)this.hasOwnProperty(s)&&"prototype"!==s&&(e[s]=this[s]);t.statics&&(o.extend(e,t.statics),delete t.statics),t.includes&&(o.Util.extend.apply(null,[n].concat(t.includes)),delete t.includes),t.options&&n.options&&(t.options=o.extend({},n.options,t.options)),o.extend(n,t),n._initHooks=[];var a=this;return e.__super__=a.prototype,n.callInitHooks=function(){if(!this._initHooksCalled){a.prototype.callInitHooks&&a.prototype.callInitHooks.call(this),this._initHooksCalled=!0;for(var t=0,e=n._initHooks.length;e>t;t++)n._initHooks[t].call(this)}},e},o.Class.include=function(t){o.extend(this.prototype,t)},o.Class.mergeOptions=function(t){o.extend(this.prototype.options,t)},o.Class.addInitHook=function(t){var e=Array.prototype.slice.call(arguments,1),i="function"==typeof t?t:function(){this[t].apply(this,e)};this.prototype._initHooks=this.prototype._initHooks||[],this.prototype._initHooks.push(i)};var s="_leaflet_events";o.Mixin={},o.Mixin.Events={addEventListener:function(t,e,i){if(o.Util.invokeEach(t,this.addEventListener,this,e,i))return this;var n,a,r,h,l,u,c,d=this[s]=this[s]||{},_=i&&o.stamp(i);for(t=o.Util.splitWords(t),n=0,a=t.length;a>n;n++)r={action:e,context:i||this},h=t[n],i?(l=h+"_idx",u=l+"_len",c=d[l]=d[l]||{},c[_]||(c[_]=[],d[u]=(d[u]||0)+1),c[_].push(r)):(d[h]=d[h]||[],d[h].push(r));return this},hasEventListeners:function(t){var e=this[s];return!!e&&(t in e&&e[t].length>0||t+"_idx"in e&&e[t+"_idx_len"]>0)},removeEventListener:function(t,e,i){if(!this[s])return this;if(!t)return this.clearAllEventListeners();if(o.Util.invokeEach(t,this.removeEventListener,this,e,i))return this;var n,a,r,h,l,u,c,d,_,p=this[s],m=i&&o.stamp(i);for(t=o.Util.splitWords(t),n=0,a=t.length;a>n;n++)if(r=t[n],u=r+"_idx",c=u+"_len",d=p[u],e){if(h=i&&d?d[m]:p[r]){for(l=h.length-1;l>=0;l--)h[l].action!==e||i&&h[l].context!==i||(_=h.splice(l,1),_[0].action=o.Util.falseFn);i&&d&&0===h.length&&(delete d[m],p[c]--)}}else delete p[r],delete p[u];return this},clearAllEventListeners:function(){return delete this[s],this},fireEvent:function(t,e){if(!this.hasEventListeners(t))return this;var i,n,a,r,h,l=o.Util.extend({},e,{type:t,target:this}),u=this[s];if(u[t])for(i=u[t].slice(),n=0,a=i.length;a>n;n++)i[n].action.call(i[n].context||this,l);r=u[t+"_idx"];for(h in r)if(i=r[h].slice())for(n=0,a=i.length;a>n;n++)i[n].action.call(i[n].context||this,l);return this},addOneTimeEventListener:function(t,e,i){if(o.Util.invokeEach(t,this.addOneTimeEventListener,this,e,i))return this;var n=o.bind(function(){this.removeEventListener(t,e,i).removeEventListener(t,n,i)},this);return this.addEventListener(t,e,i).addEventListener(t,n,i)}},o.Mixin.Events.on=o.Mixin.Events.addEventListener,o.Mixin.Events.off=o.Mixin.Events.removeEventListener,o.Mixin.Events.once=o.Mixin.Events.addOneTimeEventListener,o.Mixin.Events.fire=o.Mixin.Events.fireEvent,function(){var n=!!t.ActiveXObject,s=n&&!t.XMLHttpRequest,a=n&&!e.querySelector,r=n&&!e.addEventListener,h=navigator.userAgent.toLowerCase(),l=-1!==h.indexOf("webkit"),u=-1!==h.indexOf("chrome"),c=-1!==h.indexOf("phantom"),d=-1!==h.indexOf("android"),_=-1!==h.search("android [23]"),p=typeof orientation!=i+"",m=t.navigator&&t.navigator.msPointerEnabled&&t.navigator.msMaxTouchPoints,f="devicePixelRatio"in t&&t.devicePixelRatio>1||"matchMedia"in t&&t.matchMedia("(min-resolution:144dpi)")&&t.matchMedia("(min-resolution:144dpi)").matches,g=e.documentElement,v=n&&"transition"in g.style,y="WebKitCSSMatrix"in t&&"m11"in new t.WebKitCSSMatrix,L="MozPerspective"in g.style,P="OTransition"in g.style,x=!t.L_DISABLE_3D&&(v||y||L||P)&&!c,w=!t.L_NO_TOUCH&&!c&&function(){var t="ontouchstart";if(m||t in g)return!0;var i=e.createElement("div"),n=!1;return i.setAttribute?(i.setAttribute(t,"return;"),"function"==typeof i[t]&&(n=!0),i.removeAttribute(t),i=null,n):!1}();o.Browser={ie:n,ie6:s,ie7:a,ielt9:r,webkit:l,android:d,android23:_,chrome:u,ie3d:v,webkit3d:y,gecko3d:L,opera3d:P,any3d:x,mobile:p,mobileWebkit:p&&l,mobileWebkit3d:p&&y,mobileOpera:p&&t.opera,touch:w,msTouch:m,retina:f}}(),o.Point=function(t,e,i){this.x=i?Math.round(t):t,this.y=i?Math.round(e):e},o.Point.prototype={clone:function(){return new o.Point(this.x,this.y)},add:function(t){return this.clone()._add(o.point(t))},_add:function(t){return this.x+=t.x,this.y+=t.y,this},subtract:function(t){return this.clone()._subtract(o.point(t))},_subtract:function(t){return this.x-=t.x,this.y-=t.y,this},divideBy:function(t){return this.clone()._divideBy(t)},_divideBy:function(t){return this.x/=t,this.y/=t,this},multiplyBy:function(t){return this.clone()._multiplyBy(t)},_multiplyBy:function(t){return this.x*=t,this.y*=t,this},round:function(){return this.clone()._round()},_round:function(){return this.x=Math.round(this.x),this.y=Math.round(this.y),this},floor:function(){return this.clone()._floor()},_floor:function(){return this.x=Math.floor(this.x),this.y=Math.floor(this.y),this},distanceTo:function(t){t=o.point(t);var e=t.x-this.x,i=t.y-this.y;return Math.sqrt(e*e+i*i)},equals:function(t){return t=o.point(t),t.x===this.x&&t.y===this.y},contains:function(t){return t=o.point(t),Math.abs(t.x)<=Math.abs(this.x)&&Math.abs(t.y)<=Math.abs(this.y)},toString:function(){return"Point("+o.Util.formatNum(this.x)+", "+o.Util.formatNum(this.y)+")"}},o.point=function(t,e,n){return t instanceof o.Point?t:o.Util.isArray(t)?new o.Point(t[0],t[1]):t===i||null===t?t:new o.Point(t,e,n)},o.Bounds=function(t,e){if(t)for(var i=e?[t,e]:t,n=0,o=i.length;o>n;n++)this.extend(i[n])},o.Bounds.prototype={extend:function(t){return t=o.point(t),this.min||this.max?(this.min.x=Math.min(t.x,this.min.x),this.max.x=Math.max(t.x,this.max.x),this.min.y=Math.min(t.y,this.min.y),this.max.y=Math.max(t.y,this.max.y)):(this.min=t.clone(),this.max=t.clone()),this},getCenter:function(t){return new o.Point((this.min.x+this.max.x)/2,(this.min.y+this.max.y)/2,t)},getBottomLeft:function(){return new o.Point(this.min.x,this.max.y)},getTopRight:function(){return new o.Point(this.max.x,this.min.y)},getSize:function(){return this.max.subtract(this.min)},contains:function(t){var e,i;return t="number"==typeof t[0]||t instanceof o.Point?o.point(t):o.bounds(t),t instanceof o.Bounds?(e=t.min,i=t.max):e=i=t,e.x>=this.min.x&&i.x<=this.max.x&&e.y>=this.min.y&&i.y<=this.max.y},intersects:function(t){t=o.bounds(t);var e=this.min,i=this.max,n=t.min,s=t.max,a=s.x>=e.x&&n.x<=i.x,r=s.y>=e.y&&n.y<=i.y;return a&&r},isValid:function(){return!(!this.min||!this.max)}},o.bounds=function(t,e){return!t||t instanceof o.Bounds?t:new o.Bounds(t,e)},o.Transformation=function(t,e,i,n){this._a=t,this._b=e,this._c=i,this._d=n},o.Transformation.prototype={transform:function(t,e){return this._transform(t.clone(),e)},_transform:function(t,e){return e=e||1,t.x=e*(this._a*t.x+this._b),t.y=e*(this._c*t.y+this._d),t},untransform:function(t,e){return e=e||1,new o.Point((t.x/e-this._b)/this._a,(t.y/e-this._d)/this._c)}},o.DomUtil={get:function(t){return"string"==typeof t?e.getElementById(t):t},getStyle:function(t,i){var n=t.style[i];if(!n&&t.currentStyle&&(n=t.currentStyle[i]),(!n||"auto"===n)&&e.defaultView){var o=e.defaultView.getComputedStyle(t,null);n=o?o[i]:null}return"auto"===n?null:n},getViewportOffset:function(t){var i,n=0,s=0,a=t,r=e.body,h=e.documentElement,l=o.Browser.ie7;do{if(n+=a.offsetTop||0,s+=a.offsetLeft||0,n+=parseInt(o.DomUtil.getStyle(a,"borderTopWidth"),10)||0,s+=parseInt(o.DomUtil.getStyle(a,"borderLeftWidth"),10)||0,i=o.DomUtil.getStyle(a,"position"),a.offsetParent===r&&"absolute"===i)break;if("fixed"===i){n+=r.scrollTop||h.scrollTop||0,s+=r.scrollLeft||h.scrollLeft||0;break}if("relative"===i&&!a.offsetLeft){var u=o.DomUtil.getStyle(a,"width"),c=o.DomUtil.getStyle(a,"max-width");if("none"!==u||"none"!==c){var d=a.getBoundingClientRect();s+=d.left+a.clientLeft}break}a=a.offsetParent}while(a);a=t;do{if(a===r)break;n-=a.scrollTop||0,s-=a.scrollLeft||0,o.DomUtil.documentIsLtr()||!o.Browser.webkit&&!l||(s+=a.scrollWidth-a.clientWidth,l&&"hidden"!==o.DomUtil.getStyle(a,"overflow-y")&&"hidden"!==o.DomUtil.getStyle(a,"overflow")&&(s+=17)),a=a.parentNode}while(a);return new o.Point(s,n)},documentIsLtr:function(){return o.DomUtil._docIsLtrCached||(o.DomUtil._docIsLtrCached=!0,o.DomUtil._docIsLtr="ltr"===o.DomUtil.getStyle(e.body,"direction")),o.DomUtil._docIsLtr},create:function(t,i,n){var o=e.createElement(t);return o.className=i,n&&n.appendChild(o),o},disableTextSelection:function(){e.selection&&e.selection.empty&&e.selection.empty(),this._onselectstart||(this._onselectstart=e.onselectstart||null,e.onselectstart=o.Util.falseFn)},enableTextSelection:function(){e.onselectstart===o.Util.falseFn&&(e.onselectstart=this._onselectstart,this._onselectstart=null)},hasClass:function(t,e){return t.className.length>0&&new RegExp("(^|\\s)"+e+"(\\s|$)").test(t.className)},addClass:function(t,e){o.DomUtil.hasClass(t,e)||(t.className+=(t.className?" ":"")+e)},removeClass:function(t,e){t.className=o.Util.trim((" "+t.className+" ").replace(" "+e+" "," "))},setOpacity:function(t,e){if("opacity"in t.style)t.style.opacity=e;else if("filter"in t.style){var i=!1,n="DXImageTransform.Microsoft.Alpha";try{i=t.filters.item(n)}catch(o){if(1===e)return}e=Math.round(100*e),i?(i.Enabled=100!==e,i.Opacity=e):t.style.filter+=" progid:"+n+"(opacity="+e+")"}},testProp:function(t){for(var i=e.documentElement.style,n=0;n<t.length;n++)if(t[n]in i)return t[n];return!1},getTranslateString:function(t){var e=o.Browser.webkit3d,i="translate"+(e?"3d":"")+"(",n=(e?",0":"")+")";return i+t.x+"px,"+t.y+"px"+n},getScaleString:function(t,e){var i=o.DomUtil.getTranslateString(e.add(e.multiplyBy(-1*t))),n=" scale("+t+") ";return i+n},setPosition:function(t,e,i){t._leaflet_pos=e,!i&&o.Browser.any3d?(t.style[o.DomUtil.TRANSFORM]=o.DomUtil.getTranslateString(e),o.Browser.mobileWebkit3d&&(t.style.WebkitBackfaceVisibility="hidden")):(t.style.left=e.x+"px",t.style.top=e.y+"px")},getPosition:function(t){return t._leaflet_pos}},o.DomUtil.TRANSFORM=o.DomUtil.testProp(["transform","WebkitTransform","OTransform","MozTransform","msTransform"]),o.DomUtil.TRANSITION=o.DomUtil.testProp(["webkitTransition","transition","OTransition","MozTransition","msTransition"]),o.DomUtil.TRANSITION_END="webkitTransition"===o.DomUtil.TRANSITION||"OTransition"===o.DomUtil.TRANSITION?o.DomUtil.TRANSITION+"End":"transitionend",o.LatLng=function(t,e){var i=parseFloat(t),n=parseFloat(e);if(isNaN(i)||isNaN(n))throw new Error("Invalid LatLng object: ("+t+", "+e+")");this.lat=i,this.lng=n},o.extend(o.LatLng,{DEG_TO_RAD:Math.PI/180,RAD_TO_DEG:180/Math.PI,MAX_MARGIN:1e-9}),o.LatLng.prototype={equals:function(t){if(!t)return!1;t=o.latLng(t);var e=Math.max(Math.abs(this.lat-t.lat),Math.abs(this.lng-t.lng));return e<=o.LatLng.MAX_MARGIN},toString:function(t){return"LatLng("+o.Util.formatNum(this.lat,t)+", "+o.Util.formatNum(this.lng,t)+")"},distanceTo:function(t){t=o.latLng(t);var e=6378137,i=o.LatLng.DEG_TO_RAD,n=(t.lat-this.lat)*i,s=(t.lng-this.lng)*i,a=this.lat*i,r=t.lat*i,h=Math.sin(n/2),l=Math.sin(s/2),u=h*h+l*l*Math.cos(a)*Math.cos(r);return 2*e*Math.atan2(Math.sqrt(u),Math.sqrt(1-u))},wrap:function(t,e){var i=this.lng;return t=t||-180,e=e||180,i=(i+e)%(e-t)+(t>i||i===e?e:t),new o.LatLng(this.lat,i)}},o.latLng=function(t,e){return t instanceof o.LatLng?t:o.Util.isArray(t)?new o.LatLng(t[0],t[1]):t===i||null===t?t:"object"==typeof t&&"lat"in t?new o.LatLng(t.lat,"lng"in t?t.lng:t.lon):new o.LatLng(t,e)},o.LatLngBounds=function(t,e){if(t)for(var i=e?[t,e]:t,n=0,o=i.length;o>n;n++)this.extend(i[n])},o.LatLngBounds.prototype={extend:function(t){return t?(t="number"==typeof t[0]||"string"==typeof t[0]||t instanceof o.LatLng?o.latLng(t):o.latLngBounds(t),t instanceof o.LatLng?this._southWest||this._northEast?(this._southWest.lat=Math.min(t.lat,this._southWest.lat),this._southWest.lng=Math.min(t.lng,this._southWest.lng),this._northEast.lat=Math.max(t.lat,this._northEast.lat),this._northEast.lng=Math.max(t.lng,this._northEast.lng)):(this._southWest=new o.LatLng(t.lat,t.lng),this._northEast=new o.LatLng(t.lat,t.lng)):t instanceof o.LatLngBounds&&(this.extend(t._southWest),this.extend(t._northEast)),this):this},pad:function(t){var e=this._southWest,i=this._northEast,n=Math.abs(e.lat-i.lat)*t,s=Math.abs(e.lng-i.lng)*t;return new o.LatLngBounds(new o.LatLng(e.lat-n,e.lng-s),new o.LatLng(i.lat+n,i.lng+s))},getCenter:function(){return new o.LatLng((this._southWest.lat+this._northEast.lat)/2,(this._southWest.lng+this._northEast.lng)/2)},getSouthWest:function(){return this._southWest},getNorthEast:function(){return this._northEast},getNorthWest:function(){return new o.LatLng(this.getNorth(),this.getWest())},getSouthEast:function(){return new o.LatLng(this.getSouth(),this.getEast())},getWest:function(){return this._southWest.lng},getSouth:function(){return this._southWest.lat},getEast:function(){return this._northEast.lng},getNorth:function(){return this._northEast.lat},contains:function(t){t="number"==typeof t[0]||t instanceof o.LatLng?o.latLng(t):o.latLngBounds(t);var e,i,n=this._southWest,s=this._northEast;return t instanceof o.LatLngBounds?(e=t.getSouthWest(),i=t.getNorthEast()):e=i=t,e.lat>=n.lat&&i.lat<=s.lat&&e.lng>=n.lng&&i.lng<=s.lng},intersects:function(t){t=o.latLngBounds(t);var e=this._southWest,i=this._northEast,n=t.getSouthWest(),s=t.getNorthEast(),a=s.lat>=e.lat&&n.lat<=i.lat,r=s.lng>=e.lng&&n.lng<=i.lng;return a&&r},toBBoxString:function(){return[this.getWest(),this.getSouth(),this.getEast(),this.getNorth()].join(",")},equals:function(t){return t?(t=o.latLngBounds(t),this._southWest.equals(t.getSouthWest())&&this._northEast.equals(t.getNorthEast())):!1},isValid:function(){return!(!this._southWest||!this._northEast)}},o.latLngBounds=function(t,e){return!t||t instanceof o.LatLngBounds?t:new o.LatLngBounds(t,e)},o.Projection={},o.Projection.SphericalMercator={MAX_LATITUDE:85.0511287798,project:function(t){var e=o.LatLng.DEG_TO_RAD,i=this.MAX_LATITUDE,n=Math.max(Math.min(i,t.lat),-i),s=t.lng*e,a=n*e;return a=Math.log(Math.tan(Math.PI/4+a/2)),new o.Point(s,a)},unproject:function(t){var e=o.LatLng.RAD_TO_DEG,i=t.x*e,n=(2*Math.atan(Math.exp(t.y))-Math.PI/2)*e;return new o.LatLng(n,i)}},o.Projection.LonLat={project:function(t){return new o.Point(t.lng,t.lat)},unproject:function(t){return new o.LatLng(t.y,t.x)}},o.CRS={latLngToPoint:function(t,e){var i=this.projection.project(t),n=this.scale(e);return this.transformation._transform(i,n)},pointToLatLng:function(t,e){var i=this.scale(e),n=this.transformation.untransform(t,i);return this.projection.unproject(n)},project:function(t){return this.projection.project(t)},scale:function(t){return 256*Math.pow(2,t)}},o.CRS.Simple=o.extend({},o.CRS,{projection:o.Projection.LonLat,transformation:new o.Transformation(1,0,-1,0),scale:function(t){return Math.pow(2,t)}}),o.CRS.EPSG3857=o.extend({},o.CRS,{code:"EPSG:3857",projection:o.Projection.SphericalMercator,transformation:new o.Transformation(.5/Math.PI,.5,-.5/Math.PI,.5),project:function(t){var e=this.projection.project(t),i=6378137;return e.multiplyBy(i)}}),o.CRS.EPSG900913=o.extend({},o.CRS.EPSG3857,{code:"EPSG:900913"}),o.CRS.EPSG4326=o.extend({},o.CRS,{code:"EPSG:4326",projection:o.Projection.LonLat,transformation:new o.Transformation(1/360,.5,-1/360,.5)}),o.Map=o.Class.extend({includes:o.Mixin.Events,options:{crs:o.CRS.EPSG3857,fadeAnimation:o.DomUtil.TRANSITION&&!o.Browser.android23,trackResize:!0,markerZoomAnimation:o.DomUtil.TRANSITION&&o.Browser.any3d},initialize:function(t,e){e=o.setOptions(this,e),this._initContainer(t),this._initLayout(),this._initEvents(),e.maxBounds&&this.setMaxBounds(e.maxBounds),e.center&&e.zoom!==i&&this.setView(o.latLng(e.center),e.zoom,{reset:!0}),this._initLayers(e.layers),this._handlers=[],this.callInitHooks()},setView:function(t,e){return this._resetView(o.latLng(t),this._limitZoom(e)),this},setZoom:function(t,e){return this.setView(this.getCenter(),t,{zoom:e})},zoomIn:function(t,e){return this.setZoom(this._zoom+(t||1),e)},zoomOut:function(t,e){return this.setZoom(this._zoom-(t||1),e)},setZoomAround:function(t,e,i){var n=this.getZoomScale(e),s=this.getSize().divideBy(2),a=t instanceof o.Point?t:this.latLngToContainerPoint(t),r=a.subtract(s).multiplyBy(1-1/n),h=this.containerPointToLatLng(s.add(r));return this.setView(h,e,{zoom:i})},fitBounds:function(t,e){e=e||{},t=t.getBounds?t.getBounds():o.latLngBounds(t);var i=o.point(e.paddingTopLeft||e.padding||[0,0]),n=o.point(e.paddingBottomRight||e.padding||[0,0]),s=this.getBoundsZoom(t,!1,i.add(n)),a=n.subtract(i).divideBy(2),r=this.project(t.getSouthWest(),s),h=this.project(t.getNorthEast(),s),l=this.unproject(r.add(h).divideBy(2).add(a),s);return this.setView(l,s,e)},fitWorld:function(t){return this.fitBounds([[-90,-180],[90,180]],t)},panTo:function(t,e){return this.setView(t,this._zoom,{pan:e})},panBy:function(t){return this.fire("movestart"),this._rawPanBy(o.point(t)),this.fire("move"),this.fire("moveend")},setMaxBounds:function(t){if(t=o.latLngBounds(t),this.options.maxBounds=t,!t)return this._boundsMinZoom=null,this;var e=this.getBoundsZoom(t,!0);return this._boundsMinZoom=e,this._loaded&&(this._zoom<e?this.setView(t.getCenter(),e):this.panInsideBounds(t)),this.on("moveend",this._panInsideMaxBounds,this),this},panInsideBounds:function(t){t=o.latLngBounds(t);var e=this.getPixelBounds(),i=e.getBottomLeft(),n=e.getTopRight(),s=this.project(t.getSouthWest()),a=this.project(t.getNorthEast()),r=0,h=0;return n.y<a.y&&(h=Math.ceil(a.y-n.y)),n.x>a.x&&(r=Math.floor(a.x-n.x)),i.y>s.y&&(h=Math.floor(s.y-i.y)),i.x<s.x&&(r=Math.ceil(s.x-i.x)),r||h?this.panBy([r,h]):this},addLayer:function(t){var e=o.stamp(t);return this._layers[e]?this:(this._layers[e]=t,!t.options||isNaN(t.options.maxZoom)&&isNaN(t.options.minZoom)||(this._zoomBoundLayers[e]=t,this._updateZoomLevels()),this.options.zoomAnimation&&o.TileLayer&&t instanceof o.TileLayer&&(this._tileLayersNum++,this._tileLayersToLoad++,t.on("load",this._onTileLayerLoad,this)),this._loaded&&this._layerAdd(t),this)},removeLayer:function(t){var e=o.stamp(t);if(this._layers[e])return this._loaded&&(t.onRemove(this),this.fire("layerremove",{layer:t})),delete this._layers[e],this._zoomBoundLayers[e]&&(delete this._zoomBoundLayers[e],this._updateZoomLevels()),this.options.zoomAnimation&&o.TileLayer&&t instanceof o.TileLayer&&(this._tileLayersNum--,this._tileLayersToLoad--,t.off("load",this._onTileLayerLoad,this)),this},hasLayer:function(t){return t?o.stamp(t)in this._layers:!1},eachLayer:function(t,e){for(var i in this._layers)t.call(e,this._layers[i]);return this},invalidateSize:function(t){var e=this.getSize();if(this._sizeChanged=!0,this.options.maxBounds&&this.setMaxBounds(this.options.maxBounds),!this._loaded)return this;var i=this.getSize(),n=e.subtract(i).divideBy(2).round();return(0!==n.x||0!==n.y)&&(t===!0?this.panBy(n):(this._rawPanBy(n),this.fire("move"),clearTimeout(this._sizeTimer),this._sizeTimer=setTimeout(o.bind(this.fire,this,"moveend"),200)),this.fire("resize",{oldSize:e,newSize:i})),this},addHandler:function(t,e){if(e){var i=this[t]=new e(this);return this._handlers.push(i),this.options[t]&&i.enable(),this}},remove:function(){return this._loaded&&this.fire("unload"),this._initEvents("off"),delete this._container._leaflet,this._clearPanes(),this._clearControlPos&&this._clearControlPos(),this._clearHandlers(),this},getCenter:function(){return this._checkIfLoaded(),this._moved()?this.layerPointToLatLng(this._getCenterLayerPoint()):this._initialCenter},getZoom:function(){return this._zoom},getBounds:function(){var t=this.getPixelBounds(),e=this.unproject(t.getBottomLeft()),i=this.unproject(t.getTopRight());return new o.LatLngBounds(e,i)},getMinZoom:function(){var t=this.options.minZoom||0,e=this._layersMinZoom||0,i=this._boundsMinZoom||0;return Math.max(t,e,i)},getMaxZoom:function(){var t=this.options.maxZoom===i?1/0:this.options.maxZoom,e=this._layersMaxZoom===i?1/0:this._layersMaxZoom;return Math.min(t,e)},getBoundsZoom:function(t,e,i){t=o.latLngBounds(t);var n,s=this.getMinZoom()-(e?1:0),a=this.getMaxZoom(),r=this.getSize(),h=t.getNorthWest(),l=t.getSouthEast(),u=!0;i=o.point(i||[0,0]);do s++,n=this.project(l,s).subtract(this.project(h,s)).add(i),u=e?n.x<r.x||n.y<r.y:r.contains(n);while(u&&a>=s);return u&&e?null:e?s:s-1},getSize:function(){return(!this._size||this._sizeChanged)&&(this._size=new o.Point(this._container.clientWidth,this._container.clientHeight),this._sizeChanged=!1),this._size.clone()},getPixelBounds:function(){var t=this._getTopLeftPoint();return new o.Bounds(t,t.add(this.getSize()))},getPixelOrigin:function(){return this._checkIfLoaded(),this._initialTopLeftPoint},getPanes:function(){return this._panes},getContainer:function(){return this._container},getZoomScale:function(t){var e=this.options.crs;return e.scale(t)/e.scale(this._zoom)},getScaleZoom:function(t){return this._zoom+Math.log(t)/Math.LN2},project:function(t,e){return e=e===i?this._zoom:e,this.options.crs.latLngToPoint(o.latLng(t),e)},unproject:function(t,e){return e=e===i?this._zoom:e,this.options.crs.pointToLatLng(o.point(t),e)},layerPointToLatLng:function(t){var e=o.point(t).add(this.getPixelOrigin());return this.unproject(e)},latLngToLayerPoint:function(t){var e=this.project(o.latLng(t))._round();return e._subtract(this.getPixelOrigin())},containerPointToLayerPoint:function(t){return o.point(t).subtract(this._getMapPanePos())},layerPointToContainerPoint:function(t){return o.point(t).add(this._getMapPanePos())},containerPointToLatLng:function(t){var e=this.containerPointToLayerPoint(o.point(t));return this.layerPointToLatLng(e)},latLngToContainerPoint:function(t){return this.layerPointToContainerPoint(this.latLngToLayerPoint(o.latLng(t)))},mouseEventToContainerPoint:function(t){return o.DomEvent.getMousePosition(t,this._container)},mouseEventToLayerPoint:function(t){return this.containerPointToLayerPoint(this.mouseEventToContainerPoint(t))},mouseEventToLatLng:function(t){return this.layerPointToLatLng(this.mouseEventToLayerPoint(t))},_initContainer:function(t){var e=this._container=o.DomUtil.get(t);if(!e)throw new Error("Map container not found.");if(e._leaflet)throw new Error("Map container is already initialized.");e._leaflet=!0},_initLayout:function(){var t=this._container;o.DomUtil.addClass(t,"leaflet-container"),o.Browser.touch&&o.DomUtil.addClass(t,"leaflet-touch"),this.options.fadeAnimation&&o.DomUtil.addClass(t,"leaflet-fade-anim");var e=o.DomUtil.getStyle(t,"position");"absolute"!==e&&"relative"!==e&&"fixed"!==e&&(t.style.position="relative"),this._initPanes(),this._initControlPos&&this._initControlPos()},_initPanes:function(){var t=this._panes={};this._mapPane=t.mapPane=this._createPane("leaflet-map-pane",this._container),this._tilePane=t.tilePane=this._createPane("leaflet-tile-pane",this._mapPane),t.objectsPane=this._createPane("leaflet-objects-pane",this._mapPane),t.shadowPane=this._createPane("leaflet-shadow-pane"),t.overlayPane=this._createPane("leaflet-overlay-pane"),t.markerPane=this._createPane("leaflet-marker-pane"),t.popupPane=this._createPane("leaflet-popup-pane");var e=" leaflet-zoom-hide";this.options.markerZoomAnimation||(o.DomUtil.addClass(t.markerPane,e),o.DomUtil.addClass(t.shadowPane,e),o.DomUtil.addClass(t.popupPane,e))},_createPane:function(t,e){return o.DomUtil.create("div",t,e||this._panes.objectsPane)},_clearPanes:function(){this._container.removeChild(this._mapPane)},_initLayers:function(t){t=t?o.Util.isArray(t)?t:[t]:[],this._layers={},this._zoomBoundLayers={},this._tileLayersNum=0;var e,i;for(e=0,i=t.length;i>e;e++)this.addLayer(t[e])},_resetView:function(t,e,i,n){var s=this._zoom!==e;n||(this.fire("movestart"),s&&this.fire("zoomstart")),this._zoom=e,this._initialCenter=t,this._initialTopLeftPoint=this._getNewTopLeftPoint(t),i?this._initialTopLeftPoint._add(this._getMapPanePos()):o.DomUtil.setPosition(this._mapPane,new o.Point(0,0)),this._tileLayersToLoad=this._tileLayersNum;var a=!this._loaded;this._loaded=!0,a&&(this.fire("load"),this.eachLayer(this._layerAdd,this)),this.fire("viewreset",{hard:!i}),this.fire("move"),(s||n)&&this.fire("zoomend"),this.fire("moveend",{hard:!i})},_rawPanBy:function(t){o.DomUtil.setPosition(this._mapPane,this._getMapPanePos().subtract(t))},_getZoomSpan:function(){return this.getMaxZoom()-this.getMinZoom()},_updateZoomLevels:function(){var t,e=1/0,n=-1/0,o=this._getZoomSpan();for(t in this._zoomBoundLayers){var s=this._zoomBoundLayers[t];isNaN(s.options.minZoom)||(e=Math.min(e,s.options.minZoom)),isNaN(s.options.maxZoom)||(n=Math.max(n,s.options.maxZoom))}t===i?this._layersMaxZoom=this._layersMinZoom=i:(this._layersMaxZoom=n,this._layersMinZoom=e),o!==this._getZoomSpan()&&this.fire("zoomlevelschange")},_panInsideMaxBounds:function(){this.panInsideBounds(this.options.maxBounds)},_checkIfLoaded:function(){if(!this._loaded)throw new Error("Set map center and zoom first.")},_initEvents:function(e){if(o.DomEvent){e=e||"on",o.DomEvent[e](this._container,"click",this._onMouseClick,this);var i,n,s=["dblclick","mousedown","mouseup","mouseenter","mouseleave","mousemove","contextmenu"];for(i=0,n=s.length;n>i;i++)o.DomEvent[e](this._container,s[i],this._fireMouseEvent,this);this.options.trackResize&&o.DomEvent[e](t,"resize",this._onResize,this)}},_onResize:function(){o.Util.cancelAnimFrame(this._resizeRequest),this._resizeRequest=o.Util.requestAnimFrame(this.invalidateSize,this,!1,this._container)},_onMouseClick:function(t){!this._loaded||this.dragging&&this.dragging.moved()||(this.fire("preclick"),this._fireMouseEvent(t))},_fireMouseEvent:function(t){if(this._loaded){var e=t.type;if(e="mouseenter"===e?"mouseover":"mouseleave"===e?"mouseout":e,this.hasEventListeners(e)){"contextmenu"===e&&o.DomEvent.preventDefault(t);var i=this.mouseEventToContainerPoint(t),n=this.containerPointToLayerPoint(i),s=this.layerPointToLatLng(n);this.fire(e,{latlng:s,layerPoint:n,containerPoint:i,originalEvent:t})}}},_onTileLayerLoad:function(){this._tileLayersToLoad--,this._tileLayersNum&&!this._tileLayersToLoad&&this.fire("tilelayersload")},_clearHandlers:function(){for(var t=0,e=this._handlers.length;e>t;t++)this._handlers[t].disable()},whenReady:function(t,e){return this._loaded?t.call(e||this,this):this.on("load",t,e),this},_layerAdd:function(t){t.onAdd(this),this.fire("layeradd",{layer:t})},_getMapPanePos:function(){return o.DomUtil.getPosition(this._mapPane)},_moved:function(){var t=this._getMapPanePos();return t&&!t.equals([0,0])},_getTopLeftPoint:function(){return this.getPixelOrigin().subtract(this._getMapPanePos())},_getNewTopLeftPoint:function(t,e){var i=this.getSize()._divideBy(2);return this.project(t,e)._subtract(i)._round()},_latLngToNewLayerPoint:function(t,e,i){var n=this._getNewTopLeftPoint(i,e).add(this._getMapPanePos());return this.project(t,e)._subtract(n)},_getCenterLayerPoint:function(){return this.containerPointToLayerPoint(this.getSize()._divideBy(2))},_getCenterOffset:function(t){return this.latLngToLayerPoint(t).subtract(this._getCenterLayerPoint())},_limitZoom:function(t){var e=this.getMinZoom(),i=this.getMaxZoom();return Math.max(e,Math.min(i,t))}}),o.map=function(t,e){return new o.Map(t,e)},o.Projection.Mercator={MAX_LATITUDE:85.0840591556,R_MINOR:6356752.3142,R_MAJOR:6378137,project:function(t){var e=o.LatLng.DEG_TO_RAD,i=this.MAX_LATITUDE,n=Math.max(Math.min(i,t.lat),-i),s=this.R_MAJOR,a=this.R_MINOR,r=t.lng*e*s,h=n*e,l=a/s,u=Math.sqrt(1-l*l),c=u*Math.sin(h);c=Math.pow((1-c)/(1+c),.5*u);var d=Math.tan(.5*(.5*Math.PI-h))/c;return h=-a*Math.log(d),new o.Point(r,h)},unproject:function(t){for(var e,i=o.LatLng.RAD_TO_DEG,n=this.R_MAJOR,s=this.R_MINOR,a=t.x*i/n,r=s/n,h=Math.sqrt(1-r*r),l=Math.exp(-t.y/s),u=Math.PI/2-2*Math.atan(l),c=15,d=1e-7,_=c,p=.1;Math.abs(p)>d&&--_>0;)e=h*Math.sin(u),p=Math.PI/2-2*Math.atan(l*Math.pow((1-e)/(1+e),.5*h))-u,u+=p;return new o.LatLng(u*i,a)}},o.CRS.EPSG3395=o.extend({},o.CRS,{code:"EPSG:3395",projection:o.Projection.Mercator,transformation:function(){var t=o.Projection.Mercator,e=t.R_MAJOR,i=t.R_MINOR;return new o.Transformation(.5/(Math.PI*e),.5,-.5/(Math.PI*i),.5)}()}),o.TileLayer=o.Class.extend({includes:o.Mixin.Events,options:{minZoom:0,maxZoom:18,tileSize:256,subdomains:"abc",errorTileUrl:"",attribution:"",zoomOffset:0,opacity:1,unloadInvisibleTiles:o.Browser.mobile,updateWhenIdle:o.Browser.mobile},initialize:function(t,e){e=o.setOptions(this,e),e.detectRetina&&o.Browser.retina&&e.maxZoom>0&&(e.tileSize=Math.floor(e.tileSize/2),e.zoomOffset++,e.minZoom>0&&e.minZoom--,this.options.maxZoom--),e.bounds&&(e.bounds=o.latLngBounds(e.bounds)),this._url=t;var i=this.options.subdomains;"string"==typeof i&&(this.options.subdomains=i.split(""))},onAdd:function(t){this._map=t,this._animated=t.options.zoomAnimation&&o.Browser.any3d,this._initContainer(),this._createTileProto(),t.on({viewreset:this._reset,moveend:this._update},this),this._animated&&t.on({zoomanim:this._animateZoom,zoomend:this._endZoomAnim},this),this.options.updateWhenIdle||(this._limitedUpdate=o.Util.limitExecByInterval(this._update,150,this),t.on("move",this._limitedUpdate,this)),this._reset(),this._update()},addTo:function(t){return t.addLayer(this),this},onRemove:function(t){this._container.parentNode.removeChild(this._container),t.off({viewreset:this._reset,moveend:this._update},this),this._animated&&t.off({zoomanim:this._animateZoom,zoomend:this._endZoomAnim},this),this.options.updateWhenIdle||t.off("move",this._limitedUpdate,this),this._container=null,this._map=null
+},bringToFront:function(){var t=this._map._panes.tilePane;return this._container&&(t.appendChild(this._container),this._setAutoZIndex(t,Math.max)),this},bringToBack:function(){var t=this._map._panes.tilePane;return this._container&&(t.insertBefore(this._container,t.firstChild),this._setAutoZIndex(t,Math.min)),this},getAttribution:function(){return this.options.attribution},getContainer:function(){return this._container},setOpacity:function(t){return this.options.opacity=t,this._map&&this._updateOpacity(),this},setZIndex:function(t){return this.options.zIndex=t,this._updateZIndex(),this},setUrl:function(t,e){return this._url=t,e||this.redraw(),this},redraw:function(){return this._map&&(this._reset({hard:!0}),this._update()),this},_updateZIndex:function(){this._container&&this.options.zIndex!==i&&(this._container.style.zIndex=this.options.zIndex)},_setAutoZIndex:function(t,e){var i,n,o,s=t.children,a=-e(1/0,-1/0);for(n=0,o=s.length;o>n;n++)s[n]!==this._container&&(i=parseInt(s[n].style.zIndex,10),isNaN(i)||(a=e(a,i)));this.options.zIndex=this._container.style.zIndex=(isFinite(a)?a:0)+e(1,-1)},_updateOpacity:function(){var t,e=this._tiles;if(o.Browser.ielt9)for(t in e)o.DomUtil.setOpacity(e[t],this.options.opacity);else o.DomUtil.setOpacity(this._container,this.options.opacity);if(o.Browser.webkit)for(t in e)e[t].style.webkitTransform+=" translate(0,0)"},_initContainer:function(){var t=this._map._panes.tilePane;if(!this._container){if(this._container=o.DomUtil.create("div","leaflet-layer"),this._updateZIndex(),this._animated){var e="leaflet-tile-container leaflet-zoom-animated";this._bgBuffer=o.DomUtil.create("div",e,this._container),this._bgBuffer.style.zIndex=1,this._tileContainer=o.DomUtil.create("div",e,this._container),this._tileContainer.style.zIndex=2}else this._tileContainer=this._container;t.appendChild(this._container),this.options.opacity<1&&this._updateOpacity()}},_reset:function(t){for(var e in this._tiles)this.fire("tileunload",{tile:this._tiles[e]});this._tiles={},this._tilesToLoad=0,this.options.reuseTiles&&(this._unusedTiles=[]),this._tileContainer.innerHTML="",this._animated&&t&&t.hard&&this._clearBgBuffer(),this._initContainer()},_update:function(){if(this._map){var t=this._map.getPixelBounds(),e=this._map.getZoom(),i=this.options.tileSize;if(!(e>this.options.maxZoom||e<this.options.minZoom)){var n=o.bounds(t.min.divideBy(i)._floor(),t.max.divideBy(i)._floor());this._addTilesFromCenterOut(n),(this.options.unloadInvisibleTiles||this.options.reuseTiles)&&this._removeOtherTiles(n)}}},_addTilesFromCenterOut:function(t){var i,n,s,a=[],r=t.getCenter();for(i=t.min.y;i<=t.max.y;i++)for(n=t.min.x;n<=t.max.x;n++)s=new o.Point(n,i),this._tileShouldBeLoaded(s)&&a.push(s);var h=a.length;if(0!==h){a.sort(function(t,e){return t.distanceTo(r)-e.distanceTo(r)});var l=e.createDocumentFragment();for(this._tilesToLoad||this.fire("loading"),this._tilesToLoad+=h,n=0;h>n;n++)this._addTile(a[n],l);this._tileContainer.appendChild(l)}},_tileShouldBeLoaded:function(t){if(t.x+":"+t.y in this._tiles)return!1;var e=this.options;if(!e.continuousWorld){var i=this._getWrapTileNum();if(e.noWrap&&(t.x<0||t.x>=i)||t.y<0||t.y>=i)return!1}if(e.bounds){var n=e.tileSize,o=t.multiplyBy(n),s=o.add([n,n]),a=this._map.unproject(o),r=this._map.unproject(s);if(e.continuousWorld||e.noWrap||(a=a.wrap(),r=r.wrap()),!e.bounds.intersects([a,r]))return!1}return!0},_removeOtherTiles:function(t){var e,i,n,o;for(o in this._tiles)e=o.split(":"),i=parseInt(e[0],10),n=parseInt(e[1],10),(i<t.min.x||i>t.max.x||n<t.min.y||n>t.max.y)&&this._removeTile(o)},_removeTile:function(t){var e=this._tiles[t];this.fire("tileunload",{tile:e,url:e.src}),this.options.reuseTiles?(o.DomUtil.removeClass(e,"leaflet-tile-loaded"),this._unusedTiles.push(e)):e.parentNode===this._tileContainer&&this._tileContainer.removeChild(e),o.Browser.android||(e.onload=null,e.src=o.Util.emptyImageUrl),delete this._tiles[t]},_addTile:function(t,e){var i=this._getTilePos(t),n=this._getTile();o.DomUtil.setPosition(n,i,o.Browser.chrome||o.Browser.android23),this._tiles[t.x+":"+t.y]=n,this._loadTile(n,t),n.parentNode!==this._tileContainer&&e.appendChild(n)},_getZoomForUrl:function(){var t=this.options,e=this._map.getZoom();return t.zoomReverse&&(e=t.maxZoom-e),e+t.zoomOffset},_getTilePos:function(t){var e=this._map.getPixelOrigin(),i=this.options.tileSize;return t.multiplyBy(i).subtract(e)},getTileUrl:function(t){return o.Util.template(this._url,o.extend({s:this._getSubdomain(t),z:t.z,x:t.x,y:t.y},this.options))},_getWrapTileNum:function(){return Math.pow(2,this._getZoomForUrl())},_adjustTilePoint:function(t){var e=this._getWrapTileNum();this.options.continuousWorld||this.options.noWrap||(t.x=(t.x%e+e)%e),this.options.tms&&(t.y=e-t.y-1),t.z=this._getZoomForUrl()},_getSubdomain:function(t){var e=Math.abs(t.x+t.y)%this.options.subdomains.length;return this.options.subdomains[e]},_createTileProto:function(){var t=this._tileImg=o.DomUtil.create("img","leaflet-tile");t.style.width=t.style.height=this.options.tileSize+"px",t.galleryimg="no"},_getTile:function(){if(this.options.reuseTiles&&this._unusedTiles.length>0){var t=this._unusedTiles.pop();return this._resetTile(t),t}return this._createTile()},_resetTile:function(){},_createTile:function(){var t=this._tileImg.cloneNode(!1);return t.onselectstart=t.onmousemove=o.Util.falseFn,o.Browser.ielt9&&this.options.opacity!==i&&o.DomUtil.setOpacity(t,this.options.opacity),t},_loadTile:function(t,e){t._layer=this,t.onload=this._tileOnLoad,t.onerror=this._tileOnError,this._adjustTilePoint(e),t.src=this.getTileUrl(e)},_tileLoaded:function(){this._tilesToLoad--,this._tilesToLoad||(this.fire("load"),this._animated&&(clearTimeout(this._clearBgBufferTimer),this._clearBgBufferTimer=setTimeout(o.bind(this._clearBgBuffer,this),500)))},_tileOnLoad:function(){var t=this._layer;this.src!==o.Util.emptyImageUrl&&(o.DomUtil.addClass(this,"leaflet-tile-loaded"),t.fire("tileload",{tile:this,url:this.src})),t._tileLoaded()},_tileOnError:function(){var t=this._layer;t.fire("tileerror",{tile:this,url:this.src});var e=t.options.errorTileUrl;e&&(this.src=e),t._tileLoaded()}}),o.tileLayer=function(t,e){return new o.TileLayer(t,e)},o.TileLayer.WMS=o.TileLayer.extend({defaultWmsParams:{service:"WMS",request:"GetMap",version:"1.1.1",layers:"",styles:"",format:"image/jpeg",transparent:!1},initialize:function(t,e){this._url=t;var i=o.extend({},this.defaultWmsParams),n=e.tileSize||this.options.tileSize;i.width=i.height=e.detectRetina&&o.Browser.retina?2*n:n;for(var s in e)this.options.hasOwnProperty(s)||(i[s]=e[s]);this.wmsParams=i,o.setOptions(this,e)},onAdd:function(t){var e=parseFloat(this.wmsParams.version)>=1.3?"crs":"srs";this.wmsParams[e]=t.options.crs.code,o.TileLayer.prototype.onAdd.call(this,t)},getTileUrl:function(t,e){var i=this._map,n=i.options.crs,s=this.options.tileSize,a=t.multiplyBy(s),r=a.add([s,s]),h=n.project(i.unproject(a,e)),l=n.project(i.unproject(r,e)),u=[h.x,l.y,l.x,h.y].join(","),c=o.Util.template(this._url,{s:this._getSubdomain(t)});return c+o.Util.getParamString(this.wmsParams,c)+"&bbox="+u},setParams:function(t,e){return o.extend(this.wmsParams,t),e||this.redraw(),this}}),o.tileLayer.wms=function(t,e){return new o.TileLayer.WMS(t,e)},o.TileLayer.Canvas=o.TileLayer.extend({options:{async:!1},initialize:function(t){o.setOptions(this,t)},redraw:function(){for(var t in this._tiles)this._redrawTile(this._tiles[t]);return this},_redrawTile:function(t){this.drawTile(t,t._tilePoint,this._map._zoom)},_createTileProto:function(){var t=this._canvasProto=o.DomUtil.create("canvas","leaflet-tile");t.width=t.height=this.options.tileSize},_createTile:function(){var t=this._canvasProto.cloneNode(!1);return t.onselectstart=t.onmousemove=o.Util.falseFn,t},_loadTile:function(t,e){t._layer=this,t._tilePoint=e,this._redrawTile(t),this.options.async||this.tileDrawn(t)},drawTile:function(){},tileDrawn:function(t){this._tileOnLoad.call(t)}}),o.tileLayer.canvas=function(t){return new o.TileLayer.Canvas(t)},o.ImageOverlay=o.Class.extend({includes:o.Mixin.Events,options:{opacity:1},initialize:function(t,e,i){this._url=t,this._bounds=o.latLngBounds(e),o.setOptions(this,i)},onAdd:function(t){this._map=t,this._image||this._initImage(),t._panes.overlayPane.appendChild(this._image),t.on("viewreset",this._reset,this),t.options.zoomAnimation&&o.Browser.any3d&&t.on("zoomanim",this._animateZoom,this),this._reset()},onRemove:function(t){t.getPanes().overlayPane.removeChild(this._image),t.off("viewreset",this._reset,this),t.options.zoomAnimation&&t.off("zoomanim",this._animateZoom,this)},addTo:function(t){return t.addLayer(this),this},setOpacity:function(t){return this.options.opacity=t,this._updateOpacity(),this},bringToFront:function(){return this._image&&this._map._panes.overlayPane.appendChild(this._image),this},bringToBack:function(){var t=this._map._panes.overlayPane;return this._image&&t.insertBefore(this._image,t.firstChild),this},_initImage:function(){this._image=o.DomUtil.create("img","leaflet-image-layer"),this._map.options.zoomAnimation&&o.Browser.any3d?o.DomUtil.addClass(this._image,"leaflet-zoom-animated"):o.DomUtil.addClass(this._image,"leaflet-zoom-hide"),this._updateOpacity(),o.extend(this._image,{galleryimg:"no",onselectstart:o.Util.falseFn,onmousemove:o.Util.falseFn,onload:o.bind(this._onImageLoad,this),src:this._url})},_animateZoom:function(t){var e=this._map,i=this._image,n=e.getZoomScale(t.zoom),s=this._bounds.getNorthWest(),a=this._bounds.getSouthEast(),r=e._latLngToNewLayerPoint(s,t.zoom,t.center),h=e._latLngToNewLayerPoint(a,t.zoom,t.center)._subtract(r),l=r._add(h._multiplyBy(.5*(1-1/n)));i.style[o.DomUtil.TRANSFORM]=o.DomUtil.getTranslateString(l)+" scale("+n+") "},_reset:function(){var t=this._image,e=this._map.latLngToLayerPoint(this._bounds.getNorthWest()),i=this._map.latLngToLayerPoint(this._bounds.getSouthEast())._subtract(e);o.DomUtil.setPosition(t,e),t.style.width=i.x+"px",t.style.height=i.y+"px"},_onImageLoad:function(){this.fire("load")},_updateOpacity:function(){o.DomUtil.setOpacity(this._image,this.options.opacity)}}),o.imageOverlay=function(t,e,i){return new o.ImageOverlay(t,e,i)},o.Icon=o.Class.extend({options:{className:""},initialize:function(t){o.setOptions(this,t)},createIcon:function(t){return this._createIcon("icon",t)},createShadow:function(t){return this._createIcon("shadow",t)},_createIcon:function(t,e){var i=this._getIconUrl(t);if(!i){if("icon"===t)throw new Error("iconUrl not set in Icon options (see the docs).");return null}var n;return n=e?this._createImg(i,e):this._createImg(i),this._setIconStyles(n,t),n},_setIconStyles:function(t,e){var i,n=this.options,s=o.point(n[e+"Size"]);i="shadow"===e?o.point(n.shadowAnchor||n.iconAnchor):o.point(n.iconAnchor),!i&&s&&(i=s.divideBy(2,!0)),t.className="leaflet-marker-"+e+" "+n.className,i&&(t.style.marginLeft=-i.x+"px",t.style.marginTop=-i.y+"px"),s&&(t.style.width=s.x+"px",t.style.height=s.y+"px")},_createImg:function(t,i){return o.Browser.ie6?(i||(i=e.createElement("div")),i.style.filter='progid:DXImageTransform.Microsoft.AlphaImageLoader(src="'+t+'")'):(i||(i=e.createElement("img")),i.src=t),i},_getIconUrl:function(t){return o.Browser.retina&&this.options[t+"RetinaUrl"]?this.options[t+"RetinaUrl"]:this.options[t+"Url"]}}),o.icon=function(t){return new o.Icon(t)},o.Icon.Default=o.Icon.extend({options:{iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34],shadowSize:[41,41]},_getIconUrl:function(t){var e=t+"Url";if(this.options[e])return this.options[e];o.Browser.retina&&"icon"===t&&(t+="-2x");var i=o.Icon.Default.imagePath;if(!i)throw new Error("Couldn't autodetect L.Icon.Default.imagePath, set it manually.");return i+"/marker-"+t+".png"}}),o.Icon.Default.imagePath=function(){var t,i,n,o,s,a=e.getElementsByTagName("script"),r=/\/?leaflet[\-\._]?([\w\-\._]*)\.js\??/;for(t=0,i=a.length;i>t;t++)if(n=a[t].src,o=n.match(r))return s=n.split(r)[0],(s?s+"/":"")+"images"}(),o.Marker=o.Class.extend({includes:o.Mixin.Events,options:{icon:new o.Icon.Default,title:"",clickable:!0,draggable:!1,zIndexOffset:0,opacity:1,riseOnHover:!1,riseOffset:250},initialize:function(t,e){o.setOptions(this,e),this._latlng=o.latLng(t)},onAdd:function(t){this._map=t,t.on("viewreset",this.update,this),this._initIcon(),this.update(),t.options.zoomAnimation&&t.options.markerZoomAnimation&&t.on("zoomanim",this._animateZoom,this)},addTo:function(t){return t.addLayer(this),this},onRemove:function(t){this.dragging&&this.dragging.disable(),this._removeIcon(),this.fire("remove"),t.off({viewreset:this.update,zoomanim:this._animateZoom},this),this._map=null},getLatLng:function(){return this._latlng},setLatLng:function(t){return this._latlng=o.latLng(t),this.update(),this.fire("move",{latlng:this._latlng})},setZIndexOffset:function(t){return this.options.zIndexOffset=t,this.update(),this},setIcon:function(t){return this.options.icon=t,this._map&&(this._initIcon(),this.update()),this},update:function(){if(this._icon){var t=this._map.latLngToLayerPoint(this._latlng).round();this._setPos(t)}return this},_initIcon:function(){var t=this.options,e=this._map,i=e.options.zoomAnimation&&e.options.markerZoomAnimation,n=i?"leaflet-zoom-animated":"leaflet-zoom-hide",s=!1,a=this._icon;this._icon=a?this.options.icon.createIcon(this._icon):t.icon.createIcon(),t.title&&(this._icon.title=t.title),this._initInteraction(),s=this.options.opacity<1,o.DomUtil.addClass(this._icon,n),t.riseOnHover&&o.DomEvent.on(this._icon,"mouseover",this._bringToFront,this).on(this._icon,"mouseout",this._resetZIndex,this);var r=this._shadow;r?this._shadow=this.options.icon.createShadow(this._shadow):(this._shadow=t.icon.createShadow(),this._shadow&&(o.DomUtil.addClass(this._shadow,n),s=this.options.opacity<1)),s&&this._updateOpacity();var h=this._map._panes;a||h.markerPane.appendChild(this._icon),this._shadow&&!r&&h.shadowPane.appendChild(this._shadow)},_removeIcon:function(){var t=this._map._panes;this.options.riseOnHover&&o.DomEvent.off(this._icon,"mouseover",this._bringToFront).off(this._icon,"mouseout",this._resetZIndex),t.markerPane.removeChild(this._icon),this._shadow&&t.shadowPane.removeChild(this._shadow),this._icon=this._shadow=null},_setPos:function(t){o.DomUtil.setPosition(this._icon,t),this._shadow&&o.DomUtil.setPosition(this._shadow,t),this._zIndex=t.y+this.options.zIndexOffset,this._resetZIndex()},_updateZIndex:function(t){this._icon.style.zIndex=this._zIndex+t},_animateZoom:function(t){var e=this._map._latLngToNewLayerPoint(this._latlng,t.zoom,t.center);this._setPos(e)},_initInteraction:function(){if(this.options.clickable){var t=this._icon,e=["dblclick","mousedown","mouseover","mouseout","contextmenu"];o.DomUtil.addClass(t,"leaflet-clickable"),o.DomEvent.on(t,"click",this._onMouseClick,this);for(var i=0;i<e.length;i++)o.DomEvent.on(t,e[i],this._fireMouseEvent,this);o.Handler.MarkerDrag&&(this.dragging=new o.Handler.MarkerDrag(this),this.options.draggable&&this.dragging.enable())}},_onMouseClick:function(t){var e=this.dragging&&this.dragging.moved();(this.hasEventListeners(t.type)||e)&&o.DomEvent.stopPropagation(t),e||(this.dragging&&this.dragging._enabled||!this._map.dragging||!this._map.dragging.moved())&&this.fire(t.type,{originalEvent:t,latlng:this._latlng})},_fireMouseEvent:function(t){this.fire(t.type,{originalEvent:t,latlng:this._latlng}),"contextmenu"===t.type&&this.hasEventListeners(t.type)&&o.DomEvent.preventDefault(t),"mousedown"!==t.type&&o.DomEvent.stopPropagation(t)},setOpacity:function(t){this.options.opacity=t,this._map&&this._updateOpacity()},_updateOpacity:function(){o.DomUtil.setOpacity(this._icon,this.options.opacity),this._shadow&&o.DomUtil.setOpacity(this._shadow,this.options.opacity)},_bringToFront:function(){this._updateZIndex(this.options.riseOffset)},_resetZIndex:function(){this._updateZIndex(0)}}),o.marker=function(t,e){return new o.Marker(t,e)},o.DivIcon=o.Icon.extend({options:{iconSize:[12,12],className:"leaflet-div-icon",html:!1},createIcon:function(){var t=e.createElement("div"),i=this.options;return i.html!==!1&&(t.innerHTML=i.html),i.bgPos&&(t.style.backgroundPosition=-i.bgPos.x+"px "+-i.bgPos.y+"px"),this._setIconStyles(t,"icon"),t},createShadow:function(){return null}}),o.divIcon=function(t){return new o.DivIcon(t)},o.Map.mergeOptions({closePopupOnClick:!0}),o.Popup=o.Class.extend({includes:o.Mixin.Events,options:{minWidth:50,maxWidth:300,maxHeight:null,autoPan:!0,closeButton:!0,offset:[0,6],autoPanPadding:[5,5],keepInView:!1,className:"",zoomAnimation:!0},initialize:function(t,e){o.setOptions(this,t),this._source=e,this._animated=o.Browser.any3d&&this.options.zoomAnimation},onAdd:function(t){this._map=t,this._container||this._initLayout(),this._updateContent();var e=t.options.fadeAnimation;e&&o.DomUtil.setOpacity(this._container,0),t._panes.popupPane.appendChild(this._container),t.on(this._getEvents(),this),this._update(),e&&o.DomUtil.setOpacity(this._container,1),this.fire("open"),t.fire("popupopen",{popup:this}),this._source&&this._source.fire("popupopen",{popup:this})},addTo:function(t){return t.addLayer(this),this},openOn:function(t){return t.openPopup(this),this},onRemove:function(t){t._panes.popupPane.removeChild(this._container),o.Util.falseFn(this._container.offsetWidth),t.off(this._getEvents(),this),t.options.fadeAnimation&&o.DomUtil.setOpacity(this._container,0),this._map=null,this.fire("close"),t.fire("popupclose",{popup:this}),this._source&&this._source.fire("popupclose",{popup:this})},setLatLng:function(t){return this._latlng=o.latLng(t),this._update(),this},setContent:function(t){return this._content=t,this._update(),this},_getEvents:function(){var t={viewreset:this._updatePosition};return this._animated&&(t.zoomanim=this._zoomAnimation),("closeOnClick"in this.options?this.options.closeOnClick:this._map.options.closePopupOnClick)&&(t.preclick=this._close),this.options.keepInView&&(t.moveend=this._adjustPan),t},_close:function(){this._map&&this._map.closePopup(this)},_initLayout:function(){var t,e="leaflet-popup",i=e+" "+this.options.className+" leaflet-zoom-"+(this._animated?"animated":"hide"),n=this._container=o.DomUtil.create("div",i);this.options.closeButton&&(t=this._closeButton=o.DomUtil.create("a",e+"-close-button",n),t.href="#close",t.innerHTML="&#215;",o.DomEvent.disableClickPropagation(t),o.DomEvent.on(t,"click",this._onCloseButtonClick,this));var s=this._wrapper=o.DomUtil.create("div",e+"-content-wrapper",n);o.DomEvent.disableClickPropagation(s),this._contentNode=o.DomUtil.create("div",e+"-content",s),o.DomEvent.on(this._contentNode,"mousewheel",o.DomEvent.stopPropagation),this._tipContainer=o.DomUtil.create("div",e+"-tip-container",n),this._tip=o.DomUtil.create("div",e+"-tip",this._tipContainer)},_update:function(){this._map&&(this._container.style.visibility="hidden",this._updateContent(),this._updateLayout(),this._updatePosition(),this._container.style.visibility="",this._adjustPan())},_updateContent:function(){if(this._content){if("string"==typeof this._content)this._contentNode.innerHTML=this._content;else{for(;this._contentNode.hasChildNodes();)this._contentNode.removeChild(this._contentNode.firstChild);this._contentNode.appendChild(this._content)}this.fire("contentupdate")}},_updateLayout:function(){var t=this._contentNode,e=t.style;e.width="",e.whiteSpace="nowrap";var i=t.offsetWidth;i=Math.min(i,this.options.maxWidth),i=Math.max(i,this.options.minWidth),e.width=i+1+"px",e.whiteSpace="",e.height="";var n=t.offsetHeight,s=this.options.maxHeight,a="leaflet-popup-scrolled";s&&n>s?(e.height=s+"px",o.DomUtil.addClass(t,a)):o.DomUtil.removeClass(t,a),this._containerWidth=this._container.offsetWidth},_updatePosition:function(){if(this._map){var t=this._map.latLngToLayerPoint(this._latlng),e=this._animated,i=o.point(this.options.offset);e&&o.DomUtil.setPosition(this._container,t),this._containerBottom=-i.y-(e?0:t.y),this._containerLeft=-Math.round(this._containerWidth/2)+i.x+(e?0:t.x),this._container.style.bottom=this._containerBottom+"px",this._container.style.left=this._containerLeft+"px"}},_zoomAnimation:function(t){var e=this._map._latLngToNewLayerPoint(this._latlng,t.zoom,t.center);o.DomUtil.setPosition(this._container,e)},_adjustPan:function(){if(this.options.autoPan){var t=this._map,e=this._container.offsetHeight,i=this._containerWidth,n=new o.Point(this._containerLeft,-e-this._containerBottom);this._animated&&n._add(o.DomUtil.getPosition(this._container));var s=t.layerPointToContainerPoint(n),a=o.point(this.options.autoPanPadding),r=t.getSize(),h=0,l=0;s.x+i>r.x&&(h=s.x+i-r.x+a.x),s.x-h<0&&(h=s.x-a.x),s.y+e>r.y&&(l=s.y+e-r.y+a.y),s.y-l<0&&(l=s.y-a.y),(h||l)&&t.fire("autopanstart").panBy([h,l])}},_onCloseButtonClick:function(t){this._close(),o.DomEvent.stop(t)}}),o.popup=function(t,e){return new o.Popup(t,e)},o.Map.include({openPopup:function(t,e,i){if(this.closePopup(),!(t instanceof o.Popup)){var n=t;t=new o.Popup(i).setLatLng(e).setContent(n)}return this._popup=t,this.addLayer(t)},closePopup:function(t){return t&&t!==this._popup||(t=this._popup,this._popup=null),t&&this.removeLayer(t),this}}),o.Marker.include({openPopup:function(){return this._popup&&this._map&&!this._map.hasLayer(this._popup)&&(this._popup.setLatLng(this._latlng),this._map.openPopup(this._popup)),this},closePopup:function(){return this._popup&&this._popup._close(),this},bindPopup:function(t,e){var i=o.point(this.options.icon.options.popupAnchor||[0,0]);return i=i.add(o.Popup.prototype.options.offset),e&&e.offset&&(i=i.add(e.offset)),e=o.extend({offset:i},e),this._popup||this.on("click",this.openPopup,this).on("remove",this.closePopup,this).on("move",this._movePopup,this),t instanceof o.Popup?(o.setOptions(t,e),this._popup=t):this._popup=new o.Popup(e,this).setContent(t),this},setPopupContent:function(t){return this._popup&&this._popup.setContent(t),this},unbindPopup:function(){return this._popup&&(this._popup=null,this.off("click",this.openPopup).off("remove",this.closePopup).off("move",this._movePopup)),this},_movePopup:function(t){this._popup.setLatLng(t.latlng)}}),o.LayerGroup=o.Class.extend({initialize:function(t){this._layers={};var e,i;if(t)for(e=0,i=t.length;i>e;e++)this.addLayer(t[e])},addLayer:function(t){var e=this.getLayerId(t);return this._layers[e]=t,this._map&&this._map.addLayer(t),this},removeLayer:function(t){var e=t in this._layers?t:this.getLayerId(t);return this._map&&this._layers[e]&&this._map.removeLayer(this._layers[e]),delete this._layers[e],this},hasLayer:function(t){return t?t in this._layers||this.getLayerId(t)in this._layers:!1},clearLayers:function(){return this.eachLayer(this.removeLayer,this),this},invoke:function(t){var e,i,n=Array.prototype.slice.call(arguments,1);for(e in this._layers)i=this._layers[e],i[t]&&i[t].apply(i,n);return this},onAdd:function(t){this._map=t,this.eachLayer(t.addLayer,t)},onRemove:function(t){this.eachLayer(t.removeLayer,t),this._map=null},addTo:function(t){return t.addLayer(this),this},eachLayer:function(t,e){for(var i in this._layers)t.call(e,this._layers[i]);return this},getLayer:function(t){return this._layers[t]},getLayers:function(){var t=[];for(var e in this._layers)t.push(this._layers[e]);return t},setZIndex:function(t){return this.invoke("setZIndex",t)},getLayerId:function(t){return o.stamp(t)}}),o.layerGroup=function(t){return new o.LayerGroup(t)},o.FeatureGroup=o.LayerGroup.extend({includes:o.Mixin.Events,statics:{EVENTS:"click dblclick mouseover mouseout mousemove contextmenu"},addLayer:function(t){return this.hasLayer(t)?this:(t.on(o.FeatureGroup.EVENTS,this._propagateEvent,this),o.LayerGroup.prototype.addLayer.call(this,t),this._popupContent&&t.bindPopup&&t.bindPopup(this._popupContent,this._popupOptions),this.fire("layeradd",{layer:t}))},removeLayer:function(t){return t in this._layers&&(t=this._layers[t]),t.off(o.FeatureGroup.EVENTS,this._propagateEvent,this),o.LayerGroup.prototype.removeLayer.call(this,t),this._popupContent&&this.invoke("unbindPopup"),this.fire("layerremove",{layer:t})},bindPopup:function(t,e){return this._popupContent=t,this._popupOptions=e,this.invoke("bindPopup",t,e)},setStyle:function(t){return this.invoke("setStyle",t)},bringToFront:function(){return this.invoke("bringToFront")},bringToBack:function(){return this.invoke("bringToBack")},getBounds:function(){var t=new o.LatLngBounds;return this.eachLayer(function(e){t.extend(e instanceof o.Marker?e.getLatLng():e.getBounds())}),t},_propagateEvent:function(t){t.layer||(t.layer=t.target),t.target=this,this.fire(t.type,t)}}),o.featureGroup=function(t){return new o.FeatureGroup(t)},o.Path=o.Class.extend({includes:[o.Mixin.Events],statics:{CLIP_PADDING:o.Browser.mobile?Math.max(0,Math.min(.5,(1280/Math.max(t.innerWidth,t.innerHeight)-1)/2)):.5},options:{stroke:!0,color:"#0033ff",dashArray:null,weight:5,opacity:.5,fill:!1,fillColor:null,fillOpacity:.2,clickable:!0},initialize:function(t){o.setOptions(this,t)},onAdd:function(t){this._map=t,this._container||(this._initElements(),this._initEvents()),this.projectLatlngs(),this._updatePath(),this._container&&this._map._pathRoot.appendChild(this._container),this.fire("add"),t.on({viewreset:this.projectLatlngs,moveend:this._updatePath},this)},addTo:function(t){return t.addLayer(this),this},onRemove:function(t){t._pathRoot.removeChild(this._container),this.fire("remove"),this._map=null,o.Browser.vml&&(this._container=null,this._stroke=null,this._fill=null),t.off({viewreset:this.projectLatlngs,moveend:this._updatePath},this)},projectLatlngs:function(){},setStyle:function(t){return o.setOptions(this,t),this._container&&this._updateStyle(),this},redraw:function(){return this._map&&(this.projectLatlngs(),this._updatePath()),this}}),o.Map.include({_updatePathViewport:function(){var t=o.Path.CLIP_PADDING,e=this.getSize(),i=o.DomUtil.getPosition(this._mapPane),n=i.multiplyBy(-1)._subtract(e.multiplyBy(t)._round()),s=n.add(e.multiplyBy(1+2*t)._round());this._pathViewport=new o.Bounds(n,s)}}),o.Path.SVG_NS="http://www.w3.org/2000/svg",o.Browser.svg=!(!e.createElementNS||!e.createElementNS(o.Path.SVG_NS,"svg").createSVGRect),o.Path=o.Path.extend({statics:{SVG:o.Browser.svg},bringToFront:function(){var t=this._map._pathRoot,e=this._container;return e&&t.lastChild!==e&&t.appendChild(e),this},bringToBack:function(){var t=this._map._pathRoot,e=this._container,i=t.firstChild;return e&&i!==e&&t.insertBefore(e,i),this},getPathString:function(){},_createElement:function(t){return e.createElementNS(o.Path.SVG_NS,t)},_initElements:function(){this._map._initPathRoot(),this._initPath(),this._initStyle()},_initPath:function(){this._container=this._createElement("g"),this._path=this._createElement("path"),this._container.appendChild(this._path)},_initStyle:function(){this.options.stroke&&(this._path.setAttribute("stroke-linejoin","round"),this._path.setAttribute("stroke-linecap","round")),this.options.fill&&this._path.setAttribute("fill-rule","evenodd"),this.options.pointerEvents&&this._path.setAttribute("pointer-events",this.options.pointerEvents),this.options.clickable||this.options.pointerEvents||this._path.setAttribute("pointer-events","none"),this._updateStyle()},_updateStyle:function(){this.options.stroke?(this._path.setAttribute("stroke",this.options.color),this._path.setAttribute("stroke-opacity",this.options.opacity),this._path.setAttribute("stroke-width",this.options.weight),this.options.dashArray?this._path.setAttribute("stroke-dasharray",this.options.dashArray):this._path.removeAttribute("stroke-dasharray")):this._path.setAttribute("stroke","none"),this.options.fill?(this._path.setAttribute("fill",this.options.fillColor||this.options.color),this._path.setAttribute("fill-opacity",this.options.fillOpacity)):this._path.setAttribute("fill","none")},_updatePath:function(){var t=this.getPathString();t||(t="M0 0"),this._path.setAttribute("d",t)},_initEvents:function(){if(this.options.clickable){(o.Browser.svg||!o.Browser.vml)&&this._path.setAttribute("class","leaflet-clickable"),o.DomEvent.on(this._container,"click",this._onMouseClick,this);for(var t=["dblclick","mousedown","mouseover","mouseout","mousemove","contextmenu"],e=0;e<t.length;e++)o.DomEvent.on(this._container,t[e],this._fireMouseEvent,this)}},_onMouseClick:function(t){this._map.dragging&&this._map.dragging.moved()||this._fireMouseEvent(t)},_fireMouseEvent:function(t){if(this.hasEventListeners(t.type)){var e=this._map,i=e.mouseEventToContainerPoint(t),n=e.containerPointToLayerPoint(i),s=e.layerPointToLatLng(n);this.fire(t.type,{latlng:s,layerPoint:n,containerPoint:i,originalEvent:t}),"contextmenu"===t.type&&o.DomEvent.preventDefault(t),"mousemove"!==t.type&&o.DomEvent.stopPropagation(t)}}}),o.Map.include({_initPathRoot:function(){this._pathRoot||(this._pathRoot=o.Path.prototype._createElement("svg"),this._panes.overlayPane.appendChild(this._pathRoot),this.options.zoomAnimation&&o.Browser.any3d?(this._pathRoot.setAttribute("class"," leaflet-zoom-animated"),this.on({zoomanim:this._animatePathZoom,zoomend:this._endPathZoom})):this._pathRoot.setAttribute("class"," leaflet-zoom-hide"),this.on("moveend",this._updateSvgViewport),this._updateSvgViewport())},_animatePathZoom:function(t){var e=this.getZoomScale(t.zoom),i=this._getCenterOffset(t.center)._multiplyBy(-e)._add(this._pathViewport.min);this._pathRoot.style[o.DomUtil.TRANSFORM]=o.DomUtil.getTranslateString(i)+" scale("+e+") ",this._pathZooming=!0},_endPathZoom:function(){this._pathZooming=!1},_updateSvgViewport:function(){if(!this._pathZooming){this._updatePathViewport();var t=this._pathViewport,e=t.min,i=t.max,n=i.x-e.x,s=i.y-e.y,a=this._pathRoot,r=this._panes.overlayPane;o.Browser.mobileWebkit&&r.removeChild(a),o.DomUtil.setPosition(a,e),a.setAttribute("width",n),a.setAttribute("height",s),a.setAttribute("viewBox",[e.x,e.y,n,s].join(" ")),o.Browser.mobileWebkit&&r.appendChild(a)}}}),o.Path.include({bindPopup:function(t,e){return t instanceof o.Popup?this._popup=t:((!this._popup||e)&&(this._popup=new o.Popup(e,this)),this._popup.setContent(t)),this._popupHandlersAdded||(this.on("click",this._openPopup,this).on("remove",this.closePopup,this),this._popupHandlersAdded=!0),this},unbindPopup:function(){return this._popup&&(this._popup=null,this.off("click",this._openPopup).off("remove",this.closePopup),this._popupHandlersAdded=!1),this},openPopup:function(t){return this._popup&&(t=t||this._latlng||this._latlngs[Math.floor(this._latlngs.length/2)],this._openPopup({latlng:t})),this},closePopup:function(){return this._popup&&this._popup._close(),this},_openPopup:function(t){this._popup.setLatLng(t.latlng),this._map.openPopup(this._popup)}}),o.Browser.vml=!o.Browser.svg&&function(){try{var t=e.createElement("div");t.innerHTML='<v:shape adj="1"/>';var i=t.firstChild;return i.style.behavior="url(#default#VML)",i&&"object"==typeof i.adj}catch(n){return!1}}(),o.Path=o.Browser.svg||!o.Browser.vml?o.Path:o.Path.extend({statics:{VML:!0,CLIP_PADDING:.02},_createElement:function(){try{return e.namespaces.add("lvml","urn:schemas-microsoft-com:vml"),function(t){return e.createElement("<lvml:"+t+' class="lvml">')}}catch(t){return function(t){return e.createElement("<"+t+' xmlns="urn:schemas-microsoft.com:vml" class="lvml">')}}}(),_initPath:function(){var t=this._container=this._createElement("shape");o.DomUtil.addClass(t,"leaflet-vml-shape"),this.options.clickable&&o.DomUtil.addClass(t,"leaflet-clickable"),t.coordsize="1 1",this._path=this._createElement("path"),t.appendChild(this._path),this._map._pathRoot.appendChild(t)},_initStyle:function(){this._updateStyle()},_updateStyle:function(){var t=this._stroke,e=this._fill,i=this.options,n=this._container;n.stroked=i.stroke,n.filled=i.fill,i.stroke?(t||(t=this._stroke=this._createElement("stroke"),t.endcap="round",n.appendChild(t)),t.weight=i.weight+"px",t.color=i.color,t.opacity=i.opacity,t.dashStyle=i.dashArray?i.dashArray instanceof Array?i.dashArray.join(" "):i.dashArray.replace(/( *, *)/g," "):""):t&&(n.removeChild(t),this._stroke=null),i.fill?(e||(e=this._fill=this._createElement("fill"),n.appendChild(e)),e.color=i.fillColor||i.color,e.opacity=i.fillOpacity):e&&(n.removeChild(e),this._fill=null)
+},_updatePath:function(){var t=this._container.style;t.display="none",this._path.v=this.getPathString()+" ",t.display=""}}),o.Map.include(o.Browser.svg||!o.Browser.vml?{}:{_initPathRoot:function(){if(!this._pathRoot){var t=this._pathRoot=e.createElement("div");t.className="leaflet-vml-container",this._panes.overlayPane.appendChild(t),this.on("moveend",this._updatePathViewport),this._updatePathViewport()}}}),o.Browser.canvas=function(){return!!e.createElement("canvas").getContext}(),o.Path=o.Path.SVG&&!t.L_PREFER_CANVAS||!o.Browser.canvas?o.Path:o.Path.extend({statics:{CANVAS:!0,SVG:!1},redraw:function(){return this._map&&(this.projectLatlngs(),this._requestUpdate()),this},setStyle:function(t){return o.setOptions(this,t),this._map&&(this._updateStyle(),this._requestUpdate()),this},onRemove:function(t){t.off("viewreset",this.projectLatlngs,this).off("moveend",this._updatePath,this),this.options.clickable&&(this._map.off("click",this._onClick,this),this._map.off("mousemove",this._onMouseMove,this)),this._requestUpdate(),this._map=null},_requestUpdate:function(){this._map&&!o.Path._updateRequest&&(o.Path._updateRequest=o.Util.requestAnimFrame(this._fireMapMoveEnd,this._map))},_fireMapMoveEnd:function(){o.Path._updateRequest=null,this.fire("moveend")},_initElements:function(){this._map._initPathRoot(),this._ctx=this._map._canvasCtx},_updateStyle:function(){var t=this.options;t.stroke&&(this._ctx.lineWidth=t.weight,this._ctx.strokeStyle=t.color),t.fill&&(this._ctx.fillStyle=t.fillColor||t.color)},_drawPath:function(){var t,e,i,n,s,a;for(this._ctx.beginPath(),t=0,i=this._parts.length;i>t;t++){for(e=0,n=this._parts[t].length;n>e;e++)s=this._parts[t][e],a=(0===e?"move":"line")+"To",this._ctx[a](s.x,s.y);this instanceof o.Polygon&&this._ctx.closePath()}},_checkIfEmpty:function(){return!this._parts.length},_updatePath:function(){if(!this._checkIfEmpty()){var t=this._ctx,e=this.options;this._drawPath(),t.save(),this._updateStyle(),e.fill&&(t.globalAlpha=e.fillOpacity,t.fill()),e.stroke&&(t.globalAlpha=e.opacity,t.stroke()),t.restore()}},_initEvents:function(){this.options.clickable&&(this._map.on("mousemove",this._onMouseMove,this),this._map.on("click",this._onClick,this))},_onClick:function(t){this._containsPoint(t.layerPoint)&&this.fire("click",t)},_onMouseMove:function(t){this._map&&!this._map._animatingZoom&&(this._containsPoint(t.layerPoint)?(this._ctx.canvas.style.cursor="pointer",this._mouseInside=!0,this.fire("mouseover",t)):this._mouseInside&&(this._ctx.canvas.style.cursor="",this._mouseInside=!1,this.fire("mouseout",t)))}}),o.Map.include(o.Path.SVG&&!t.L_PREFER_CANVAS||!o.Browser.canvas?{}:{_initPathRoot:function(){var t,i=this._pathRoot;i||(i=this._pathRoot=e.createElement("canvas"),i.style.position="absolute",t=this._canvasCtx=i.getContext("2d"),t.lineCap="round",t.lineJoin="round",this._panes.overlayPane.appendChild(i),this.options.zoomAnimation&&(this._pathRoot.className="leaflet-zoom-animated",this.on("zoomanim",this._animatePathZoom),this.on("zoomend",this._endPathZoom)),this.on("moveend",this._updateCanvasViewport),this._updateCanvasViewport())},_updateCanvasViewport:function(){if(!this._pathZooming){this._updatePathViewport();var t=this._pathViewport,e=t.min,i=t.max.subtract(e),n=this._pathRoot;o.DomUtil.setPosition(n,e),n.width=i.x,n.height=i.y,n.getContext("2d").translate(-e.x,-e.y)}}}),o.LineUtil={simplify:function(t,e){if(!e||!t.length)return t.slice();var i=e*e;return t=this._reducePoints(t,i),t=this._simplifyDP(t,i)},pointToSegmentDistance:function(t,e,i){return Math.sqrt(this._sqClosestPointOnSegment(t,e,i,!0))},closestPointOnSegment:function(t,e,i){return this._sqClosestPointOnSegment(t,e,i)},_simplifyDP:function(t,e){var n=t.length,o=typeof Uint8Array!=i+""?Uint8Array:Array,s=new o(n);s[0]=s[n-1]=1,this._simplifyDPStep(t,s,e,0,n-1);var a,r=[];for(a=0;n>a;a++)s[a]&&r.push(t[a]);return r},_simplifyDPStep:function(t,e,i,n,o){var s,a,r,h=0;for(a=n+1;o-1>=a;a++)r=this._sqClosestPointOnSegment(t[a],t[n],t[o],!0),r>h&&(s=a,h=r);h>i&&(e[s]=1,this._simplifyDPStep(t,e,i,n,s),this._simplifyDPStep(t,e,i,s,o))},_reducePoints:function(t,e){for(var i=[t[0]],n=1,o=0,s=t.length;s>n;n++)this._sqDist(t[n],t[o])>e&&(i.push(t[n]),o=n);return s-1>o&&i.push(t[s-1]),i},clipSegment:function(t,e,i,n){var o,s,a,r=n?this._lastCode:this._getBitCode(t,i),h=this._getBitCode(e,i);for(this._lastCode=h;;){if(!(r|h))return[t,e];if(r&h)return!1;o=r||h,s=this._getEdgeIntersection(t,e,o,i),a=this._getBitCode(s,i),o===r?(t=s,r=a):(e=s,h=a)}},_getEdgeIntersection:function(t,e,i,n){var s=e.x-t.x,a=e.y-t.y,r=n.min,h=n.max;return 8&i?new o.Point(t.x+s*(h.y-t.y)/a,h.y):4&i?new o.Point(t.x+s*(r.y-t.y)/a,r.y):2&i?new o.Point(h.x,t.y+a*(h.x-t.x)/s):1&i?new o.Point(r.x,t.y+a*(r.x-t.x)/s):void 0},_getBitCode:function(t,e){var i=0;return t.x<e.min.x?i|=1:t.x>e.max.x&&(i|=2),t.y<e.min.y?i|=4:t.y>e.max.y&&(i|=8),i},_sqDist:function(t,e){var i=e.x-t.x,n=e.y-t.y;return i*i+n*n},_sqClosestPointOnSegment:function(t,e,i,n){var s,a=e.x,r=e.y,h=i.x-a,l=i.y-r,u=h*h+l*l;return u>0&&(s=((t.x-a)*h+(t.y-r)*l)/u,s>1?(a=i.x,r=i.y):s>0&&(a+=h*s,r+=l*s)),h=t.x-a,l=t.y-r,n?h*h+l*l:new o.Point(a,r)}},o.Polyline=o.Path.extend({initialize:function(t,e){o.Path.prototype.initialize.call(this,e),this._latlngs=this._convertLatLngs(t)},options:{smoothFactor:1,noClip:!1},projectLatlngs:function(){this._originalPoints=[];for(var t=0,e=this._latlngs.length;e>t;t++)this._originalPoints[t]=this._map.latLngToLayerPoint(this._latlngs[t])},getPathString:function(){for(var t=0,e=this._parts.length,i="";e>t;t++)i+=this._getPathPartStr(this._parts[t]);return i},getLatLngs:function(){return this._latlngs},setLatLngs:function(t){return this._latlngs=this._convertLatLngs(t),this.redraw()},addLatLng:function(t){return this._latlngs.push(o.latLng(t)),this.redraw()},spliceLatLngs:function(){var t=[].splice.apply(this._latlngs,arguments);return this._convertLatLngs(this._latlngs,!0),this.redraw(),t},closestLayerPoint:function(t){for(var e,i,n=1/0,s=this._parts,a=null,r=0,h=s.length;h>r;r++)for(var l=s[r],u=1,c=l.length;c>u;u++){e=l[u-1],i=l[u];var d=o.LineUtil._sqClosestPointOnSegment(t,e,i,!0);n>d&&(n=d,a=o.LineUtil._sqClosestPointOnSegment(t,e,i))}return a&&(a.distance=Math.sqrt(n)),a},getBounds:function(){return new o.LatLngBounds(this.getLatLngs())},_convertLatLngs:function(t,e){var i,n,s=e?t:[];for(i=0,n=t.length;n>i;i++){if(o.Util.isArray(t[i])&&"number"!=typeof t[i][0])return;s[i]=o.latLng(t[i])}return s},_initEvents:function(){o.Path.prototype._initEvents.call(this)},_getPathPartStr:function(t){for(var e,i=o.Path.VML,n=0,s=t.length,a="";s>n;n++)e=t[n],i&&e._round(),a+=(n?"L":"M")+e.x+" "+e.y;return a},_clipPoints:function(){var t,e,i,n=this._originalPoints,s=n.length;if(this.options.noClip)return this._parts=[n],void 0;this._parts=[];var a=this._parts,r=this._map._pathViewport,h=o.LineUtil;for(t=0,e=0;s-1>t;t++)i=h.clipSegment(n[t],n[t+1],r,t),i&&(a[e]=a[e]||[],a[e].push(i[0]),(i[1]!==n[t+1]||t===s-2)&&(a[e].push(i[1]),e++))},_simplifyPoints:function(){for(var t=this._parts,e=o.LineUtil,i=0,n=t.length;n>i;i++)t[i]=e.simplify(t[i],this.options.smoothFactor)},_updatePath:function(){this._map&&(this._clipPoints(),this._simplifyPoints(),o.Path.prototype._updatePath.call(this))}}),o.polyline=function(t,e){return new o.Polyline(t,e)},o.PolyUtil={},o.PolyUtil.clipPolygon=function(t,e){var i,n,s,a,r,h,l,u,c,d=[1,4,2,8],_=o.LineUtil;for(n=0,l=t.length;l>n;n++)t[n]._code=_._getBitCode(t[n],e);for(a=0;4>a;a++){for(u=d[a],i=[],n=0,l=t.length,s=l-1;l>n;s=n++)r=t[n],h=t[s],r._code&u?h._code&u||(c=_._getEdgeIntersection(h,r,u,e),c._code=_._getBitCode(c,e),i.push(c)):(h._code&u&&(c=_._getEdgeIntersection(h,r,u,e),c._code=_._getBitCode(c,e),i.push(c)),i.push(r));t=i}return t},o.Polygon=o.Polyline.extend({options:{fill:!0},initialize:function(t,e){var i,n,s;if(o.Polyline.prototype.initialize.call(this,t,e),t&&o.Util.isArray(t[0])&&"number"!=typeof t[0][0])for(this._latlngs=this._convertLatLngs(t[0]),this._holes=t.slice(1),i=0,n=this._holes.length;n>i;i++)s=this._holes[i]=this._convertLatLngs(this._holes[i]),s[0].equals(s[s.length-1])&&s.pop();t=this._latlngs,t.length>=2&&t[0].equals(t[t.length-1])&&t.pop()},projectLatlngs:function(){if(o.Polyline.prototype.projectLatlngs.call(this),this._holePoints=[],this._holes){var t,e,i,n;for(t=0,i=this._holes.length;i>t;t++)for(this._holePoints[t]=[],e=0,n=this._holes[t].length;n>e;e++)this._holePoints[t][e]=this._map.latLngToLayerPoint(this._holes[t][e])}},_clipPoints:function(){var t=this._originalPoints,e=[];if(this._parts=[t].concat(this._holePoints),!this.options.noClip){for(var i=0,n=this._parts.length;n>i;i++){var s=o.PolyUtil.clipPolygon(this._parts[i],this._map._pathViewport);s.length&&e.push(s)}this._parts=e}},_getPathPartStr:function(t){var e=o.Polyline.prototype._getPathPartStr.call(this,t);return e+(o.Browser.svg?"z":"x")}}),o.polygon=function(t,e){return new o.Polygon(t,e)},function(){function t(t){return o.FeatureGroup.extend({initialize:function(t,e){this._layers={},this._options=e,this.setLatLngs(t)},setLatLngs:function(e){var i=0,n=e.length;for(this.eachLayer(function(t){n>i?t.setLatLngs(e[i++]):this.removeLayer(t)},this);n>i;)this.addLayer(new t(e[i++],this._options));return this}})}o.MultiPolyline=t(o.Polyline),o.MultiPolygon=t(o.Polygon),o.multiPolyline=function(t,e){return new o.MultiPolyline(t,e)},o.multiPolygon=function(t,e){return new o.MultiPolygon(t,e)}}(),o.Rectangle=o.Polygon.extend({initialize:function(t,e){o.Polygon.prototype.initialize.call(this,this._boundsToLatLngs(t),e)},setBounds:function(t){this.setLatLngs(this._boundsToLatLngs(t))},_boundsToLatLngs:function(t){return t=o.latLngBounds(t),[t.getSouthWest(),t.getNorthWest(),t.getNorthEast(),t.getSouthEast()]}}),o.rectangle=function(t,e){return new o.Rectangle(t,e)},o.Circle=o.Path.extend({initialize:function(t,e,i){o.Path.prototype.initialize.call(this,i),this._latlng=o.latLng(t),this._mRadius=e},options:{fill:!0},setLatLng:function(t){return this._latlng=o.latLng(t),this.redraw()},setRadius:function(t){return this._mRadius=t,this.redraw()},projectLatlngs:function(){var t=this._getLngRadius(),e=this._latlng,i=this._map.latLngToLayerPoint([e.lat,e.lng-t]);this._point=this._map.latLngToLayerPoint(e),this._radius=Math.max(this._point.x-i.x,1)},getBounds:function(){var t=this._getLngRadius(),e=360*(this._mRadius/40075017),i=this._latlng;return new o.LatLngBounds([i.lat-e,i.lng-t],[i.lat+e,i.lng+t])},getLatLng:function(){return this._latlng},getPathString:function(){var t=this._point,e=this._radius;return this._checkIfEmpty()?"":o.Browser.svg?"M"+t.x+","+(t.y-e)+"A"+e+","+e+",0,1,1,"+(t.x-.1)+","+(t.y-e)+" z":(t._round(),e=Math.round(e),"AL "+t.x+","+t.y+" "+e+","+e+" 0,"+23592600)},getRadius:function(){return this._mRadius},_getLatRadius:function(){return 360*(this._mRadius/40075017)},_getLngRadius:function(){return this._getLatRadius()/Math.cos(o.LatLng.DEG_TO_RAD*this._latlng.lat)},_checkIfEmpty:function(){if(!this._map)return!1;var t=this._map._pathViewport,e=this._radius,i=this._point;return i.x-e>t.max.x||i.y-e>t.max.y||i.x+e<t.min.x||i.y+e<t.min.y}}),o.circle=function(t,e,i){return new o.Circle(t,e,i)},o.CircleMarker=o.Circle.extend({options:{radius:10,weight:2},initialize:function(t,e){o.Circle.prototype.initialize.call(this,t,null,e),this._radius=this.options.radius},projectLatlngs:function(){this._point=this._map.latLngToLayerPoint(this._latlng)},_updateStyle:function(){o.Circle.prototype._updateStyle.call(this),this.setRadius(this.options.radius)},setRadius:function(t){return this.options.radius=this._radius=t,this.redraw()}}),o.circleMarker=function(t,e){return new o.CircleMarker(t,e)},o.Polyline.include(o.Path.CANVAS?{_containsPoint:function(t,e){var i,n,s,a,r,h,l,u=this.options.weight/2;for(o.Browser.touch&&(u+=10),i=0,a=this._parts.length;a>i;i++)for(l=this._parts[i],n=0,r=l.length,s=r-1;r>n;s=n++)if((e||0!==n)&&(h=o.LineUtil.pointToSegmentDistance(t,l[s],l[n]),u>=h))return!0;return!1}}:{}),o.Polygon.include(o.Path.CANVAS?{_containsPoint:function(t){var e,i,n,s,a,r,h,l,u=!1;if(o.Polyline.prototype._containsPoint.call(this,t,!0))return!0;for(s=0,h=this._parts.length;h>s;s++)for(e=this._parts[s],a=0,l=e.length,r=l-1;l>a;r=a++)i=e[a],n=e[r],i.y>t.y!=n.y>t.y&&t.x<(n.x-i.x)*(t.y-i.y)/(n.y-i.y)+i.x&&(u=!u);return u}}:{}),o.Circle.include(o.Path.CANVAS?{_drawPath:function(){var t=this._point;this._ctx.beginPath(),this._ctx.arc(t.x,t.y,this._radius,0,2*Math.PI,!1)},_containsPoint:function(t){var e=this._point,i=this.options.stroke?this.options.weight/2:0;return t.distanceTo(e)<=this._radius+i}}:{}),o.CircleMarker.include(o.Path.CANVAS?{_updateStyle:function(){o.Path.prototype._updateStyle.call(this)}}:{}),o.GeoJSON=o.FeatureGroup.extend({initialize:function(t,e){o.setOptions(this,e),this._layers={},t&&this.addData(t)},addData:function(t){var e,i,n=o.Util.isArray(t)?t:t.features;if(n){for(e=0,i=n.length;i>e;e++)(n[e].geometries||n[e].geometry||n[e].features)&&this.addData(n[e]);return this}var s=this.options;if(!s.filter||s.filter(t)){var a=o.GeoJSON.geometryToLayer(t,s.pointToLayer,s.coordsToLatLng);return a.feature=t,a.defaultOptions=a.options,this.resetStyle(a),s.onEachFeature&&s.onEachFeature(t,a),this.addLayer(a)}},resetStyle:function(t){var e=this.options.style;e&&(o.Util.extend(t.options,t.defaultOptions),this._setLayerStyle(t,e))},setStyle:function(t){this.eachLayer(function(e){this._setLayerStyle(e,t)},this)},_setLayerStyle:function(t,e){"function"==typeof e&&(e=e(t.feature)),t.setStyle&&t.setStyle(e)}}),o.extend(o.GeoJSON,{geometryToLayer:function(t,e,i){var n,s,a,r,h,l="Feature"===t.type?t.geometry:t,u=l.coordinates,c=[];switch(i=i||this.coordsToLatLng,l.type){case"Point":return n=i(u),e?e(t,n):new o.Marker(n);case"MultiPoint":for(a=0,r=u.length;r>a;a++)n=i(u[a]),h=e?e(t,n):new o.Marker(n),c.push(h);return new o.FeatureGroup(c);case"LineString":return s=this.coordsToLatLngs(u,0,i),new o.Polyline(s);case"Polygon":return s=this.coordsToLatLngs(u,1,i),new o.Polygon(s);case"MultiLineString":return s=this.coordsToLatLngs(u,1,i),new o.MultiPolyline(s);case"MultiPolygon":return s=this.coordsToLatLngs(u,2,i),new o.MultiPolygon(s);case"GeometryCollection":for(a=0,r=l.geometries.length;r>a;a++)h=this.geometryToLayer({geometry:l.geometries[a],type:"Feature",properties:t.properties},e),c.push(h);return new o.FeatureGroup(c);default:throw new Error("Invalid GeoJSON object.")}},coordsToLatLng:function(t){return new o.LatLng(t[1],t[0])},coordsToLatLngs:function(t,e,i){var n,o,s,a=[];for(o=0,s=t.length;s>o;o++)n=e?this.coordsToLatLngs(t[o],e-1,i):(i||this.coordsToLatLng)(t[o]),a.push(n);return a},latLngToCoords:function(t){return[t.lng,t.lat]},latLngsToCoords:function(t){for(var e=[],i=0,n=t.length;n>i;i++)e.push(o.GeoJSON.latLngToCoords(t[i]));return e}}),o.Marker.include({toGeoJSON:function(){return{type:"Point",coordinates:o.GeoJSON.latLngToCoords(this.getLatLng())}}}),o.Polyline.include({toGeoJSON:function(){return{type:"LineString",coordinates:o.GeoJSON.latLngsToCoords(this.getLatLngs())}}}),o.Polygon.include({toGeoJSON:function(){var t,e,i,n=[o.GeoJSON.latLngsToCoords(this.getLatLngs())];if(n[0].push(n[0][0]),this._holes)for(t=0,e=this._holes.length;e>t;t++)i=o.GeoJSON.latLngsToCoords(this._holes[t]),i.push(i[0]),n.push(i);return{type:"Polygon",coordinates:n}}}),function(){function t(t,e){t.include({toGeoJSON:function(){var t=[];return this.eachLayer(function(e){t.push(e.toGeoJSON().coordinates)}),{type:e,coordinates:t}}})}t(o.MultiPolyline,"MultiLineString"),t(o.MultiPolygon,"MultiPolygon")}(),o.LayerGroup.include({toGeoJSON:function(){var t=[];return this.eachLayer(function(e){e.toGeoJSON&&t.push(e.toGeoJSON())}),{type:"GeometryCollection",geometries:t}}}),o.geoJson=function(t,e){return new o.GeoJSON(t,e)},o.DomEvent={addListener:function(t,e,i,n){var s,a,r,h=o.stamp(i),l="_leaflet_"+e+h;return t[l]?this:(s=function(e){return i.call(n||t,e||o.DomEvent._getEvent())},o.Browser.msTouch&&0===e.indexOf("touch")?this.addMsTouchListener(t,e,s,h):(o.Browser.touch&&"dblclick"===e&&this.addDoubleTapListener&&this.addDoubleTapListener(t,s,h),"addEventListener"in t?"mousewheel"===e?(t.addEventListener("DOMMouseScroll",s,!1),t.addEventListener(e,s,!1)):"mouseenter"===e||"mouseleave"===e?(a=s,r="mouseenter"===e?"mouseover":"mouseout",s=function(e){return o.DomEvent._checkMouse(t,e)?a(e):void 0},t.addEventListener(r,s,!1)):"click"===e&&o.Browser.android?(a=s,s=function(t){return o.DomEvent._filterClick(t,a)},t.addEventListener(e,s,!1)):t.addEventListener(e,s,!1):"attachEvent"in t&&t.attachEvent("on"+e,s),t[l]=s,this))},removeListener:function(t,e,i){var n=o.stamp(i),s="_leaflet_"+e+n,a=t[s];return a?(o.Browser.msTouch&&0===e.indexOf("touch")?this.removeMsTouchListener(t,e,n):o.Browser.touch&&"dblclick"===e&&this.removeDoubleTapListener?this.removeDoubleTapListener(t,n):"removeEventListener"in t?"mousewheel"===e?(t.removeEventListener("DOMMouseScroll",a,!1),t.removeEventListener(e,a,!1)):"mouseenter"===e||"mouseleave"===e?t.removeEventListener("mouseenter"===e?"mouseover":"mouseout",a,!1):t.removeEventListener(e,a,!1):"detachEvent"in t&&t.detachEvent("on"+e,a),t[s]=null,this):this},stopPropagation:function(t){return t.stopPropagation?t.stopPropagation():t.cancelBubble=!0,this},disableClickPropagation:function(t){for(var e=o.DomEvent.stopPropagation,i=o.Draggable.START.length-1;i>=0;i--)o.DomEvent.addListener(t,o.Draggable.START[i],e);return o.DomEvent.addListener(t,"click",e).addListener(t,"dblclick",e)},preventDefault:function(t){return t.preventDefault?t.preventDefault():t.returnValue=!1,this},stop:function(t){return o.DomEvent.preventDefault(t).stopPropagation(t)},getMousePosition:function(t,i){var n=e.body,s=e.documentElement,a=t.pageX?t.pageX:t.clientX+n.scrollLeft+s.scrollLeft,r=t.pageY?t.pageY:t.clientY+n.scrollTop+s.scrollTop,h=new o.Point(a,r);return i?h._subtract(o.DomUtil.getViewportOffset(i)):h},getWheelDelta:function(t){var e=0;return t.wheelDelta&&(e=t.wheelDelta/120),t.detail&&(e=-t.detail/3),e},_checkMouse:function(t,e){var i=e.relatedTarget;if(!i)return!0;try{for(;i&&i!==t;)i=i.parentNode}catch(n){return!1}return i!==t},_getEvent:function(){var e=t.event;if(!e)for(var i=arguments.callee.caller;i&&(e=i.arguments[0],!e||t.Event!==e.constructor);)i=i.caller;return e},_filterClick:function(t,e){var i=t.timeStamp||t.originalEvent.timeStamp,n=o.DomEvent._lastClick&&i-o.DomEvent._lastClick;return n&&n>100&&400>n?(o.DomEvent.stop(t),void 0):(o.DomEvent._lastClick=i,e(t))}},o.DomEvent.on=o.DomEvent.addListener,o.DomEvent.off=o.DomEvent.removeListener,o.Draggable=o.Class.extend({includes:o.Mixin.Events,statics:{START:o.Browser.touch?["touchstart","mousedown"]:["mousedown"],END:{mousedown:"mouseup",touchstart:"touchend",MSPointerDown:"touchend"},MOVE:{mousedown:"mousemove",touchstart:"touchmove",MSPointerDown:"touchmove"},TAP_TOLERANCE:15},initialize:function(t,e,i){this._element=t,this._dragStartTarget=e||t,this._longPress=i&&!o.Browser.msTouch},enable:function(){if(!this._enabled){for(var t=o.Draggable.START.length-1;t>=0;t--)o.DomEvent.on(this._dragStartTarget,o.Draggable.START[t],this._onDown,this);this._enabled=!0}},disable:function(){if(this._enabled){for(var t=o.Draggable.START.length-1;t>=0;t--)o.DomEvent.off(this._dragStartTarget,o.Draggable.START[t],this._onDown,this);this._enabled=!1,this._moved=!1}},_onDown:function(t){if(!t.shiftKey&&(1===t.which||1===t.button||t.touches)&&(o.DomEvent.preventDefault(t).stopPropagation(t),!o.Draggable._disabled)){this._simulateClick=!0;var i=t.touches&&t.touches.length||0;if(i>1)return this._simulateClick=!1,clearTimeout(this._longPressTimeout),void 0;var n=1===i?t.touches[0]:t,s=n.target;o.Browser.touch&&"a"===s.tagName.toLowerCase()&&o.DomUtil.addClass(s,"leaflet-active"),this._moved=!1,this._moving||(this._startPoint=new o.Point(n.clientX,n.clientY),this._startPos=this._newPos=o.DomUtil.getPosition(this._element),1===i&&o.Browser.touch&&this._longPress&&(this._longPressTimeout=setTimeout(o.bind(function(){var t=this._newPos&&this._newPos.distanceTo(this._startPos)||0;t<o.Draggable.TAP_TOLERANCE&&(this._simulateClick=!1,this._onUp(),this._simulateEvent("contextmenu",n))},this),1e3)),o.DomEvent.on(e,o.Draggable.MOVE[t.type],this._onMove,this).on(e,o.Draggable.END[t.type],this._onUp,this))}},_onMove:function(t){if(!(t.touches&&t.touches.length>1)){var i=t.touches&&1===t.touches.length?t.touches[0]:t,n=new o.Point(i.clientX,i.clientY),s=n.subtract(this._startPoint);(s.x||s.y)&&(o.DomEvent.preventDefault(t),this._moved||(this.fire("dragstart"),this._moved=!0,this._startPos=o.DomUtil.getPosition(this._element).subtract(s),o.Browser.touch||(o.DomUtil.disableTextSelection(),o.DomUtil.addClass(e.body,"leaflet-dragging"))),this._newPos=this._startPos.add(s),this._moving=!0,o.Util.cancelAnimFrame(this._animRequest),this._animRequest=o.Util.requestAnimFrame(this._updatePosition,this,!0,this._dragStartTarget))}},_updatePosition:function(){this.fire("predrag"),o.DomUtil.setPosition(this._element,this._newPos),this.fire("drag")},_onUp:function(t){var i,n,s,a,r;clearTimeout(this._longPressTimeout),this._simulateClick&&t.changedTouches&&(s=this._newPos&&this._newPos.distanceTo(this._startPos)||0,i=t.changedTouches[0],n=i.target,"a"===n.tagName.toLowerCase()&&o.DomUtil.removeClass(n,"leaflet-active"),s<o.Draggable.TAP_TOLERANCE&&(a=!0)),o.Browser.touch||(o.DomUtil.enableTextSelection(),o.DomUtil.removeClass(e.body,"leaflet-dragging"));for(r in o.Draggable.MOVE)o.DomEvent.off(e,o.Draggable.MOVE[r],this._onMove).off(e,o.Draggable.END[r],this._onUp);this._moved&&(o.Util.cancelAnimFrame(this._animRequest),this.fire("dragend")),this._moving=!1,a&&(this._moved=!1,this._simulateEvent("click",i))},_simulateEvent:function(i,n){var o=e.createEvent("MouseEvents");o.initMouseEvent(i,!0,!0,t,1,n.screenX,n.screenY,n.clientX,n.clientY,!1,!1,!1,!1,0,null),n.target.dispatchEvent(o)}}),o.Handler=o.Class.extend({initialize:function(t){this._map=t},enable:function(){this._enabled||(this._enabled=!0,this.addHooks())},disable:function(){this._enabled&&(this._enabled=!1,this.removeHooks())},enabled:function(){return!!this._enabled}}),o.Map.mergeOptions({dragging:!0,inertia:!o.Browser.android23,inertiaDeceleration:3400,inertiaMaxSpeed:1/0,inertiaThreshold:o.Browser.touch?32:18,easeLinearity:.25,longPress:!0,worldCopyJump:!1}),o.Map.Drag=o.Handler.extend({addHooks:function(){if(!this._draggable){var t=this._map;this._draggable=new o.Draggable(t._mapPane,t._container,t.options.longPress),this._draggable.on({dragstart:this._onDragStart,drag:this._onDrag,dragend:this._onDragEnd},this),t.options.worldCopyJump&&(this._draggable.on("predrag",this._onPreDrag,this),t.on("viewreset",this._onViewReset,this))}this._draggable.enable()},removeHooks:function(){this._draggable.disable()},moved:function(){return this._draggable&&this._draggable._moved},_onDragStart:function(){var t=this._map;t._panAnim&&t._panAnim.stop(),t.fire("movestart").fire("dragstart"),t.options.inertia&&(this._positions=[],this._times=[])},_onDrag:function(){if(this._map.options.inertia){var t=this._lastTime=+new Date,e=this._lastPos=this._draggable._newPos;this._positions.push(e),this._times.push(t),t-this._times[0]>200&&(this._positions.shift(),this._times.shift())}this._map.fire("move").fire("drag")},_onViewReset:function(){var t=this._map.getSize()._divideBy(2),e=this._map.latLngToLayerPoint([0,0]);this._initialWorldOffset=e.subtract(t).x,this._worldWidth=this._map.project([0,180]).x},_onPreDrag:function(){var t=this._worldWidth,e=Math.round(t/2),i=this._initialWorldOffset,n=this._draggable._newPos.x,o=(n-e+i)%t+e-i,s=(n+e+i)%t-e-i,a=Math.abs(o+i)<Math.abs(s+i)?o:s;this._draggable._newPos.x=a},_onDragEnd:function(){var t=this._map,e=t.options,i=+new Date-this._lastTime,n=!e.inertia||i>e.inertiaThreshold||!this._positions[0];if(t.fire("dragend"),n)t.fire("moveend");else{var s=this._lastPos.subtract(this._positions[0]),a=(this._lastTime+i-this._times[0])/1e3,r=e.easeLinearity,h=s.multiplyBy(r/a),l=h.distanceTo([0,0]),u=Math.min(e.inertiaMaxSpeed,l),c=h.multiplyBy(u/l),d=u/(e.inertiaDeceleration*r),_=c.multiplyBy(-d/2).round();_.x&&_.y?o.Util.requestAnimFrame(function(){t.panBy(_,{duration:d,easeLinearity:r,noMoveStart:!0})}):t.fire("moveend")}}}),o.Map.addInitHook("addHandler","dragging",o.Map.Drag),o.Map.mergeOptions({doubleClickZoom:!0}),o.Map.DoubleClickZoom=o.Handler.extend({addHooks:function(){this._map.on("dblclick",this._onDoubleClick)},removeHooks:function(){this._map.off("dblclick",this._onDoubleClick)},_onDoubleClick:function(t){this.setZoomAround(t.containerPoint,this._zoom+1)}}),o.Map.addInitHook("addHandler","doubleClickZoom",o.Map.DoubleClickZoom),o.Map.mergeOptions({scrollWheelZoom:!0}),o.Map.ScrollWheelZoom=o.Handler.extend({addHooks:function(){o.DomEvent.on(this._map._container,"mousewheel",this._onWheelScroll,this),this._delta=0},removeHooks:function(){o.DomEvent.off(this._map._container,"mousewheel",this._onWheelScroll)},_onWheelScroll:function(t){var e=o.DomEvent.getWheelDelta(t);this._delta+=e,this._lastMousePos=this._map.mouseEventToContainerPoint(t),this._startTime||(this._startTime=+new Date);var i=Math.max(40-(+new Date-this._startTime),0);clearTimeout(this._timer),this._timer=setTimeout(o.bind(this._performZoom,this),i),o.DomEvent.preventDefault(t),o.DomEvent.stopPropagation(t)},_performZoom:function(){var t=this._map,e=this._delta,i=t.getZoom();e=e>0?Math.ceil(e):Math.floor(e),e=Math.max(Math.min(e,4),-4),e=t._limitZoom(i+e)-i,this._delta=0,this._startTime=null,e&&t.setZoomAround(this._lastMousePos,i+e)}}),o.Map.addInitHook("addHandler","scrollWheelZoom",o.Map.ScrollWheelZoom),o.extend(o.DomEvent,{_touchstart:o.Browser.msTouch?"MSPointerDown":"touchstart",_touchend:o.Browser.msTouch?"MSPointerUp":"touchend",addDoubleTapListener:function(t,i,n){function s(t){var e;if(o.Browser.msTouch?(p.push(t.pointerId),e=p.length):e=t.touches.length,!(e>1)){var i=Date.now(),n=i-(r||i);h=t.touches?t.touches[0]:t,l=n>0&&u>=n,r=i}}function a(t){if(o.Browser.msTouch){var e=p.indexOf(t.pointerId);if(-1===e)return;p.splice(e,1)}if(l){if(o.Browser.msTouch){var n,s={};for(var a in h)n=h[a],s[a]="function"==typeof n?n.bind(h):n;h=s}h.type="dblclick",i(h),r=null}}var r,h,l=!1,u=250,c="_leaflet_",d=this._touchstart,_=this._touchend,p=[];t[c+d+n]=s,t[c+_+n]=a;var m=o.Browser.msTouch?e.documentElement:t;return t.addEventListener(d,s,!1),m.addEventListener(_,a,!1),o.Browser.msTouch&&m.addEventListener("MSPointerCancel",a,!1),this},removeDoubleTapListener:function(t,i){var n="_leaflet_";return t.removeEventListener(this._touchstart,t[n+this._touchstart+i],!1),(o.Browser.msTouch?e.documentElement:t).removeEventListener(this._touchend,t[n+this._touchend+i],!1),o.Browser.msTouch&&e.documentElement.removeEventListener("MSPointerCancel",t[n+this._touchend+i],!1),this}}),o.extend(o.DomEvent,{_msTouches:[],_msDocumentListener:!1,addMsTouchListener:function(t,e,i,n){switch(e){case"touchstart":return this.addMsTouchListenerStart(t,e,i,n);case"touchend":return this.addMsTouchListenerEnd(t,e,i,n);case"touchmove":return this.addMsTouchListenerMove(t,e,i,n);default:throw"Unknown touch event type"}},addMsTouchListenerStart:function(t,i,n,o){var s="_leaflet_",a=this._msTouches,r=function(t){for(var e=!1,i=0;i<a.length;i++)if(a[i].pointerId===t.pointerId){e=!0;break}e||a.push(t),t.touches=a.slice(),t.changedTouches=[t],n(t)};if(t[s+"touchstart"+o]=r,t.addEventListener("MSPointerDown",r,!1),!this._msDocumentListener){var h=function(t){for(var e=0;e<a.length;e++)if(a[e].pointerId===t.pointerId){a.splice(e,1);break}};e.documentElement.addEventListener("MSPointerUp",h,!1),e.documentElement.addEventListener("MSPointerCancel",h,!1),this._msDocumentListener=!0}return this},addMsTouchListenerMove:function(t,e,i,n){function o(t){if(t.pointerType!==t.MSPOINTER_TYPE_MOUSE||0!==t.buttons){for(var e=0;e<a.length;e++)if(a[e].pointerId===t.pointerId){a[e]=t;break}t.touches=a.slice(),t.changedTouches=[t],i(t)}}var s="_leaflet_",a=this._msTouches;return t[s+"touchmove"+n]=o,t.addEventListener("MSPointerMove",o,!1),this},addMsTouchListenerEnd:function(t,e,i,n){var o="_leaflet_",s=this._msTouches,a=function(t){for(var e=0;e<s.length;e++)if(s[e].pointerId===t.pointerId){s.splice(e,1);break}t.touches=s.slice(),t.changedTouches=[t],i(t)};return t[o+"touchend"+n]=a,t.addEventListener("MSPointerUp",a,!1),t.addEventListener("MSPointerCancel",a,!1),this},removeMsTouchListener:function(t,e,i){var n="_leaflet_",o=t[n+e+i];switch(e){case"touchstart":t.removeEventListener("MSPointerDown",o,!1);break;case"touchmove":t.removeEventListener("MSPointerMove",o,!1);break;case"touchend":t.removeEventListener("MSPointerUp",o,!1),t.removeEventListener("MSPointerCancel",o,!1)}return this}}),o.Map.mergeOptions({touchZoom:o.Browser.touch&&!o.Browser.android23}),o.Map.TouchZoom=o.Handler.extend({addHooks:function(){o.DomEvent.on(this._map._container,"touchstart",this._onTouchStart,this)},removeHooks:function(){o.DomEvent.off(this._map._container,"touchstart",this._onTouchStart,this)},_onTouchStart:function(t){var i=this._map;if(t.touches&&2===t.touches.length&&!i._animatingZoom&&!this._zooming){var n=i.mouseEventToLayerPoint(t.touches[0]),s=i.mouseEventToLayerPoint(t.touches[1]),a=i._getCenterLayerPoint();this._startCenter=n.add(s)._divideBy(2),this._startDist=n.distanceTo(s),this._moved=!1,this._zooming=!0,this._centerOffset=a.subtract(this._startCenter),i._panAnim&&i._panAnim.stop(),o.DomEvent.on(e,"touchmove",this._onTouchMove,this).on(e,"touchend",this._onTouchEnd,this),o.DomEvent.preventDefault(t)}},_onTouchMove:function(t){var e=this._map;if(t.touches&&2===t.touches.length&&this._zooming){var i=e.mouseEventToLayerPoint(t.touches[0]),n=e.mouseEventToLayerPoint(t.touches[1]);this._scale=i.distanceTo(n)/this._startDist,this._delta=i._add(n)._divideBy(2)._subtract(this._startCenter),1!==this._scale&&(this._moved||(o.DomUtil.addClass(e._mapPane,"leaflet-touching"),e.fire("movestart").fire("zoomstart"),this._moved=!0),o.Util.cancelAnimFrame(this._animRequest),this._animRequest=o.Util.requestAnimFrame(this._updateOnMove,this,!0,this._map._container),o.DomEvent.preventDefault(t))}},_updateOnMove:function(){var t=this._map,e=this._getScaleOrigin(),i=t.layerPointToLatLng(e),n=t.getScaleZoom(this._scale);t._animateZoom(i,n,this._startCenter,this._scale,this._delta)},_onTouchEnd:function(){if(!this._moved||!this._zooming)return this._zooming=!1,void 0;var t=this._map;this._zooming=!1,o.DomUtil.removeClass(t._mapPane,"leaflet-touching"),o.Util.cancelAnimFrame(this._animRequest),o.DomEvent.off(e,"touchmove",this._onTouchMove).off(e,"touchend",this._onTouchEnd);var i=this._getScaleOrigin(),n=t.layerPointToLatLng(i),s=t.getZoom(),a=t.getScaleZoom(this._scale)-s,r=a>0?Math.ceil(a):Math.floor(a),h=t._limitZoom(s+r),l=t.getZoomScale(h)/this._scale;t._animateZoom(n,h,i,l)},_getScaleOrigin:function(){var t=this._centerOffset.subtract(this._delta).divideBy(this._scale);return this._startCenter.add(t)}}),o.Map.addInitHook("addHandler","touchZoom",o.Map.TouchZoom),o.Map.mergeOptions({boxZoom:!0}),o.Map.BoxZoom=o.Handler.extend({initialize:function(t){this._map=t,this._container=t._container,this._pane=t._panes.overlayPane},addHooks:function(){o.DomEvent.on(this._container,"mousedown",this._onMouseDown,this)},removeHooks:function(){o.DomEvent.off(this._container,"mousedown",this._onMouseDown)},_onMouseDown:function(t){return!t.shiftKey||1!==t.which&&1!==t.button?!1:(o.DomUtil.disableTextSelection(),this._startLayerPoint=this._map.mouseEventToLayerPoint(t),this._box=o.DomUtil.create("div","leaflet-zoom-box",this._pane),o.DomUtil.setPosition(this._box,this._startLayerPoint),this._container.style.cursor="crosshair",o.DomEvent.on(e,"mousemove",this._onMouseMove,this).on(e,"mouseup",this._onMouseUp,this).on(e,"keydown",this._onKeyDown,this).preventDefault(t),this._map.fire("boxzoomstart"),void 0)},_onMouseMove:function(t){var e=this._startLayerPoint,i=this._box,n=this._map.mouseEventToLayerPoint(t),s=n.subtract(e),a=new o.Point(Math.min(n.x,e.x),Math.min(n.y,e.y));o.DomUtil.setPosition(i,a),i.style.width=Math.max(0,Math.abs(s.x)-4)+"px",i.style.height=Math.max(0,Math.abs(s.y)-4)+"px"
+},_finish:function(){this._pane.removeChild(this._box),this._container.style.cursor="",o.DomUtil.enableTextSelection(),o.DomEvent.off(e,"mousemove",this._onMouseMove).off(e,"mouseup",this._onMouseUp).off(e,"keydown",this._onKeyDown)},_onMouseUp:function(t){this._finish();var e=this._map,i=e.mouseEventToLayerPoint(t);if(!this._startLayerPoint.equals(i)){var n=new o.LatLngBounds(e.layerPointToLatLng(this._startLayerPoint),e.layerPointToLatLng(i));e.fitBounds(n),e.fire("boxzoomend",{boxZoomBounds:n})}},_onKeyDown:function(t){27===t.keyCode&&this._finish()}}),o.Map.addInitHook("addHandler","boxZoom",o.Map.BoxZoom),o.Map.mergeOptions({keyboard:!0,keyboardPanOffset:80,keyboardZoomOffset:1}),o.Map.Keyboard=o.Handler.extend({keyCodes:{left:[37],right:[39],down:[40],up:[38],zoomIn:[187,107,61],zoomOut:[189,109,173]},initialize:function(t){this._map=t,this._setPanOffset(t.options.keyboardPanOffset),this._setZoomOffset(t.options.keyboardZoomOffset)},addHooks:function(){var t=this._map._container;-1===t.tabIndex&&(t.tabIndex="0"),o.DomEvent.on(t,"focus",this._onFocus,this).on(t,"blur",this._onBlur,this).on(t,"mousedown",this._onMouseDown,this),this._map.on("focus",this._addHooks,this).on("blur",this._removeHooks,this)},removeHooks:function(){this._removeHooks();var t=this._map._container;o.DomEvent.off(t,"focus",this._onFocus,this).off(t,"blur",this._onBlur,this).off(t,"mousedown",this._onMouseDown,this),this._map.off("focus",this._addHooks,this).off("blur",this._removeHooks,this)},_onMouseDown:function(){if(!this._focused){var i=e.body,n=e.documentElement,o=i.scrollTop||n.scrollTop,s=i.scrollTop||n.scrollLeft;this._map._container.focus(),t.scrollTo(s,o)}},_onFocus:function(){this._focused=!0,this._map.fire("focus")},_onBlur:function(){this._focused=!1,this._map.fire("blur")},_setPanOffset:function(t){var e,i,n=this._panKeys={},o=this.keyCodes;for(e=0,i=o.left.length;i>e;e++)n[o.left[e]]=[-1*t,0];for(e=0,i=o.right.length;i>e;e++)n[o.right[e]]=[t,0];for(e=0,i=o.down.length;i>e;e++)n[o.down[e]]=[0,t];for(e=0,i=o.up.length;i>e;e++)n[o.up[e]]=[0,-1*t]},_setZoomOffset:function(t){var e,i,n=this._zoomKeys={},o=this.keyCodes;for(e=0,i=o.zoomIn.length;i>e;e++)n[o.zoomIn[e]]=t;for(e=0,i=o.zoomOut.length;i>e;e++)n[o.zoomOut[e]]=-t},_addHooks:function(){o.DomEvent.on(e,"keydown",this._onKeyDown,this)},_removeHooks:function(){o.DomEvent.off(e,"keydown",this._onKeyDown,this)},_onKeyDown:function(t){var e=t.keyCode,i=this._map;if(e in this._panKeys)i.panBy(this._panKeys[e]),i.options.maxBounds&&i.panInsideBounds(i.options.maxBounds);else{if(!(e in this._zoomKeys))return;i.setZoom(i.getZoom()+this._zoomKeys[e])}o.DomEvent.stop(t)}}),o.Map.addInitHook("addHandler","keyboard",o.Map.Keyboard),o.Handler.MarkerDrag=o.Handler.extend({initialize:function(t){this._marker=t},addHooks:function(){var t=this._marker._icon;this._draggable||(this._draggable=new o.Draggable(t,t)),this._draggable.on("dragstart",this._onDragStart,this).on("drag",this._onDrag,this).on("dragend",this._onDragEnd,this),this._draggable.enable()},removeHooks:function(){this._draggable.off("dragstart",this._onDragStart).off("drag",this._onDrag).off("dragend",this._onDragEnd),this._draggable.disable()},moved:function(){return this._draggable&&this._draggable._moved},_onDragStart:function(){this._marker.closePopup().fire("movestart").fire("dragstart")},_onDrag:function(){var t=this._marker,e=t._shadow,i=o.DomUtil.getPosition(t._icon),n=t._map.layerPointToLatLng(i);e&&o.DomUtil.setPosition(e,i),t._latlng=n,t.fire("move",{latlng:n}).fire("drag")},_onDragEnd:function(){this._marker.fire("moveend").fire("dragend")}}),o.Control=o.Class.extend({options:{position:"topright"},initialize:function(t){o.setOptions(this,t)},getPosition:function(){return this.options.position},setPosition:function(t){var e=this._map;return e&&e.removeControl(this),this.options.position=t,e&&e.addControl(this),this},getContainer:function(){return this._container},addTo:function(t){this._map=t;var e=this._container=this.onAdd(t),i=this.getPosition(),n=t._controlCorners[i];return o.DomUtil.addClass(e,"leaflet-control"),-1!==i.indexOf("bottom")?n.insertBefore(e,n.firstChild):n.appendChild(e),this},removeFrom:function(t){var e=this.getPosition(),i=t._controlCorners[e];return i.removeChild(this._container),this._map=null,this.onRemove&&this.onRemove(t),this}}),o.control=function(t){return new o.Control(t)},o.Map.include({addControl:function(t){return t.addTo(this),this},removeControl:function(t){return t.removeFrom(this),this},_initControlPos:function(){function t(t,s){var a=i+t+" "+i+s;e[t+s]=o.DomUtil.create("div",a,n)}var e=this._controlCorners={},i="leaflet-",n=this._controlContainer=o.DomUtil.create("div",i+"control-container",this._container);t("top","left"),t("top","right"),t("bottom","left"),t("bottom","right")},_clearControlPos:function(){this._container.removeChild(this._controlContainer)}}),o.Control.Zoom=o.Control.extend({options:{position:"topleft"},onAdd:function(t){var e="leaflet-control-zoom",i=o.DomUtil.create("div",e+" leaflet-bar");return this._map=t,this._zoomInButton=this._createButton("+","Zoom in",e+"-in",i,this._zoomIn,this),this._zoomOutButton=this._createButton("-","Zoom out",e+"-out",i,this._zoomOut,this),t.on("zoomend zoomlevelschange",this._updateDisabled,this),i},onRemove:function(t){t.off("zoomend zoomlevelschange",this._updateDisabled,this)},_zoomIn:function(t){this._map.zoomIn(t.shiftKey?3:1)},_zoomOut:function(t){this._map.zoomOut(t.shiftKey?3:1)},_createButton:function(t,e,i,n,s,a){var r=o.DomUtil.create("a",i,n);r.innerHTML=t,r.href="#",r.title=e;var h=o.DomEvent.stopPropagation;return o.DomEvent.on(r,"click",h).on(r,"mousedown",h).on(r,"dblclick",h).on(r,"click",o.DomEvent.preventDefault).on(r,"click",s,a),r},_updateDisabled:function(){var t=this._map,e="leaflet-disabled";o.DomUtil.removeClass(this._zoomInButton,e),o.DomUtil.removeClass(this._zoomOutButton,e),t._zoom===t.getMinZoom()&&o.DomUtil.addClass(this._zoomOutButton,e),t._zoom===t.getMaxZoom()&&o.DomUtil.addClass(this._zoomInButton,e)}}),o.Map.mergeOptions({zoomControl:!0}),o.Map.addInitHook(function(){this.options.zoomControl&&(this.zoomControl=new o.Control.Zoom,this.addControl(this.zoomControl))}),o.control.zoom=function(t){return new o.Control.Zoom(t)},o.Control.Attribution=o.Control.extend({options:{position:"bottomright",prefix:'<a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'},initialize:function(t){o.setOptions(this,t),this._attributions={}},onAdd:function(t){return this._container=o.DomUtil.create("div","leaflet-control-attribution"),o.DomEvent.disableClickPropagation(this._container),t.on("layeradd",this._onLayerAdd,this).on("layerremove",this._onLayerRemove,this),this._update(),this._container},onRemove:function(t){t.off("layeradd",this._onLayerAdd).off("layerremove",this._onLayerRemove)},setPrefix:function(t){return this.options.prefix=t,this._update(),this},addAttribution:function(t){return t?(this._attributions[t]||(this._attributions[t]=0),this._attributions[t]++,this._update(),this):void 0},removeAttribution:function(t){return t?(this._attributions[t]&&(this._attributions[t]--,this._update()),this):void 0},_update:function(){if(this._map){var t=[];for(var e in this._attributions)this._attributions[e]&&t.push(e);var i=[];this.options.prefix&&i.push(this.options.prefix),t.length&&i.push(t.join(", ")),this._container.innerHTML=i.join(" | ")}},_onLayerAdd:function(t){t.layer.getAttribution&&this.addAttribution(t.layer.getAttribution())},_onLayerRemove:function(t){t.layer.getAttribution&&this.removeAttribution(t.layer.getAttribution())}}),o.Map.mergeOptions({attributionControl:!0}),o.Map.addInitHook(function(){this.options.attributionControl&&(this.attributionControl=(new o.Control.Attribution).addTo(this))}),o.control.attribution=function(t){return new o.Control.Attribution(t)},o.Control.Scale=o.Control.extend({options:{position:"bottomleft",maxWidth:100,metric:!0,imperial:!0,updateWhenIdle:!1},onAdd:function(t){this._map=t;var e="leaflet-control-scale",i=o.DomUtil.create("div",e),n=this.options;return this._addScales(n,e,i),t.on(n.updateWhenIdle?"moveend":"move",this._update,this),t.whenReady(this._update,this),i},onRemove:function(t){t.off(this.options.updateWhenIdle?"moveend":"move",this._update,this)},_addScales:function(t,e,i){t.metric&&(this._mScale=o.DomUtil.create("div",e+"-line",i)),t.imperial&&(this._iScale=o.DomUtil.create("div",e+"-line",i))},_update:function(){var t=this._map.getBounds(),e=t.getCenter().lat,i=6378137*Math.PI*Math.cos(e*Math.PI/180),n=i*(t.getNorthEast().lng-t.getSouthWest().lng)/180,o=this._map.getSize(),s=this.options,a=0;o.x>0&&(a=n*(s.maxWidth/o.x)),this._updateScales(s,a)},_updateScales:function(t,e){t.metric&&e&&this._updateMetric(e),t.imperial&&e&&this._updateImperial(e)},_updateMetric:function(t){var e=this._getRoundNum(t);this._mScale.style.width=this._getScaleWidth(e/t)+"px",this._mScale.innerHTML=1e3>e?e+" m":e/1e3+" km"},_updateImperial:function(t){var e,i,n,o=3.2808399*t,s=this._iScale;o>5280?(e=o/5280,i=this._getRoundNum(e),s.style.width=this._getScaleWidth(i/e)+"px",s.innerHTML=i+" mi"):(n=this._getRoundNum(o),s.style.width=this._getScaleWidth(n/o)+"px",s.innerHTML=n+" ft")},_getScaleWidth:function(t){return Math.round(this.options.maxWidth*t)-10},_getRoundNum:function(t){var e=Math.pow(10,(Math.floor(t)+"").length-1),i=t/e;return i=i>=10?10:i>=5?5:i>=3?3:i>=2?2:1,e*i}}),o.control.scale=function(t){return new o.Control.Scale(t)},o.Control.Layers=o.Control.extend({options:{collapsed:!0,position:"topright",autoZIndex:!0},initialize:function(t,e,i){o.setOptions(this,i),this._layers={},this._lastZIndex=0,this._handlingClick=!1;for(var n in t)this._addLayer(t[n],n);for(n in e)this._addLayer(e[n],n,!0)},onAdd:function(t){return this._initLayout(),this._update(),t.on("layeradd",this._onLayerChange,this).on("layerremove",this._onLayerChange,this),this._container},onRemove:function(t){t.off("layeradd",this._onLayerChange).off("layerremove",this._onLayerChange)},addBaseLayer:function(t,e){return this._addLayer(t,e),this._update(),this},addOverlay:function(t,e){return this._addLayer(t,e,!0),this._update(),this},removeLayer:function(t){var e=o.stamp(t);return delete this._layers[e],this._update(),this},_initLayout:function(){var t="leaflet-control-layers",e=this._container=o.DomUtil.create("div",t);e.setAttribute("aria-haspopup",!0),o.Browser.touch?o.DomEvent.on(e,"click",o.DomEvent.stopPropagation):(o.DomEvent.disableClickPropagation(e),o.DomEvent.on(e,"mousewheel",o.DomEvent.stopPropagation));var i=this._form=o.DomUtil.create("form",t+"-list");if(this.options.collapsed){o.DomEvent.on(e,"mouseover",this._expand,this).on(e,"mouseout",this._collapse,this);var n=this._layersLink=o.DomUtil.create("a",t+"-toggle",e);n.href="#",n.title="Layers",o.Browser.touch?o.DomEvent.on(n,"click",o.DomEvent.stopPropagation).on(n,"click",o.DomEvent.preventDefault).on(n,"click",this._expand,this):o.DomEvent.on(n,"focus",this._expand,this),this._map.on("movestart",this._collapse,this)}else this._expand();this._baseLayersList=o.DomUtil.create("div",t+"-base",i),this._separator=o.DomUtil.create("div",t+"-separator",i),this._overlaysList=o.DomUtil.create("div",t+"-overlays",i),e.appendChild(i)},_addLayer:function(t,e,i){var n=o.stamp(t);this._layers[n]={layer:t,name:e,overlay:i},this.options.autoZIndex&&t.setZIndex&&(this._lastZIndex++,t.setZIndex(this._lastZIndex))},_update:function(){if(this._container){this._baseLayersList.innerHTML="",this._overlaysList.innerHTML="";var t,e,i=!1,n=!1;for(t in this._layers)e=this._layers[t],this._addItem(e),n=n||e.overlay,i=i||!e.overlay;this._separator.style.display=n&&i?"":"none"}},_onLayerChange:function(t){var e=o.stamp(t.layer);this._layers[e]&&!this._handlingClick&&this._update()},_createRadioElement:function(t,i){var n='<input type="radio" class="leaflet-control-layers-selector" name="'+t+'"';i&&(n+=' checked="checked"'),n+="/>";var o=e.createElement("div");return o.innerHTML=n,o.firstChild},_addItem:function(t){var i,n=e.createElement("label"),s=this._map.hasLayer(t.layer);t.overlay?(i=e.createElement("input"),i.type="checkbox",i.className="leaflet-control-layers-selector",i.defaultChecked=s):i=this._createRadioElement("leaflet-base-layers",s),i.layerId=o.stamp(t.layer),o.DomEvent.on(i,"click",this._onInputClick,this);var a=e.createElement("span");a.innerHTML=" "+t.name,n.appendChild(i),n.appendChild(a);var r=t.overlay?this._overlaysList:this._baseLayersList;return r.appendChild(n),n},_onInputClick:function(){var t,e,i,n,o=this._form.getElementsByTagName("input"),s=o.length;for(this._handlingClick=!0,t=0;s>t;t++)e=o[t],i=this._layers[e.layerId],e.checked&&!this._map.hasLayer(i.layer)?(this._map.addLayer(i.layer),i.overlay?this._map.fire("overlayadd",{layer:i}):n=i.layer):!e.checked&&this._map.hasLayer(i.layer)&&(this._map.removeLayer(i.layer),this._map.fire("overlayremove",{layer:i}));n&&(this._map.setZoom(this._map.getZoom()),this._map.fire("baselayerchange",{layer:n})),this._handlingClick=!1},_expand:function(){o.DomUtil.addClass(this._container,"leaflet-control-layers-expanded")},_collapse:function(){this._container.className=this._container.className.replace(" leaflet-control-layers-expanded","")}}),o.control.layers=function(t,e,i){return new o.Control.Layers(t,e,i)},o.PosAnimation=o.Class.extend({includes:o.Mixin.Events,run:function(t,e,i,n){this.stop(),this._el=t,this._inProgress=!0,this._newPos=e,this.fire("start"),t.style[o.DomUtil.TRANSITION]="all "+(i||.25)+"s cubic-bezier(0,0,"+(n||.5)+",1)",o.DomEvent.on(t,o.DomUtil.TRANSITION_END,this._onTransitionEnd,this),o.DomUtil.setPosition(t,e),o.Util.falseFn(t.offsetWidth),this._stepTimer=setInterval(o.bind(this._onStep,this),50)},stop:function(){this._inProgress&&(o.DomUtil.setPosition(this._el,this._getPos()),this._onTransitionEnd(),o.Util.falseFn(this._el.offsetWidth))},_onStep:function(){this._el._leaflet_pos=this._getPos(),this.fire("step")},_transformRe:/([-+]?(?:\d*\.)?\d+)\D*, ([-+]?(?:\d*\.)?\d+)\D*\)/,_getPos:function(){var e,i,n,s=this._el,a=t.getComputedStyle(s);return o.Browser.any3d?(n=a[o.DomUtil.TRANSFORM].match(this._transformRe),e=parseFloat(n[1]),i=parseFloat(n[2])):(e=parseFloat(a.left),i=parseFloat(a.top)),new o.Point(e,i,!0)},_onTransitionEnd:function(){o.DomEvent.off(this._el,o.DomUtil.TRANSITION_END,this._onTransitionEnd,this),this._inProgress&&(this._inProgress=!1,this._el.style[o.DomUtil.TRANSITION]="",this._el._leaflet_pos=this._newPos,clearInterval(this._stepTimer),this.fire("step").fire("end"))}}),o.Map.include({setView:function(t,e,n){if(e=this._limitZoom(e),t=o.latLng(t),n=n||{},this._panAnim&&this._panAnim.stop(),this._loaded&&!n.reset&&n!==!0){n.animate!==i&&(n.zoom=o.extend({animate:n.animate},n.zoom),n.pan=o.extend({animate:n.animate},n.pan));var s=this._zoom!==e?this._tryAnimatedZoom&&this._tryAnimatedZoom(t,e,n.zoom):this._tryAnimatedPan(t,n.pan);if(s)return clearTimeout(this._sizeTimer),this}return this._resetView(t,e),this},panBy:function(t,e){if(t=o.point(t).round(),e=e||{},!t.x&&!t.y)return this;if(this._panAnim||(this._panAnim=new o.PosAnimation,this._panAnim.on({step:this._onPanTransitionStep,end:this._onPanTransitionEnd},this)),e.noMoveStart||this.fire("movestart"),e.animate!==!1){o.DomUtil.addClass(this._mapPane,"leaflet-pan-anim");var i=this._getMapPanePos().subtract(t);this._panAnim.run(this._mapPane,i,e.duration||.25,e.easeLinearity)}else this._rawPanBy(t),this.fire("move").fire("moveend");return this},_onPanTransitionStep:function(){this.fire("move")},_onPanTransitionEnd:function(){o.DomUtil.removeClass(this._mapPane,"leaflet-pan-anim"),this.fire("moveend")},_tryAnimatedPan:function(t,e){var i=this._getCenterOffset(t)._floor();return(e&&e.animate)===!0||this.getSize().contains(i)?(this.panBy(i,e),!0):!1}}),o.PosAnimation=o.DomUtil.TRANSITION?o.PosAnimation:o.PosAnimation.extend({run:function(t,e,i,n){this.stop(),this._el=t,this._inProgress=!0,this._duration=i||.25,this._easeOutPower=1/Math.max(n||.5,.2),this._startPos=o.DomUtil.getPosition(t),this._offset=e.subtract(this._startPos),this._startTime=+new Date,this.fire("start"),this._animate()},stop:function(){this._inProgress&&(this._step(),this._complete())},_animate:function(){this._animId=o.Util.requestAnimFrame(this._animate,this),this._step()},_step:function(){var t=+new Date-this._startTime,e=1e3*this._duration;e>t?this._runFrame(this._easeOut(t/e)):(this._runFrame(1),this._complete())},_runFrame:function(t){var e=this._startPos.add(this._offset.multiplyBy(t));o.DomUtil.setPosition(this._el,e),this.fire("step")},_complete:function(){o.Util.cancelAnimFrame(this._animId),this._inProgress=!1,this.fire("end")},_easeOut:function(t){return 1-Math.pow(1-t,this._easeOutPower)}}),o.Map.mergeOptions({zoomAnimation:!0,zoomAnimationThreshold:4}),o.DomUtil.TRANSITION&&o.Map.addInitHook(function(){o.DomEvent.on(this._mapPane,o.DomUtil.TRANSITION_END,this._catchTransitionEnd,this)}),o.Map.include(o.DomUtil.TRANSITION?{_catchTransitionEnd:function(){this._animatingZoom&&this._onZoomTransitionEnd()},_tryAnimatedZoom:function(t,e,i){if(this._animatingZoom)return!0;if(i=i||{},!this.options.zoomAnimation||i.animate===!1||!o.DomUtil.TRANSITION||o.Browser.android23||o.Browser.mobileOpera||Math.abs(e-this._zoom)>this.options.zoomAnimationThreshold)return!1;var n=this.getZoomScale(e),s=this._getCenterOffset(t)._divideBy(1-1/n),a=this._getCenterLayerPoint()._add(s);return i.animate===!0||this.getSize().contains(s)?(this.fire("movestart").fire("zoomstart"),this._animateZoom(t,e,a,n),!0):!1},_animateZoom:function(t,e,i,n,s){this._animatingZoom=!0,o.DomUtil.addClass(this._mapPane,"leaflet-zoom-anim"),this._animateToCenter=t,this._animateToZoom=e,o.Draggable&&(o.Draggable._disabled=!0),this.fire("zoomanim",{center:t,zoom:e,origin:i,scale:n,delta:s})},_onZoomTransitionEnd:function(){this._animatingZoom=!1,o.DomUtil.removeClass(this._mapPane,"leaflet-zoom-anim"),this._resetView(this._animateToCenter,this._animateToZoom,!0,!0),o.Draggable&&(o.Draggable._disabled=!1)}}:{}),o.TileLayer.include({_animateZoom:function(t){var e=!1;this._animating||(this._animating=!0,e=!0),e&&this._prepareBgBuffer();var i=this._bgBuffer;e&&(clearTimeout(this._clearBgBufferTimer),o.Util.falseFn(i.offsetWidth));var n=o.DomUtil.TRANSFORM,s=t.delta?o.DomUtil.getTranslateString(t.delta):i.style[n];i.style[n]=s+" "+o.DomUtil.getScaleString(t.scale,t.origin)},_endZoomAnim:function(){var t=this._tileContainer,e=this._bgBuffer;t.style.visibility="",t.style.zIndex=2,e.style.zIndex=1,o.Util.falseFn(e.offsetWidth),this._animating=!1},_clearBgBuffer:function(){var t=this._map;!t||t._animatingZoom||t.touchZoom._zooming||(this._bgBuffer.innerHTML="",this._bgBuffer.style[o.DomUtil.TRANSFORM]="")},_prepareBgBuffer:function(){var t=this._tileContainer,e=this._bgBuffer,i=this._getLoadedTilesPercentage(e),n=this._getLoadedTilesPercentage(t);return e&&i>.5&&.5>n?(t.style.visibility="hidden",this._stopLoadingImages(t),void 0):(e.style.visibility="hidden",e.style[o.DomUtil.TRANSFORM]="",this._tileContainer=e,e=this._bgBuffer=t,this._stopLoadingImages(e),void 0)},_getLoadedTilesPercentage:function(t){var e,i,n=t.getElementsByTagName("img"),o=0;for(e=0,i=n.length;i>e;e++)n[e].complete&&o++;return o/i},_stopLoadingImages:function(t){var e,i,n,s=Array.prototype.slice.call(t.getElementsByTagName("img"));for(e=0,i=s.length;i>e;e++)n=s[e],n.complete||(n.onload=o.Util.falseFn,n.onerror=o.Util.falseFn,n.src=o.Util.emptyImageUrl,n.parentNode.removeChild(n))}}),o.Map.include({_defaultLocateOptions:{watch:!1,setView:!1,maxZoom:1/0,timeout:1e4,maximumAge:0,enableHighAccuracy:!1},locate:function(t){if(t=this._locateOptions=o.extend(this._defaultLocateOptions,t),!navigator.geolocation)return this._handleGeolocationError({code:0,message:"Geolocation not supported."}),this;var e=o.bind(this._handleGeolocationResponse,this),i=o.bind(this._handleGeolocationError,this);return t.watch?this._locationWatchId=navigator.geolocation.watchPosition(e,i,t):navigator.geolocation.getCurrentPosition(e,i,t),this},stopLocate:function(){return navigator.geolocation&&navigator.geolocation.clearWatch(this._locationWatchId),this._locateOptions&&(this._locateOptions.setView=!1),this},_handleGeolocationError:function(t){var e=t.code,i=t.message||(1===e?"permission denied":2===e?"position unavailable":"timeout");this._locateOptions.setView&&!this._loaded&&this.fitWorld(),this.fire("locationerror",{code:e,message:"Geolocation error: "+i+"."})},_handleGeolocationResponse:function(t){var e=t.coords.latitude,i=t.coords.longitude,n=new o.LatLng(e,i),s=180*t.coords.accuracy/40075017,a=s/Math.cos(o.LatLng.DEG_TO_RAD*e),r=o.latLngBounds([e-s,i-a],[e+s,i+a]),h=this._locateOptions;if(h.setView){var l=Math.min(this.getBoundsZoom(r),h.maxZoom);this.setView(n,l)}var u=o.extend({latlng:n,bounds:r},t.coords);this.fire("locationfound",u)}})}(window,document);
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
 /*
@@ -2077,7 +2489,7 @@ window.renderPortalDetails = function(guid) {
   if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
     links[link.isOrigin ? 'outgoing' : 'incoming']++;
   });
-  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is meant to be the portal.">'+t+'</tt>'; }
+  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is the portal">'+t+'</tt>'; }
   var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
 
   var player = d.captured && d.captured.capturingPlayerId
@@ -2086,7 +2498,7 @@ window.renderPortalDetails = function(guid) {
   var playerText = player ? ['owner', player] : null;
 
   var time = d.captured
-    ? '<span title="' + unixTimeToString(d.captured.capturedTime, true) + '">'
+    ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '">'
       +  unixTimeToString(d.captured.capturedTime) + '</span>'
     : null;
   var sinceText  = time ? ['since', time] : null;
@@ -2108,15 +2520,14 @@ window.renderPortalDetails = function(guid) {
   var lng = d.locationE6.lngE6/1E6;
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
-  var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\'' + d.portalV2.descriptiveText.TITLE + '\')';
-  var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';
+  var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(d.portalV2.descriptiveText.TITLE)+'\')';
 
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
-      + '<h3 class="title">'+d.portalV2.descriptiveText.TITLE+'</h3>'
+      + '<h3 class="title">'+escapeHtmlSpecialChars(d.portalV2.descriptiveText.TITLE)+'</h3>'
       + '<span class="close" onclick="unselectOldPortal();" title="Close">X</span>'
-      // help cursor via “.imgpreview img”
+      // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
       + '<img class="hide" src="'+img+'"/>'
       + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
@@ -2132,7 +2543,7 @@ window.renderPortalDetails = function(guid) {
     );
 
   // try to resolve names that were required for above functions, but
-  // weren’t available yet.
+  // weren't available yet.
   resolvePlayerNames();
 
   runHooks('portalDetailsUpdated', {portalDetails: d});
@@ -2154,12 +2565,19 @@ window.setPortalIndicators = function(d) {
     ).addTo(map);
   else
     portalAccessIndicator.setLatLng(coord);
-
 }
+
+window.clearPortalIndicators = function() {
+  if(portalRangeIndicator) map.removeLayer(portalRangeIndicator);
+  portalRangeIndicator = null;
+  if(portalAccessIndicator) map.removeLayer(portalAccessIndicator);
+  portalAccessIndicator = null;
+}
+
 
 // highlights portal with given GUID. Automatically clears highlights
 // on old selection. Returns false if the selected portal changed.
-// Returns true if it’s still the same portal that just needs an
+// Returns true if it's still the same portal that just needs an
 // update.
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
@@ -2182,6 +2600,11 @@ window.unselectOldPortal = function() {
   if(oldPortal) portalResetColor(oldPortal);
   selectedPortal = null;
   $('#portaldetails').html('');
+  if(isSmartphone()) {
+    $('.fullimg').remove();
+    $('#mobileinfo').html('');
+  }
+  clearPortalIndicators();
 }
 
 
@@ -2193,26 +2616,31 @@ window.setupGeosearch = function() {
     if((e.keyCode ? e.keyCode : e.which) != 13) return;
     
     var search = $(this).val();
-    
+
+    if ( window.search(search) ) return;
+
+    e.preventDefault();
+  });
+  $('#geosearchwrapper img').click(function(){
+    map.locate({setView : true, maxZoom: 13});
+  });
+}
+
+window.search = function(search) {
     if (!runHooks('geoSearch', search)) {
-      return;
+      return true;
     }
     
     $.getJSON(NOMINATIM + encodeURIComponent(search), function(data) {
-      if(!data || !data[0]) return;
+      if(!data || !data[0]) return true;
       var b = data[0].boundingbox;
-      if(!b) return;
+      if(!b) return true;
       var southWest = new L.LatLng(b[0], b[2]),
           northEast = new L.LatLng(b[1], b[3]),
           bounds = new L.LatLngBounds(southWest, northEast);
       window.map.fitBounds(bounds);
       if(window.isSmartphone()) window.smartphone.mapButton.click();
     });
-    e.preventDefault();
-  });
-  $('#geosearchwrapper img').click(function(){
-    map.locate({setView : true});;
-  });
 }
 
 
@@ -2262,6 +2690,22 @@ window.generateBoundsParams = function(tile_id, minLat, minLng, maxLat, maxLng) 
   };
 }
 
+window.getResonatorLatLng = function(dist, slot, portalLatLng) {
+  // offset in meters
+  var dn = dist*SLOT_TO_LAT[slot];
+  var de = dist*SLOT_TO_LNG[slot];
+
+  // Coordinate offset in radians
+  var dLat = dn/EARTH_RADIUS;
+  var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*portalLatLng[0]));
+
+  // OffsetPosition, decimal degrees
+  var lat0 = portalLatLng[0] + dLat * 180/Math.PI;
+  var lon0 = portalLatLng[1] + dLon * 180/Math.PI;
+
+  return [lat0, lon0];
+}
+
 
 // PLAYER NAMES //////////////////////////////////////////////////////
 // Player names are cached in local storage forever. There is no GUI
@@ -2276,20 +2720,26 @@ window.getPlayerName = function(guid) {
   if(localStorage[guid]) return localStorage[guid];
   // only add to queue if it isn’t already
   if(playersToResolve.indexOf(guid) === -1 && playersInResolving.indexOf(guid) === -1) {
-    console.log('resolving player guid=' + guid);
     playersToResolve.push(guid);
   }
   return '{'+guid.slice(0, 12)+'}';
 }
 
-window.playerNameToGuid = function(playerName){
+window._playerNameToGuidCache = {};
+
+window.playerNameToGuid = function(playerName) {
+  var cachedGuid = window._playerNameToGuidCache[playerName];
+  if (cachedGuid !== undefined) return cachedGuid;
+
   var guid = null;
   $.each(Object.keys(localStorage), function(ind,key) {
     if(playerName === localStorage[key]) {
       guid = key;
-      return false;
+      return false;  //break from $.each
     }
   });
+
+  window._playerNameToGuidCache[playerName] = guid;
   return guid;
 }
 
@@ -2298,18 +2748,38 @@ window.playerNameToGuid = function(playerName){
 // get replaced by their correct versions.
 window.resolvePlayerNames = function() {
   if(window.playersToResolve.length === 0) return;
-  var p = window.playersToResolve;
+
+  //limit per request. stock site is never more than 13 (8 res, 4 mods, owner)
+  //testing shows 15 works and 20 fails
+  var MAX_RESOLVE_PLAYERS_PER_REQUEST = 15;
+
+  var p = window.playersToResolve.slice(0,MAX_RESOLVE_PLAYERS_PER_REQUEST);
+  window.playersToResolve = playersToResolve.slice(MAX_RESOLVE_PLAYERS_PER_REQUEST);
+
   var d = {guids: p};
-  playersInResolving = window.playersInResolving.concat(p);
-  playersToResolve = [];
+  window.playersInResolving = window.playersInResolving.concat(p);
+
   postAjax('getPlayersByGuids', d, function(dat) {
-    $.each(dat.result, function(ind, player) {
-      window.setPlayerName(player.guid, player.nickname);
-      // remove from array
-      window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
-    });
+    if(dat.result) {
+      $.each(dat.result, function(ind, player) {
+        window.setPlayerName(player.guid, player.nickname);
+        // remove from array
+        window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
+      });
+    } else {
+      //no 'result' - a successful http request, but the returned result was an error of some kind
+      console.warn('getplayers problem - no result in response: '+dat);
+
+      //likely to be some kind of 'bad request' (e.g. too many names at once, or otherwise badly formatted data.
+      //therefore, not a good idea to automatically retry by adding back to the playersToResolve list
+    }
+
+    //TODO: have an event triggered for this instead of hard-coded single function call
     if(window.selectedPortal)
       window.renderPortalDetails(window.selectedPortal);
+
+    //if more to do, run again
+    if(window.playersToResolve.length>0) resolvePlayerNames();
   },
   function() {
     // append failed resolves to the list again
@@ -2319,7 +2789,11 @@ window.resolvePlayerNames = function() {
 }
 
 
-window.setPlayerName = function(guid, nick) {
+window.setPlayerName = function(guid, nick, uncertain) {
+  // the 'uncertain' flag is set when we're scrolling back through chat. it's possible in this case
+  // to come across a message from before a name change. these should be ignored if existing cache entries exist
+  if(uncertain && guid in localStorage) return;
+
   if($.trim(('' + nick)).slice(0, 5) === '{"L":' && !window.alertFor37WasShown) {
     window.alertFor37WasShown = true;
     alert('You have run into bug #37. Please help me solve it!\nCopy and paste this text and post it here:\nhttps://github.com/breunigs/ingress-intel-total-conversion/issues/37\nIf copy & pasting doesn’t work, make a screenshot instead.\n\n\n' + window.debug.printStackTrace() + '\n\n\n' + JSON.stringify(nick));
@@ -2386,16 +2860,22 @@ window.chat._oldBBox = null;
 window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
   if(typeof isFaction !== 'boolean') throw('Need to know if public or faction chat.');
 
+  // get window bounds, and extend to the minimum chat radius
   chat._localRangeCircle.setLatLng(map.getCenter());
   var b = map.getBounds().extend(chat._localRangeCircle.getBounds());
-  var ne = b.getNorthEast();
-  var sw = b.getSouthWest();
 
-  // round bounds in order to ignore rounding errors
-  var bbs = $.map([ne.lat, ne.lng, sw.lat, sw.lng], function(x) { return Math.round(x*1E4) }).join();
-  if(chat._oldBBox && chat._oldBBox !== bbs) {
+  // set a current bounding box if none set so far
+  if (!chat._oldBBox) chat._oldBBox = b;
+
+  // to avoid unnecessary chat refreshes, a small difference compared to the previous bounding box
+  // is not considered different
+  var CHAT_BOUNDINGBOX_SAME_FACTOR = 0.1;
+  // if the old and new box contain each other, after expanding by the factor, don't reset chat
+  if (!(b.pad(CHAT_BOUNDINGBOX_SAME_FACTOR).contains(chat._oldBBox) && chat._oldBBox.pad(CHAT_BOUNDINGBOX_SAME_FACTOR).contains(b))) {
+    console.log('Bounding Box changed, chat will be cleared (old: '+chat._oldBBox.toBBoxString()+'; new: '+b.toBBoxString()+')');
+
     $('#chat > div').data('needsClearing', true);
-    console.log('Bounding Box changed, chat will be cleared (old: '+chat._oldBBox+' ; new: '+bbs+' )');
+
     // need to reset these flags now because clearing will only occur
     // after the request is finished – i.e. there would be one almost
     // useless request.
@@ -2406,8 +2886,9 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
     chat._public.data = {};
     chat._public.oldestTimestamp = -1;
     chat._public.newestTimestamp = -1;
+
+    chat._oldBBox = b;
   }
-  chat._oldBBox = bbs;
 
   var ne = b.getNorthEast();
   var sw = b.getSouthWest();
@@ -2464,7 +2945,7 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
   var r = window.postAjax(
     'getPaginatedPlextsV2',
     d,
-    chat.handleFaction,
+    function(data, textStatus, jqXHR) { chat.handleFaction(data, getOlderMsgs); },
     isRetry
       ? function() { window.chat._requestFactionRunning = false; }
       : function() { window.chat.requestFaction(getOlderMsgs, true) }
@@ -2475,7 +2956,7 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
 
 
 window.chat._faction = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
-window.chat.handleFaction = function(data, textStatus, jqXHR) {
+window.chat.handleFaction = function(data, olderMsgs) {
   chat._requestFactionRunning = false;
 
   if(!data || !data.result) {
@@ -2486,7 +2967,7 @@ window.chat.handleFaction = function(data, textStatus, jqXHR) {
   if(data.result.length === 0) return;
 
   var old = chat._faction.oldestTimestamp;
-  chat.writeDataToHash(data, chat._faction, false);
+  chat.writeDataToHash(data, chat._faction, false, olderMsgs);
   var oldMsgsWereAdded = old !== chat._faction.oldestTimestamp;
 
   runHooks('factionChatDataAvailable', {raw: data, processed: chat._faction.data});
@@ -2515,7 +2996,7 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
   var r = window.postAjax(
     'getPaginatedPlextsV2',
     d,
-    chat.handlePublic,
+    function(data, textStatus, jqXHR) { chat.handlePublic(data, getOlderMsgs); },
     isRetry
       ? function() { window.chat._requestPublicRunning = false; }
       : function() { window.chat.requestPublic(getOlderMsgs, true) }
@@ -2525,7 +3006,7 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
 }
 
 window.chat._public = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
-window.chat.handlePublic = function(data, textStatus, jqXHR) {
+window.chat.handlePublic = function(data, olderMsgs) {
   chat._requestPublicRunning = false;
 
   if(!data || !data.result) {
@@ -2536,7 +3017,7 @@ window.chat.handlePublic = function(data, textStatus, jqXHR) {
   if(data.result.length === 0) return;
 
   var old = chat._public.oldestTimestamp;
-  chat.writeDataToHash(data, chat._public, true);
+  chat.writeDataToHash(data, chat._public, true, olderMsgs);
   var oldMsgsWereAdded = old !== chat._public.oldestTimestamp;
 
   runHooks('publicChatDataAvailable', {raw: data, processed: chat._public.data});
@@ -2594,7 +3075,7 @@ window.chat.nicknameClicked = function(event, nickname) {
   }
 }
 
-window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel) {
+window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, isOlderMsgs) {
   $.each(newData.result, function(ind, json) {
     // avoid duplicates
     if(json[0] in storageHash.data) return true;
@@ -2689,7 +3170,10 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel) {
     // format: timestamp, autogenerated, HTML message, player guid
     storageHash.data[json[0]] = [json[1], auto, chat.renderMsg(msg, nick, time, team, msgToPlayer, systemNarrowcast), pguid];
 
-    window.setPlayerName(pguid, nick); // free nick name resolves
+    // if we're processing older messages, we could be looking at pre-name change mentions or similar
+    // so in that case, flag it so we don't overwrite existing name cache entries.
+    // (it's not perfect - the initial request has the wrong value here)
+    window.setPlayerName(pguid, nick, isOlderMsgs); // free nick name resolves. 
   });
 }
 
@@ -2739,7 +3223,10 @@ window.chat.renderDivider = function(text) {
 
 window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarrowcast) {
   var ta = unixTimeToHHmm(time);
-  var tb = unixTimeToString(time, true);
+  var tb = unixTimeToDateTimeString(time, true);
+  //add <small> tags around the milliseconds
+  tb = (tb.slice(0,19)+'<small class="milliseconds">'+tb.slice(19)+'</small>').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
   // help cursor via “#chat time”
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   if ( msgToPlayer )
@@ -2818,16 +3305,14 @@ window.chat.needMoreMessages = function() {
     chat.requestPublic(true);
 }
 
-
-window.chat.chooser = function(event) {
-  var t = $(event.target);
+window.chat.chooseAnchor = function(t) {
   var tt = t.text();
 
   var mark = $('#chatinput mark');
   var input = $('#chatinput input');
 
   $('#chatcontrols .active').removeClass('active');
-  t.addClass('active');
+  $("#chatcontrols a:contains('" + tt + "')").addClass('active');
 
   $('#chat > div').hide();
 
@@ -2865,10 +3350,23 @@ window.chat.chooser = function(event) {
     elm.scrollTop(elm.data('needsScrollTop'));
     elm.data('needsScrollTop', null);
   }
-
-  chat.needMoreMessages();
 }
 
+window.chat.show = function(name) {
+    window.isSmartphone()
+        ? $('#updatestatus').hide()
+        : $('#updatestatus').show();
+    $('#chat, #chatinput').show();
+    $('#map').css('visibility', 'hidden');
+
+    var t = $('<a>'+name+'</a>');
+    window.chat.chooseAnchor(t);
+}
+
+window.chat.chooser = function(event) {
+  var t = $(event.target);
+  window.chat.chooseAnchor(t);
+}
 
 // contains the logic to keep the correct scroll position.
 window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
@@ -2929,8 +3427,6 @@ window.chat.setup = function() {
     if(scrollBottom(t) === 0) chat.requestPublic(false);
   });
 
-  chat.request();
-  window.addResumeFunction(chat.request);
   window.requests.addRefreshFunction(chat.request);
 
   var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
@@ -3023,17 +3519,430 @@ window.chat.postMsg = function() {
 }
 
 
+// DIALOGS /////////////////////////////////////////////////////////
+// Inspired by TES III: Morrowind. Long live House Telvanni. ///////
+////////////////////////////////////////////////////////////////////
 
-// REDEEMING /////////////////////////////////////////////////////////
+/* The global ID of onscreen dialogs.
+ * Starts at 0.
+ */
+window.DIALOG_ID = 0;
+
+/* All onscreen dialogs, keyed by their ID.
+ */
+window.DIALOGS = {};
+
+/* The number of dialogs on screen.
+ */
+window.DIALOG_COUNT = 0;
+
+/* The dialog that has focus.
+ */
+window.DIALOG_FOCUS = null;
+
+/* Controls how quickly the slide toggle animation
+ * should play for dialog collapsing and expanding.
+ */
+window.DIALOG_SLIDE_DURATION = 100;
+
+/* Creates a dialog and puts it onscreen. Takes one argument: options, a JS object.
+ * == Common options
+ * (text|html): The text or HTML to display in the dialog. Text is auto-converted to HTML.
+ * title: The dialog's title.
+ * modal: Whether to open a modal dialog. Implies draggable=false; dialogClass='ui-dialog-modal'.
+ *        Please note that modal dialogs hijack the entire screen and should only be used in very
+ *        specific cases. (If IITC is running on mobile, modal will always be true).
+ * id:   A unique ID for this dialog. If a dialog with id `id' is already open and dialog() is called
+ *       again, it will be automatically closed.
+ *
+ * == Callbacks
+ * closeCallback: A callback to run on close. Takes no arguments.
+ * collapseCallback: A callback to run on dialog collapse.  Takes no arguments.
+ * expandCallback:   A callback to run on dialog expansion. Takes no arguments.
+ * collapseExpandCallback: A callback to run on both collapse and expand (overrides collapseCallback
+ *                         and expandCallback, takes a boolean argument `collapsing' - true if collapsing;
+ *                         false if expanding)
+ * focusCallback: A callback to run when the dialog gains focus.
+ * blurCallback:  A callback to run when the dialog loses focus.
+ *
+ * See http://docs.jquery.com/UI/API/1.8/Dialog for a list of all the options. If you previously
+ * applied a class to your dialog after creating it with alert(), dialogClass may be particularly
+ * useful.
+ */
+window.dialog = function(options) {
+  // Override for smartphones. Preserve default behavior and create a modal dialog.
+  options = options || {};
+  if(isSmartphone()) {
+    options.modal = true;
+  }
+
+  // Build an identifier for this dialog
+  var id = 'dialog-' + (options.modal ? 'modal' : (options.id ? options.id : 'anon-' + window.DIALOG_ID++));
+  var jqID = '#' + id;
+  var html = '';
+
+  // hint for iitc mobile that a dialog was opened
+  if (typeof android !== 'undefined' && android && android.dialogOpened) {
+    android.dialogOpened(id, true);
+  }
+
+  // Convert text to HTML if necessary
+  if(options.text) {
+    html = window.convertTextToTableMagic(options.text);
+  } else if(options.html) {
+    html = options.html;
+  } else {
+    console.log('window.dialog: warning: no text in dialog');
+    html = window.convertTextToTableMagic('');
+  }
+
+  // Modal dialogs should not be draggable
+  if(options.modal) {
+    options.dialogClass = 'ui-dialog-modal';
+    options.draggable = false;
+  }
+
+  // Close out existing dialogs.
+  if(window.DIALOGS[id]) {
+    try {
+      var selector = $(window.DIALOGS[id]);
+      selector.dialog('close');
+      selector.remove();
+    } catch(err) {
+      console.log('window.dialog: Tried to close nonexistent dialog ' + id);
+    }
+  }
+
+  // Create the window, appending a div to the body
+  $('body').append('<div id="' + id + '"></div>');
+  var dialog = $(jqID).dialog($.extend(true, {
+    autoOpen: false,
+    modal: false,
+    draggable: true,
+    closeText: '&nbsp;',
+    title: '',
+    buttons: {
+      'OK': function() {
+        $(this).dialog('close');
+      }
+    },
+    open: function() {
+      var titlebar = $(this).closest('.ui-dialog').find('.ui-dialog-titlebar');
+      titlebar.find('.ui-dialog-title').addClass('ui-dialog-title-active');
+      var close = titlebar.find('.ui-dialog-titlebar-close');
+
+      // Title should not show up on mouseover
+      close.removeAttr('title').addClass('ui-dialog-titlebar-button');
+
+      if(!$(this).dialog('option', 'modal')) {
+        // Start out with a cloned version of the close button
+        var collapse = close.clone();
+
+        // Change it into a collapse button and set the click handler
+        collapse.addClass('ui-dialog-titlebar-button-collapse ui-dialog-titlebar-button-collapse-expanded');
+        collapse.click($.proxy(function() {
+          var collapsed = ($(this).data('collapsed') === true);
+
+          // Run callbacks if we have them
+          if($(this).data('collapseExpandCallback')) {
+            $.proxy($(this).data('collapseExpandCallback'), this)(!collapsed);
+          } else {
+            if(!collapsed && $(this).data('collapseCallback')) {
+              $.proxy($(this).data('collapseCallback'), this)();
+            } else if (collapsed && $(this).data('expandCallback')) {
+              $.proxy($(this).data('expandCallback'), this)();
+            }
+          }
+
+          // Find the button pane and content dialog in this ui-dialog, and add or remove the 'hidden' class.
+          var dialog   = $(this).closest('.ui-dialog');
+          var selector = dialog.find('.ui-dialog-content,.ui-dialog-buttonpane');
+          var button   = dialog.find('.ui-dialog-titlebar-button-collapse');
+
+          // Slide toggle
+          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION});
+
+          if(collapsed) {
+            $(button).removeClass('ui-dialog-titlebar-button-collapse-collapsed');
+            $(button).addClass('ui-dialog-titlebar-button-collapse-expanded');
+          } else {
+            $(button).removeClass('ui-dialog-titlebar-button-collapse-expanded');
+            $(button).addClass('ui-dialog-titlebar-button-collapse-collapsed');
+          }
+
+          // Toggle collapsed state
+          $(this).data('collapsed', !collapsed);
+        }, this));
+
+        // Put it into the titlebar
+        titlebar.prepend(collapse);
+        close.addClass('ui-dialog-titlebar-button-close');
+      }
+
+      window.DIALOGS[$(this).data('id')] = this;
+      window.DIALOG_COUNT++;
+
+      console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.DIALOG_COUNT + ' remain.');
+    },
+    close: function() {
+      // Run the close callback if we have one
+      if($(this).data('closeCallback')) {
+        $.proxy($(this).data('closeCallback'), this)();
+      }
+
+      // Make sure that we don't keep a dead dialog in focus
+      if(window.DIALOG_FOCUS && $(window.DIALOG_FOCUS).data('id') === $(this).data('id')) {
+        window.DIALOG_FOCUS = null;
+      }
+
+      // Finalize
+      delete window.DIALOGS[$(this).data('id')];
+
+      window.DIALOG_COUNT--;
+      console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') closed. ' + window.DIALOG_COUNT + ' remain.');
+      // hint for iitc mobile that a dialog was closed
+      if (typeof android !== 'undefined' && android && android.dialogOpened) {
+        android.dialogOpened(id, false);
+      }
+
+      // remove from DOM and destroy
+      $(this).dialog('destroy').remove();
+    },
+    focus: function() {
+      if($(this).data('focusCallback')) {
+        $.proxy($(this).data('focusCallback'), this)();
+      }
+
+      // Blur the window currently in focus unless we're gaining focus
+      if(window.DIALOG_FOCUS && $(window.DIALOG_FOCUS).data('id') !== $(this).data('id')) {
+        $.proxy(function(event, ui) {
+          if($(this).data('blurCallback')) {
+            $.proxy($(this).data('blurCallback'), this)();
+          }
+
+          $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-active').addClass('ui-dialog-title-inactive');
+        }, window.DIALOG_FOCUS)();
+      }
+
+      // This dialog is now in focus
+      window.DIALOG_FOCUS = this;
+      $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-inactive').addClass('ui-dialog-title-active');
+    }
+  }, options));
+
+  // Set HTML and IDs
+  dialog.html(html);
+  dialog.data('id', id);
+  dialog.data('jqID', jqID);
+
+  // Set callbacks
+  dialog.data('closeCallback', options.closeCallback);
+  dialog.data('collapseCallback', options.collapseCallback);
+  dialog.data('expandCallback', options.expandCallback);
+  dialog.data('collapseExpandCallback', options.collapseExpandCallback);
+  dialog.data('focusCallback', options.focusCallback);
+  dialog.data('blurCallback', options.blurCallback);
+
+  if(options.modal) {
+    // ui-modal includes overrides for modal dialogs
+    dialog.parent().addClass('ui-modal');
+  } else {
+    // Enable snapping
+    dialog.dialog().parents('.ui-dialog').draggable('option', 'snap', true);
+  }
+
+  // Run it
+  dialog.dialog('open');
+
+  return dialog;
+}
+
+/* Creates an alert dialog with default settings.
+ * If you want more configurability, use window.dialog instead.
+ */
+window.alert = function(text, isHTML, closeCallback) {
+  var obj = {closeCallback: closeCallback};
+  if(isHTML) {
+    obj.html = text;
+  } else {
+    obj.text = text;
+  }
+
+  return dialog(obj);
+}
+
+window.setupDialogs = function() {
+  window.DIALOG_ID = 0;
+  window.DIALOGS   = {}
+  window.DIALOG_COUNT = 0;
+  window.DIALOG_FOCUS = null;
+}
+
+
+// REDEEMING ///////////////////////////////////////////////////////
+// Heuristic passcode redemption that tries to guess unknown items /
+////////////////////////////////////////////////////////////////////
+
+/* Abbreviates redemption items.
+ * Example: VERY_RARE => VR
+ */
+window.REDEEM_ABBREVIATE = function(tag) {return tag.split('_').map(function (i) {return i[0];}).join('');};
 
 /* Resource type names mapped to actual names and abbreviations.
  * Add more here if necessary.
+ * Sometimes, items will have more information than just a level. Allow for specialization.
  */
 window.REDEEM_RESOURCES = {
-  RES_SHIELD:  {long: 'Portal Shield', short: 'SH'},
-  EMITTER_A:   {long: 'Resonator', short: 'R'},
-  EMP_BURSTER: {long: 'XMP Burster', short: 'X'},
-  POWER_CUBE:  {long: 'Power Cube', short: 'C'}
+  RES_SHIELD: {
+    /* modResource */
+    format: function(acquired) {
+      return {long: 'Portal Shield', short: 'S'};
+    }
+  },
+  FORCE_AMP: {
+    format: function(acquired) {
+      return {long: 'Force Amp', short: 'FA'};
+    }
+  },
+  LINK_AMP: {
+    format: function(acquired) {
+      return {long: 'Link Amp', short: 'LA'};
+    }
+  },
+  HEATSINK: {
+    format: function(acquired) {
+      return {long: 'Heatsink', short: 'H'};
+    }
+  },
+  MULTIHACK: {
+    format: function(acquired) {
+      return {long: 'Multihack', short: 'M'};
+    }
+  },
+  TURRET: {
+    format: function(acquired) {
+      return {long: 'Turret', short: 'T'};
+    }
+  },
+  UNUSUAL: {
+    format: function(acquired) {
+      return {long: 'Unusual Object', short: 'U'};
+    }
+  },
+  EMITTER_A: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {long: 'Resonator', short: 'R'};
+    }
+  },
+  EMP_BURSTER: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {long: 'XMP Burster', short: 'X'};
+    }
+  },
+  POWER_CUBE: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {long: 'Power Cube', short: 'C'};
+    }
+  },
+  MEDIA: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {
+        long: 'Media: <a href="' + (acquired.storyItem.primaryUrl || '#') + '" target="_blank">' + (acquired.storyItem.shortDescription || 'UNKNOWN') + '</a>',
+        short: 'M'
+      };
+    }
+  },
+  FLIP_CARD: {
+    decode: function(type, acquired, key) {
+      /* ADA or JARVIS */
+      return acquired.flipCard.flipCardType;
+    },
+    format: function(acquired) {
+      var type = acquired.flipCard.flipCardType;
+      return {
+        long: type,
+        short: ({ADA: 'AR', JARVIS: 'JV'}[type] || 'FC'),
+        prefix: '<span title="' + (acquired.displayName ? (acquired.displayName.displayDescription || '') : '') + '" class="' + ({ADA: 'res', JARVIS: 'enl'}[type] || '') + '">',
+        suffix: '</span>'
+      };
+    }
+  },
+  PORTAL_LINK_KEY: {
+    decode: function(type, acquired, key) {
+      /* A unique identifier for this portal. */
+      return acquired.portalCoupler.portalGuid;
+    },
+    format: function(acquired) {
+      return {
+        long: 'Portal Key: ' + acquired.portalCoupler.portalTitle || 'Unknown Portal',
+        short: 'K'
+      };
+    }
+  }
+};
+
+/* Redemption "handlers" handle decoding and formatting for rewards.
+ *
+ * Redemption "decoders" are used for returning the primary attribute (key) from
+ * different types of items. Pretty self-explanatory.
+ *
+ * Redemption "formatters" are used for formatting specific types of password rewards.
+ * Right now, Ingress has resourceWithLevels (leveled resources) and modResource (mods).
+ * Resources with levels have levels, and mods have rarity. Format them appropriately.
+ */
+window.REDEEM_HANDLERS = {
+  resource: {
+    decode: function(type, acquired, key) {return 'RESOURCE';},
+    format: function(acquired, group) {
+      var prefix = acquired.str.prefix || '';
+      var suffix = acquired.str.suffix || '';
+      return {
+        table: '<td>+</td><td>' + prefix + acquired.str.long + suffix + ' [' + acquired.count + ']</td>',
+        html:  acquired.count + '&#215;' + prefix + acquired.str.short + suffix,
+        plain: acquired.count + '@' + acquired.str.short
+      };
+    }
+  },
+
+  // A leveled resource, such as XMPs, resonators, or power cubes.
+  resourceWithLevels: {
+    decode: function(type, acquired, key) {return acquired[key].level;},
+    format: function(acquired, level) {
+      var prefix = '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">';
+      var suffix = '</span>';
+      return {
+        table: '<td>' + prefix + 'L' + level + suffix + '</td><td>' + acquired.str.long + ' [' + acquired.count + ']</td>',
+        html:  acquired.count + '&#215;' + acquired.str.short + prefix + level + suffix,
+        plain: acquired.count + '@' + acquired.str.short + level
+      };
+    }
+  },
+
+  // A mod, such as portal shields or link amplifiers.
+  modResource: {
+    decode: function(type, acquired, key) {return acquired[key].rarity;},
+    format: function(acquired, rarity) {
+      var prefix = '<span style="color: ' + (window.COLORS_MOD[rarity] || 'white') + ';">';
+      var suffix = '</span>';
+      var abbreviation = window.REDEEM_ABBREVIATE(rarity);
+      return {
+        table: '<td>' + prefix + abbreviation + suffix + '</td><td>' + acquired.str.long + ' [' + acquired.count + ']</td>',
+        html:  acquired.count + '&#215;' + acquired.str.short + ':' + prefix + abbreviation + suffix,
+        plain: acquired.count + '@' + acquired.str.short + ':' + abbreviation
+      };
+    }
+  }
+};
+
+/* Redemption "hints" hint at what an unknown resource might be from its object properties.
+ */
+window.REDEEM_HINTS = {
+  level: 'resourceWithLevels',
+  rarity: 'modResource'
 };
 
 /* Redemption errors. Very self-explanatory.
@@ -3058,71 +3967,24 @@ window.REDEEM_STATUSES = {
 window.REDEEM_ENCOURAGEMENT = [
   "Passcode accepted!",
   "Access granted.",
+  "Resources acquired.",
+  "Power up!",
   "Asset transfer in progress.",
   "Well done, Agent.",
   "Make the " + {'RESISTANCE' : 'Resistance', 'ALIENS' : 'Enlightened'}[PLAYER.team] + " proud!"
 ];
 
-/* Redemption "handlers" handle decoding and formatting for rewards.
- *
- * Redemption "decoders" are used for returning the primary attribute (key) from
- * different types of items. Pretty self-explanatory.
- *
- * Redemption "formatters" are used for formatting specific types of password rewards.
- * Right now, Ingress has resourceWithLevels (leveled resources) and modResource (mods).
- * Resources with levels have levels, and mods have rarity. Format them appropriately.
- */
-window.REDEEM_HANDLERS = {
-  'resourceWithLevels' : {
-    decode: function(type, resource) {return resource.level;},
-    format: function(acquired, level) {
-      var prefix = '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">';
-      var suffix = '</span>';
-      return {
-        table: '<td>' + prefix + 'L' + level + suffix + '</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '&#215;' + acquired.name.short + prefix + level + suffix,
-        plain: acquired.count + '@' + acquired.name.short + level
-      };
-    }
-  },
-  'modResource' : {
-    decode: function(type, resource) {return resource.rarity;},
-    format: function(acquired, rarity) {
-      var prefix = '<span style="color: ' + (window.COLORS_MOD[rarity] || 'white') + ';">';
-      var suffix = '</span>';
-      var abbreviation = rarity.split('_').map(function (i) {return i[0];}).join('');
-      return {
-        table: '<td>' + prefix + abbreviation + suffix + '</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '&#215;' + prefix + abbreviation + suffix,
-        plain: acquired.count + '@' + abbreviation
-      };
-    }
-  },
-  'default' : {
-    decode: function(type, resource) {return 'UNKNOWN';},
-    format: function(acquired, group) {
-      return {
-        table: '<td>+</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '&#215;' + acquired.name.short,
-        plain: acquired.count + '@' + acquired.name.short
-      };
-    }
-  }
-};
-
-/* Redemption "hints" hint at what an unknown resource might be from its object properties.
- */
-window.REDEEM_HINTS = {
-  level: 'resourceWithLevels',
-  rarity: 'modResource'
-};
-
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
-  var passcode = this.passcode, to_alert, to_log;
+  var passcode = this.passcode, to_dialog, to_log, dialog_title, dialog_buttons;
 
   if(data.error) {
-    to_alert = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
-    to_log   = '[ERROR] ' + data.error;
+    // What to display
+    to_dialog = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
+    to_log    = '[ERROR] ' + data.error;
+
+    // Dialog options
+    dialog_title   = 'Error: ' + passcode;
+    dialog_buttons = {};
   } else if(data.result) {
     var encouragement = window.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.REDEEM_ENCOURAGEMENT.length)];
     var payload = {};
@@ -3135,11 +3997,11 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
     // Track frequencies and levels of items
     $.each(data.result.inventoryAward, function (award_idx, award) {
-      var acquired = award[2], handler, type, key, name;
+      var acquired = award[2], handler, type, resource, key, str;
 
       // The "what the heck is this item" heuristic
-      $.each(acquired, function (taxonomy, resource) {
-        if('resourceType' in resource) {
+      $.each(acquired, function (taxonomy, attribute) {
+        if('resourceType' in attribute) {
           if(taxonomy in window.REDEEM_HANDLERS) {
             // Cool. We know how to directly handle this item.
             handler = {
@@ -3149,13 +4011,13 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
             };
           } else {
             // Let's see if we can get a hint for how we should handle this.
-            $.each(resource, function (resource_key, resource_value) {
-              if(resource_key in window.REDEEM_HINTS) {
+            $.each(attribute, function (attribute_key, attribute_value) {
+              if(attribute_key in window.REDEEM_HINTS) {
                 // We're not sure what this item is, but we can process it like another item
                 handler = {
-                  functions: (window.REDEEM_HANDLERS[window.REDEEM_HINTS[resource_key]] || window.REDEEM_HANDLERS['default']),
+                  functions: (window.REDEEM_HANDLERS[window.REDEEM_HINTS[attribute_key]] || window.REDEEM_HANDLERS.resource),
                   taxonomy: taxonomy,
-                  processed_as: window.REDEEM_HINTS[resource_key]
+                  processed_as: window.REDEEM_HINTS[attribute_key]
                 };
                 return false;
               }
@@ -3163,21 +4025,31 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
             // Fall back to the default handler if necessary
             handler = handler || {
-              functions: window.REDEEM_HANDLERS['default'],
+              functions: window.REDEEM_HANDLERS.resource,
               taxonomy: taxonomy,
-              processed_as: 'default'
+              processed_as: 'resource'
             };
           }
 
-          // Collect the data that we know
-          type = resource.resourceType;
-          key  = handler.functions.decode(type, resource);
-          name = window.REDEEM_RESOURCES[type] || {long: type, short: type[0]};
+          // Grab the type
+          type = attribute.resourceType;
+
+          // Prefer the resource's native format, falling back to a generic version that applies to an entire taxonomy
+          resource = $.extend({format: function(acquired) {return {long: type, short: type[0]};}}, window.REDEEM_RESOURCES[type] || {});
+
+          // Get strings pertaining to this item, using server overrides for the item name if possible
+          str = $.extend(resource.format(acquired),
+                         acquired.displayName && acquired.displayName.displayName ? {
+                           long: attribute.displayName || acquired.displayName.displayName
+                         } : {});
+
+          // Get the primary key. Once again, prefer the resource's native format, but use the generic version if we don't have one.
+          key  = (resource.decode || handler.functions.decode)(type, acquired, handler.taxonomy);
 
           // Decide if we inferred this resource
           if(!(type in window.REDEEM_RESOURCES) || handler.taxonomy !== handler.processed_as) {
-            name.long  += '*';
-            name.short += '*';
+            str.long  += '*';
+            str.short += '*';
             inferred.push({type: type, key: key, handler: handler});
           }
           return false;
@@ -3189,7 +4061,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       payload[type][key] = payload[type][key] || {};
       payload[type][key].handler = payload[type][key].handler || handler;
       payload[type][key].type = payload[type][key].type || type;
-      payload[type][key].name = payload[type][key].name || name;
+      payload[type][key].str = payload[type][key].str || str;
       payload[type][key].count = payload[type][key].count || 0;
       payload[type][key].count += 1;
     });
@@ -3214,32 +4086,45 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     });
 
     // Let the user know if we had to guess
-    if (inferred.length > 0) {
-      results.table.push('<td style="font-family: monospace;">*</td><td style="font-family: monospace;">Guessed (check console)</td>');
+    if(inferred.length > 0) {
+      results.table.push('<td>*</td><td>Guessed (check console)</td>');
       $.each(inferred, function (idx, val) {
         console.log(passcode +
                     ' => [INFERRED] ' + val.type + ':' + val.key + ' :: ' +
                     val.handler.taxonomy + ' =~ ' + val.handler.processed_as);
       });
+      console.log(passcode + ' => [RESPONSE] ' + JSON.stringify(data));
     }
 
-    // Add table footers
-    results.table.push('<td style="font-family: monospace;">&gt;</td><td><a href="javascript:alert(\'' +
-                       escape('<span style="font-family: monospace;"><strong>' + encouragement + '</strong><br />' + results.html.join('/') + '</span>') +
-                       '\', true);" style="font-family: monospace;">[plaintext]</a>');
-
     // Display formatted versions in a table, plaintext, and the console log
-    to_alert = '<table class="redeem-result">' + results.table.map(function(a) {return '<tr>' + a + '</tr>';}).join("\n") + '</table>';
-    to_log = '[SUCCESS] ' + results.plain.join('/');
+    to_dialog = '<table class="redeem-result-table">' +
+                results.table.map(function(a) {return '<tr>' + a + '</tr>';}).join("\n") +
+                '</table>';
+    to_log    = '[SUCCESS] ' + results.plain.join('/');
+
+    dialog_title   = 'Passcode: ' + passcode;
+    dialog_buttons = {
+      'PLAINTEXT' : function() {
+        dialog({
+          title: 'Rewards: ' + passcode,
+          html: '<span class="redeem-result-html">' + results.html.join('/') + '</span>'
+        });
+      }
+    }
   }
 
-  alert(to_alert, true);
+  // Display it
+  dialog({
+    title: dialog_title,
+    buttons: dialog_buttons,
+    html: to_dialog
+  });
   console.log(passcode + ' => ' + to_log);
-}
+};
 
 window.setupRedeem = function() {
   $("#redeem").keypress(function(e) {
-    if((e.keyCode ? e.keyCode : e.which) !== 13) return;
+    if((e.keyCode ? e.keyCode : e.which) !== 13 || !$(this).val()) return;
     var data = {passcode: $(this).val()};
 
     window.postAjax('redeemReward', data, window.handleRedeemResponse,
@@ -3250,17 +4135,34 @@ window.setupRedeem = function() {
         } else {
           extra = 'No status code was returned.';
         }
-        alert('<strong>The HTTP request failed.</strong> ' + extra);
+        dialog({
+          title: 'Request failed: ' + data.passcode,
+          html: '<strong>The HTTP request failed.</strong> ' + extra
+        });
       });
   });
-}
+};
 
 
 // IDLE HANDLING /////////////////////////////////////////////////////
 
-window.idleTime = 0; // in minutes
+window.idleTime = 0; // in seconds
+window._idleTimeLimit = MAX_IDLE_TIME;
 
-setInterval('window.idleTime += 1', 60*1000);
+var IDLE_POLL_TIME = 10;
+
+var idlePoll = function() {
+  window.idleTime += IDLE_POLL_TIME;
+
+  var hidden = (document.hidden || document.webkitHidden || document.mozHidden || document.msHidden || false);
+  if (hidden) {
+    // window hidden - use the refresh time as the idle limit, rather than the max time
+    window._idleTimeLimit = window.REFRESH;
+  }
+}
+
+setInterval(idlePoll, IDLE_POLL_TIME*1000);
+
 var idleReset = function () {
   // update immediately when the user comes back
   if(isIdle()) {
@@ -3270,11 +4172,29 @@ var idleReset = function () {
     });
   }
   window.idleTime = 0;
+  window._idleTimeLimit = MAX_IDLE_TIME;
 };
-$('body').mousemove(idleReset).keypress(idleReset);
+
+// only reset idle on mouse move where the coordinates are actually different.
+// some browsers send the event when not moving!
+var _lastMouseX=-1, _lastMouseY=-1;
+var idleMouseMove = function(e) {
+  var dX = _lastMouseX-e.clientX;
+  var dY = _lastMouseY-e.clientY;
+  var deltaSquared = dX*dX + dY*dY;
+  // only treat movements over 3 pixels as enough to reset us
+  if (deltaSquared > 3*3) {
+    _lastMouseX = e.clientX;
+    _lastMouseY = e.clientY;
+    idleReset();
+  }
+}
+
+$('body').keypress(idleReset);
+$('body').mousemove(idleMouseMove);
 
 window.isIdle = function() {
-  return window.idleTime >= MAX_IDLE_TIME;
+  return window.idleTime >= window._idleTimeLimit;
 }
 
 window._onResumeFunctions = [];
@@ -3293,6 +4213,12 @@ window.addResumeFunction = function(f) {
 
 window.activeRequests = [];
 window.failedRequestCount = 0;
+window.statusTotalMapTiles = 0;
+window.statusCachedMapTiles = 0;
+window.statusSuccessMapTiles = 0;
+window.statusStaleMapTiles = 0;
+window.statusErrorMapTiles = 0;
+
 
 window.requests = function() {}
 
@@ -3326,38 +4252,55 @@ window.requests.abort = function() {
 // gives user feedback about pending operations. Draws current status
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
-  var t = '<b>map status:</b> ';
-  if(mapRunsUserAction)
-    t += 'paused during interaction';
-  else if(isIdle())
-    t += '<span style="color:#888">Idle, not updating.</span>';
-  else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests running.';
-  else if(window.requests._quickRefreshPending)
-    t += 'refreshing...';
-  else
-    t += 'Up to date.';
 
-  if(renderLimitReached())
-    t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
-
-  if(window.failedRequestCount > 0)
-    t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>.'
-
-  t += '<br/>(';
+  var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
-    t += 'loading all portals';
+    t += 'all';
   else
-    t+= 'only loading portals with level '+minlvl+' and up';
-  t += ')';
+    t+= 'L'+minlvl+(minlvl<8?'+':'');
+  t +='</span>';
+
+  t += ' <span class="map"><b>map</b>: ';
+  if(mapRunsUserAction)
+    t += '<span class="help" title="Paused due to user interaction">paused</span';
+  else if(isIdle())
+    t += '<span style="color:#888">Idle</span>';
+  else if(window.requests._quickRefreshPending)
+    t += 'refreshing';
+  else if(window.activeRequests.length > 0)
+    t += window.activeRequests.length + ' requests';
+  else {
+    // tooltip with detailed tile counts
+    t += '<span class="help" title="'+window.statusTotalMapTiles+' tiles: '+window.statusCachedMapTiles+' cached, '+window.statusSuccessMapTiles+' successful, '+window.statusStaleMapTiles+' stale, '+window.statusErrorMapTiles+' failed">';
+
+    // basic error/out of date/up to date message
+    if (window.statusErrorMapTiles) t += '<span style="color:#f66">Errors</span>';
+    else if (window.statusStaleMapTiles) t += '<span style="color:#fa6">Out of date</span>';
+    else t += 'Up to date';
+  
+    t += '</span>';
+
+  }
+  t += '</span>';
+
+  if(renderLimitReached())
+    t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span>'
+
+  if(window.failedRequestCount > 0)
+    t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
 
   var portalSelection = $('.leaflet-control-layers-overlays label');
-  portalSelection.slice(0, minlvl+1).addClass('disabled').attr('title', 'Zoom in to show those.');
-  portalSelection.slice(minlvl, 8).removeClass('disabled').attr('title', '');
+  //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
+  //mark all levels below (but not at) minlvl as disabled
+  portalSelection.slice(0, minlvl).addClass('disabled').attr('title', 'Zoom in to show those.');
+  //and all from minlvl to 8 as enabled
+  portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
 
 
-  $('#updatestatus').html(t);
+  $('#innerstatus').html(t);
+  //$('#updatestatus').click(function() { startRefreshTimeout(10); });
+  //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
 }
 
 
@@ -3370,6 +4313,8 @@ window.startRefreshTimeout = function(override) {
   // status bar
   window.renderUpdateStatus();
   if(refreshTimeout) clearTimeout(refreshTimeout);
+  if(override == -1) return;  //don't set a new timeout
+
   var t = 0;
   if(override) {
     window.requests._quickRefreshPending = true;
@@ -3397,7 +4342,7 @@ window.requests._callOnRefreshFunctions = function() {
   startRefreshTimeout();
 
   if(isIdle()) {
-    console.log('user has been idle for ' + idleTime + ' minutes. Skipping refresh.');
+    console.log('user has been idle for ' + idleTime + ' seconds, or window hidden. Skipping refresh.');
     renderUpdateStatus();
     return;
   }
@@ -3477,7 +4422,7 @@ window.runOnSmartphonesBeforeBoot = function() {
 
   // add smartphone stylesheet
   headHTML = document.getElementsByTagName('head')[0].innerHTML;
-  headHTML += '<style>body {\n  background: #000;\n  color: #fff;\n}\n\n#sidebar, #updatestatus, #chatcontrols, #chat, #chatinput {\n  background: #0B3351 !important\n}\n\n\n.leaflet-control-layers {\n  margin-left: 0 !important;\n  margin-top: 40px !important;\n}\n\n.leaflet-control-zoom {\n  margin-left: 5px !important;\n  margin-top: 80px !important;\n}\n\n\n#geosearch {\n  width: 100%;\n}\n\n#geosearchwrapper img {\n  display: none;\n}\n\n#chatcontrols {\n  height: 38px;\n  width: 100%;\n}\n\n/* hide shrink button */\n#chatcontrols a:first-child {\n  display: none;\n}\n\n#chatcontrols a {\n  width: 50px;\n  height:36px;\n  overflow: hidden;\n  vertical-align: middle;\n  line-height: 36px;\n  text-decoration: none;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n#chat {\n  left:0;\n  right:0;\n  top:37px !important;\n  bottom:30px;\n  width: auto;\n}\n\n#chatinput {\n  width: 100%;\n  height: 30px;\n}\n\n#chat td:nth-child(2), #chatinput td:nth-child(2) {\n  width: 77px;\n}\n\n\n\n\n#sidebartoggle {\n  display: none !important;\n}\n\n#scrollwrapper {\n  top: 36px;\n  bottom: 0;\n  max-height: none !important;\n  width: 100% !important;\n  right: 0;\n  left:0;\n}\n\n#sidebar {\n  width: 100% !important;\n  min-height: 100%;\n  border:0;\n}\n\n#sidebar > * {\n  width: 100%;\n}\n\n#playerstat {\n  margin-top: 5px;\n}\n\n#portaldetails {\n  min-height: 0;\n}\n\n.fullimg {\n  width: 100%;\n}\n\n.leaflet-control-layers-base {\n  float: left;\n}\n\n.leaflet-control-layers-overlays {\n  float: left;\n  margin-left: 8px;\n  border-left: 1px solid #DDDDDD;\n  padding-left: 8px;\n}\n\n.leaflet-control-layers-separator {\n  display: none;\n}\n\n.leaflet-control-layers-list label {\n  padding: 6px 0;\n}\n\n.leaflet-control-attribution {\n\n}\n</style>';
+  headHTML += '<style>body {\n  background: #000;\n  color: #fff;\n}\n\n#updatestatus {\n  background: #262c32;\n  width: 100%;\n  color: #d4d5d6;\n  border: 0;\n}\n\n#innerstatus {\n  float: right;\n  max-width: 50%;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n}\n\n#mobileinfo {\n  float: left;\n  max-width: 50%;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n}\n\n#sidebar, #chatcontrols, #chat, #chatinput {\n  background: #0B3351 !important;\n}\n\n.leaflet-top .leaflet-control {\n  margin-top: 5px !important;\n  margin-left: 5px !important;\n}\n\n.leaflet-control-layers {\n  display: none;    /* hide layer control - it\'s now handled by an in-app option */\n}\n\n#geosearch {\n  width: 100%;\n}\n\n#geosearchwrapper img {\n  display: none;\n}\n\n#chatcontrols {\n  height: 38px;\n  width: 100%;\n  display: none !important;\n}\n\n/* hide shrink button */\n#chatcontrols a:first-child {\n  display: none;\n}\n\n#chatcontrols a {\n  width: 50px;\n  height:36px;\n  overflow: hidden;\n  vertical-align: middle;\n  line-height: 36px;\n  text-decoration: none;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n}\n\n#chat {\n  left:0;\n  right:0;\n  top: 1px !important;\n  bottom:30px;\n  width: auto;\n}\n\n#chatinput {\n  width: 100%;\n  height: 30px;\n}\n\n#chat td:nth-child(2), #chatinput td:nth-child(2) {\n  width: 77px;\n}\n\n#chatcontrols a.active {\n  border-color: #FFCE00;\n  border-bottom-width:0px;\n  font-weight:bold\n}\n\n#chatcontrols a.active + a {\n  border-left-color: #FFCE00\n}\n\n#sidebartoggle {\n  display: none !important;\n}\n\n#scrollwrapper {\n  bottom: 0;\n  max-height: none !important;\n  width: 100% !important;\n  right: 0;\n  left:0;\n}\n\n#sidebar {\n  width: 100% !important;\n  min-height: 100%;\n  border:0;\n}\n\n#sidebar > * {\n  width: 100%;\n}\n\n#playerstat {\n  margin-top: 5px;\n}\n\n#portaldetails {\n  min-height: 0;\n}\n\n.fullimg {\n  width: 100%;\n}\n\n\n#portal_highlight_select{\n  top:0px !important;\n  left:0px !important;\n}\n</style>';
   document.getElementsByTagName('head')[0].innerHTML = headHTML;
 
   // don’t need many of those
@@ -3489,20 +4434,12 @@ window.runOnSmartphonesBeforeBoot = function() {
       + '</style>');
   }
 
-  // this also matches the expand button, but it is hidden via CSS
-  $('#chatcontrols a').click(function() {
-    $('#scrollwrapper, #updatestatus').hide();
-    // not displaying the map causes bugs in Leaflet
-    $('#map').css('visibility', 'hidden');
-    $('#chat, #chatinput').show();
-  });
-
   window.smartphone.mapButton = $('<a>map</a>').click(function() {
     $('#chat, #chatinput, #scrollwrapper').hide();
     $('#map').css('visibility', 'visible');
     $('#updatestatus').show();
-    $('.active').removeClass('active');
-    $(this).addClass('active');
+    $('#chatcontrols a .active').removeClass('active');
+    $("#chatcontrols a:contains('map')").addClass('active');
   });
 
   window.smartphone.sideButton = $('<a>info</a>').click(function() {
@@ -3510,7 +4447,7 @@ window.runOnSmartphonesBeforeBoot = function() {
     $('#map').css('visibility', 'hidden');
     $('#scrollwrapper').show();
     $('.active').removeClass('active');
-    $(this).addClass('active');
+    $("#chatcontrols a:contains('info')").addClass('active');
   });
 
   $('#chatcontrols').append(smartphone.mapButton).append(smartphone.sideButton);
@@ -3531,17 +4468,32 @@ window.runOnSmartphonesBeforeBoot = function() {
   });
 }
 
+window.smartphoneInfo = function(data) {
+  var d = data.portalDetails;
+  var t = 'L' + Math.floor(getPortalLevel(d));
+  var percentage = '0%';
+  var totalEnergy = getTotalPortalEnergy(d);
+  if(getTotalPortalEnergy(d) > 0) {
+    percentage = Math.floor((getCurrentPortalEnergy(d) / getTotalPortalEnergy(d) * 100)) + '%';
+  }
+  t += ' ' + percentage + ' ';
+  t += d.portalV2.descriptiveText.TITLE;
+
+  $('#mobileinfo').html(t);
+}
+
 window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
 
-  chat.toggle();
   smartphone.mapButton.click();
+
+  // add a div/hook for updating mobile info
+  $('#updatestatus').prepend('<div id="mobileinfo"></div>');
+  window.addHook('portalDetailsUpdated', window.smartphoneInfo);
 
   // disable img full view
   $('#portaldetails').off('click', '**');
-
-  $('.leaflet-right').addClass('leaflet-left').removeClass('leaflet-right');
 
   // make buttons in action bar flexible
   var l = $('#chatcontrols a:visible');
@@ -3557,10 +4509,58 @@ window.runOnSmartphonesAfterBoot = function() {
       // this is a hack, accessing Leaflet’s private _container is evil
       $(this._container).on('taphold', function() {
         window.renderPortalDetails(guid);
-        window.smartphone.sideButton.click();
+        window.show('info');
       });
     });
   });
+
+  // Force lower render limits for mobile
+  window.VIEWPORT_PAD_RATIO = 0.1;
+  window.MAX_DRAWN_PORTALS = 500;
+  window.MAX_DRAWN_LINKS = 200;
+  window.MAX_DRAWN_FIELDS = 100;
+}
+
+
+// created to start cleaning up "window" interaction
+//
+window.show = function(id) {
+        window.hideall();
+        if (typeof android !== 'undefined' && android && android.switchToPane) {
+          android.switchToPane(id);
+        }
+        switch(id) {
+                case 'full':
+                        window.chat.show('full');
+                        break;
+                case 'compact':
+                        window.chat.show('compact');
+                        break;
+                case 'public':
+                        window.chat.show('public');
+                        break;
+                case 'faction':
+                        window.chat.show('faction');
+                        break;
+                case 'debug':
+                        window.debug.console.show();
+                        break;
+                case 'map':
+                        window.smartphone.mapButton.click();
+                        $('#portal_highlight_select').show();
+                        break;
+                case 'info':
+                        window.smartphone.sideButton.click();
+                        break;
+                default:
+                        window.smartphone.mapButton.click();
+                        break;
+        }
+}
+
+window.hideall = function() {
+    $('#chatcontrols, #chat, #chatinput, #sidebartoggle, #scrollwrapper, #updatestatus, #portal_highlight_select').hide();
+    $('#map').css('visibility', 'hidden');
 }
 
 
@@ -3570,6 +4570,98 @@ window.runOnSmartphonesAfterBoot = function() {
 // map. They also keep them up to date, unless interrupted by user
 // action.
 
+// debug - display a set of rectangles on the map representing each data tile. the colour will represent it's state
+window._debugDataTileStateLayer = undefined;
+
+window.debugDataTileReset = function() {
+  if (!window._debugDataTileStateLayer) {
+    window._debugDataTileStateLayer = L.layerGroup();
+    window.addLayerGroup("DEBUG Data Tiles", window._debugDataTileStateLayer, false);
+  }
+
+  window._debugDataTileIdToRectangle = {};
+  window._debugDataTileStateLayer.clearLayers();
+}
+
+window.debugCreateTile = function(qk,bounds) {
+  var s = {color: '#888', weight: 3, opacity: 0.7, fillColor: '#888', fillOpacity: 0.4, clickable: false};
+
+  bounds = new L.LatLngBounds(bounds);
+  bounds = bounds.pad(-0.02);
+
+  var l = L.rectangle(bounds,s);
+  window._debugDataTileIdToRectangle[qk] = l;
+  window._debugDataTileStateLayer.addLayer(l);
+}
+
+window.debugSetTileColour = function(qk,bordercol,fillcol) {
+  var l = window._debugDataTileIdToRectangle[qk];
+  if (l) {
+    var s = {color: bordercol, weight: 3, opacity: 0.3, fillColor: fillcol, fillOpacity: 0.1, clickable: false};
+    l.setStyle(s);
+  }
+}
+
+
+// cache for data tiles. indexed by the query key (qk)
+window._requestCache = {}
+
+// cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
+window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
+window.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
+window.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
+window.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
+
+window.storeDataCache = function(qk,data) {
+  // fixme? common behaviour for objects is that properties are kept in the order they're added
+  // this is handy, as it allows easy retrieval of the oldest entries for expiring
+  // however, this is not guaranteed by the standards, but all our supported browsers work this way
+
+  delete window._requestCache[qk];
+
+  var d = new Date();
+  window._requestCache[qk] = { time: d.getTime(), data: data };
+}
+
+window.getDataCache = function(qk) {
+  if (qk in window._requestCache) {
+    return window._requestCache[qk].data;
+  }
+  return undefined;
+}
+
+window.isDataCacheFresh = function(qk) {
+  if (qk in window._requestCache) {
+    var d = new Date();
+    var t = d.getTime()-REQUEST_CACHE_FRESH_AGE*1000;
+    if (window._requestCache[qk].time > t) {
+      return true;
+    }
+  }
+  return false;
+}
+
+window.expireDataCache = function() {
+  var d = new Date();
+  var t = d.getTime()-window.REQUEST_CACHE_MAX_AGE*1000;
+
+  var cacheSize = Object.keys(window._requestCache).length;
+
+  for(var qk in window._requestCache) {
+    // stop processing once we hit the minimum size
+    if (cacheSize < window.REQUEST_CACHE_MIN_SIZE) break;
+
+    // fixme? our MAX_SIZE test here assumes we're processing the oldest first. this relies
+    // on looping over object properties in the order they were added. this is true in most browsers,
+    // but is not a requirement of the standards
+    if (cacheSize > window.REQUEST_CACHE_MAX_SIZE || window._requestCache[qk].time < t) {
+      delete window._requestCache[qk];
+      cacheSize--;
+    }
+  }
+
+}
+
 
 // requests map data for current viewport. For details on how this
 // works, refer to the description in “MAP DATA REQUEST CALCULATORS”
@@ -3577,46 +4669,145 @@ window.requestData = function() {
   console.log('refreshing data');
   requests.abort();
   cleanUp();
+  window.statusTotalMapTiles = 0;
+  window.statusCachedMapTiles = 0;
+  window.statusSuccessMapTiles = 0;
+  window.statusStaleMapTiles = 0;
+  window.statusErrorMapTiles = 0;
 
-  var bounds = map.getBounds();
 
-  var x1 = lngToTile(bounds.getNorthWest().lng, map.getZoom());
-  var x2 = lngToTile(bounds.getNorthEast().lng, map.getZoom());
-  var y1 = latToTile(bounds.getNorthWest().lat, map.getZoom());
-  var y2 = latToTile(bounds.getSouthWest().lat, map.getZoom());
+  debugDataTileReset();
+
+  expireDataCache();
+
+  //a limit on the number of map tiles to be pulled in a single request
+  var MAX_TILES_PER_BUCKET = 11;
+  // the number of separate buckets. more can be created if the size exceeds MAX_TILES_PER_BUCKET
+  var BUCKET_COUNT = 4;
+
+  var bounds = clampLatLngBounds(map.getBounds());
+
+  //we query the server as if the zoom level was this. it may not match the actual map zoom level
+  var z = getPortalDataZoom();
+  console.log('requesting data tiles at zoom '+z+' (L'+getMinPortalLevelForZoom(z)+'+ portals), map zoom is '+map.getZoom());
+
+  var x1 = lngToTile(bounds.getWest(), z);
+  var x2 = lngToTile(bounds.getEast(), z);
+  var y1 = latToTile(bounds.getNorth(), z);
+  var y2 = latToTile(bounds.getSouth(), z);
 
   // will group requests by second-last quad-key quadrant
   tiles = {};
+  fullBucketCount = 0;
+
+  var cachedData = { result: { map: {} } };
+  var requestTileCount = 0;
 
   // walk in x-direction, starts right goes left
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
-      var tile_id = pointToTileId(map.getZoom(), x, y);
-      var bucket = Math.floor(x / 2) + "" + Math.floor(y / 2);
-      if (!tiles[bucket])
-        tiles[bucket] = [];
-      tiles[bucket].push(generateBoundsParams(
-        tile_id,
-        tileToLat(y + 1, map.getZoom()),
-        tileToLng(x, map.getZoom()),
-        tileToLat(y, map.getZoom()),
-        tileToLng(x + 1, map.getZoom())
-      ));
+      var tile_id = pointToTileId(z, x, y);
+      var latNorth = tileToLat(y,z);
+      var latSouth = tileToLat(y+1,z);
+      var lngWest = tileToLng(x,z);
+      var lngEast = tileToLng(x+1,z);
+
+      debugCreateTile(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
+      window.statusTotalMapTiles++;
+
+      // TODO?: if the selected portal is in this tile, always fetch the data
+      if (isDataCacheFresh(tile_id)) {
+        // TODO: don't add tiles from the cache when 1. they were fully visible before, and 2. the zoom level is unchanged
+        // TODO?: if a closer zoom level has all four tiles in the cache, use them instead?
+        cachedData.result.map[tile_id] = getDataCache(tile_id);
+        debugSetTileColour(tile_id,'#0f0','#ff0');
+        window.statusCachedMapTiles++;
+      } else {
+        // group requests into buckets based on the tile coordinate.
+        var bucket = Math.floor(x+y*(BUCKET_COUNT/2))%BUCKET_COUNT;
+
+        if (!tiles[bucket]) {
+          //create empty bucket
+          tiles[bucket] = [];
+        }
+        else if(tiles[bucket].length >= MAX_TILES_PER_BUCKET) {
+          //too many items in bucket. rename it, and create a new empty one
+          tiles[bucket+'_'+fullBucketCount] = tiles[bucket];
+          fullBucketCount++;
+          tiles[bucket] = [];      
+        }
+
+        requestTileCount++;
+
+        var boundsParam = generateBoundsParams(
+          tile_id,
+          latSouth,
+          lngWest,
+          latNorth,
+          lngEast
+        );
+
+        // when the server is returning 'timeout' errors for some tiles in the list, it's always the tiles
+        // at the end of the request. therefore, let's push tiles we don't have cache entries for to the front, and those we do to the back
+        if (getDataCache(tile_id)) {
+          // cache entry exists - push to back
+          tiles[bucket].push(boundsParam);
+        } else {
+          // no cache entry - unshift to front
+          tiles[bucket].unshift(boundsParam);
+        }
+
+        debugSetTileColour(tile_id,'#00f','#000');
+      }
+
     }
   }
 
   // Reset previous result of Portal Render Limit handler
   portalRenderLimit.init();
-  // finally send ajax requests
+
+  // send ajax requests
+  console.log('requesting '+requestTileCount+' tiles in '+Object.keys(tiles).length+' requests');
   $.each(tiles, function(ind, tls) {
-    data = { zoom: map.getZoom() };
+    data = { zoom: z };
     data.boundsParamsList = tls;
-    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
+    // keep a list of tile_ids with each request. in the case of a server error, we can try and use cached tiles if available
+    var tile_ids = []
+    $.each(tls,function(i,req) { tile_ids.push(req.qk); });
+    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false,tile_ids); }, function() { window.handleFailedRequest(tile_ids); }));
   });
+
+  // process the requests from the cache
+  console.log('got '+Object.keys(cachedData.result.map).length+' data tiles from cache');
+  if(Object.keys(cachedData.result.map).length > 0) {
+    handleDataResponse(cachedData, true);
+  }
+
 }
 
 // Handle failed map data request
-window.handleFailedRequest = function() {
+window.handleFailedRequest = function(tile_ids) {
+  console.log('request failed: tiles '+tile_ids.join(','));
+
+  var cachedData = { result: { map: {} } };  
+  $.each(tile_ids, function(ind,tile_id) {
+    var cached = getDataCache(tile_id);
+    if (cached) {
+      // we have stale cached data - use it
+      cachedData.result.map[tile_id] = cached;
+      debugSetTileColour(tile_id,'#800','#ff0');
+      console.log('(using stale cache entry for map tile '+tile_id+')');
+      window.statusStaleMapTiles++;
+    } else {
+      // no cached data
+      debugSetTileColour(tile_id,'#800','#f00');
+      window.statusErrorMapTiles++;
+    }
+  });
+  if(Object.keys(cachedData.result.map).length > 0) {
+    handleDataResponse(cachedData, true);
+  }
+
   if(requests.isLastRequest('getThinnedEntitiesV2')) {
     var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
     handlePortalsRender(leftOverPortals);
@@ -3625,12 +4816,12 @@ window.handleFailedRequest = function() {
 }
 
 // works on map data response and ensures entities are drawn/updated.
-window.handleDataResponse = function(data, textStatus, jqXHR) {
+window.handleDataResponse = function(data, fromCache, tile_ids) {
   // remove from active ajax queries list
   if(!data || !data.result) {
     window.failedRequestCount++;
     console.warn(data);
-    handleFailedRequest();
+    handleFailedRequest(tile_ids);
     return;
   }
 
@@ -3643,6 +4834,37 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
+
+    // if this request wasn't from the cache, check it's status. store in the cache if good
+    // for debugging, we set the debug tile colours. cached tiles have colours set elsewhere so are not set here
+    if (!fromCache) {
+
+      if('error' in val) {
+        console.log('map data tile '+qk+' response error: '+val.error);
+
+        // try to use data in the cache, even if it's stale
+        var cacheVal = getDataCache(qk);
+
+        if (!cacheVal) {
+          debugSetTileColour(qk, '#f00','#f00');
+          // no data in cache for this tile. continue processing - it's possible it also has some valid data
+          window.statusErrorMapTiles++;
+        } else {
+          // stale cache entry exists - use it
+          val = cacheVal;
+          debugSetTileColour(qk, '#f00','#ff0');
+          console.log('(using stale cache entry for map tile '+qk+')');
+          window.statusStaleMapTiles++;
+        }
+      } else {
+        // not an error - store this tile into the cache
+        storeDataCache(qk,val);
+        debugSetTileColour(qk, '#0f0','#0f0');
+        window.statusSuccessMapTiles++;
+      }
+
+    }
+
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
@@ -3695,10 +4917,15 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) {
+
+    // when both source and destination portal are in the same response, no explicit 'edge' is returned
+    // instead, we need to reconstruct them from the data within the portal details
+
     if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2) {
       $.each(portal[2].portalV2.linkedEdges, function (ind, edge) {
         if (!ppp[edge.otherPortalGuid])
           return;
+
         renderLink([
           edge.edgeGuid,
           portal[1],
@@ -3709,11 +4936,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
               "destinationPortalLocation": edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6,
               "originPortalGuid": !edge.isOrigin ? ppp[edge.otherPortalGuid][0] : portal[0],
               "originPortalLocation": !edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6
-            }
+            },
           }
         ]);
       });
     }
+
     if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
     }
@@ -3726,6 +4954,8 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // Process the portals with portal render limit handler first
   // Low level portal will hold until last request
   var newPpp = portalRenderLimit.splitOrMergeLowLevelPortals(ppp);
+  // Clean up level of portal which over render limit after portalRenderLimit handler counted the new portals
+  portalRenderLimit.cleanUpOverLimitPortalLevel();
   handlePortalsRender(newPpp);
 
   resolvePlayerNames();
@@ -3739,15 +4969,16 @@ window.handlePortalsRender = function(portals) {
   // Preserve selectedPortal because it will get lost on re-rendering
   // the portal
   var oldSelectedPortal = selectedPortal;
-
   runHooks('portalDataLoaded', {portals : portals});
-  $.each(portals, function(ind, portal) {
+  $.each(portals, function(guid, portal) {
     //~ if(selectedPortal === portal[0]) portalUpdateAvailable = true;
-    if(urlPortal && portal[0] === urlPortal) portalInUrlAvailable = true;
     if(urlPortalLL && urlPortalLL[0] === portal[2].locationE6.latE6/1E6 && urlPortalLL[1] === portal[2].locationE6.lngE6/1E6) {
-      urlPortal = portal[0];
+      urlPortal = guid;
       portalInUrlAvailable = true;
       urlPortalLL = null;
+    }
+    if(window.portals[guid]) {
+      highlightPortal(window.portals[guid]);
     }
     renderPortal(portal);
   });
@@ -3851,7 +5082,7 @@ window.renderPortal = function(ent) {
   // do nothing if portal did not change
   var layerGroup = portalsLayers[parseInt(portalLevel)];
   var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
-  if(old) {
+  if(!changing_highlighters && old) {
     var oo = old.options;
 
     // Default checks to see if a portal needs to be re-rendered
@@ -3866,7 +5097,7 @@ window.renderPortal = function(ent) {
     // nothing changed that requires re-rendering the portal.
     if(!u) {
       // let resos handle themselves if they need to be redrawn
-      renderResonators(ent, old);
+      renderResonators(ent[0], ent[2], old);
       // update stored details for portal details in sidebar.
       old.options.details = ent[2];
       return;
@@ -3899,6 +5130,7 @@ window.renderPortal = function(ent) {
     clickable: true,
     level: portalLevel,
     team: team,
+    ent: ent,
     details: ent[2],
     guid: ent[0]});
 
@@ -3914,8 +5146,6 @@ window.renderPortal = function(ent) {
     delete window.portals[portalGuid];
     if(window.selectedPortal === portalGuid) {
       window.unselectOldPortal();
-      window.map.removeLayer(window.portalAccessIndicator);
-      window.portalAccessIndicator = null;
     }
   });
 
@@ -3923,6 +5153,8 @@ window.renderPortal = function(ent) {
     // enable for debugging
     if(window.portals[this.options.guid]) throw('duplicate portal detected');
     window.portals[this.options.guid] = this;
+
+    window.renderResonators(this.options.guid, this.options.details, this);
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
     if(window.selectedPortal !== this.options.guid)
@@ -3935,84 +5167,59 @@ window.renderPortal = function(ent) {
     window.map.setView(latlng, 17);
   });
 
-  window.renderResonators(ent, null);
-
+  highlightPortal(p);
   window.runHooks('portalAdded', {portal: p});
   p.addTo(layerGroup);
 }
 
-window.renderResonators = function(ent, portalLayer) {
+window.renderResonators = function(portalGuid, portalDetails, portalLayer) {
   if(!isResonatorsShow()) return;
 
-  var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] !== selectedPortal) return;
-  var portalLatLng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+  // only draw when the portal is not hidden
+  if(portalLayer && !window.map.hasLayer(portalLayer)) return;
 
-  var layerGroup = portalsLayers[parseInt(portalLevel)];
+  var portalLevel = getPortalLevel(portalDetails);
+  var portalLatLng = [portalDetails.locationE6.latE6/1E6, portalDetails.locationE6.lngE6/1E6];
+
   var reRendered = false;
-  $.each(ent[2].resonatorArray.resonators, function(i, rdata) {
+  $.each(portalDetails.resonatorArray.resonators, function(i, rdata) {
     // skip if resonator didn't change
-    if(portalLayer) {
-      var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
-      if(oldRes && isSameResonator(oldRes.options.details, rdata)) return true;
-      if(oldRes) {
-        if(isSameResonator(oldRes.options.details, rdata)) return true;
-        removeByGuid(oldRes.options.guid);
-      }
+    var oldRes = window.resonators[portalResonatorGuid(portalGuid, i)];
+    if(oldRes) {
+      if(isSameResonator(oldRes.options.details, rdata)) return true;
+      // remove old resonator if exist
+      removeByGuid(oldRes.options.guid);
     }
 
     // skip and remove old resonator if no new resonator
-    if(rdata === null) {
-      return true;
-    }
+    if(rdata === null) return true;
 
-    // offset in meters
-    var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
-    var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
-
-    // Coordinate offset in radians
-    var dLat = dn/EARTH_RADIUS;
-    var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
-
-    // OffsetPosition, decimal degrees
-    var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
-    var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
-    var Rlatlng = [lat0, lon0];
-
-    var resoGuid = portalResonatorGuid(ent[0], i);
+    var resoLatLng = getResonatorLatLng(rdata.distanceToPortal, rdata.slot, portalLatLng);
+    var resoGuid = portalResonatorGuid(portalGuid, i);
 
     // the resonator
     var resoStyle =
-      ent[0] === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
+      portalGuid === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
     var resoProperty = $.extend({
-        opacity: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
-        clickable: false,
         guid: resoGuid
       }, resoStyle);
 
-    var reso =  L.circleMarker(Rlatlng, resoProperty);
+    var reso =  L.circleMarker(resoLatLng, resoProperty);
 
     // line connecting reso to portal
-    var connStyle =
-      ent[0] === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
-    var connProperty =  $.extend({
-        color: '#FFA000',
-        dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
-        fill: false,
-        clickable: false
-      }, connStyle);
+    var connProperty =
+      portalGuid === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
 
-    var conn = L.polyline([portalLatLng, Rlatlng], connProperty);
-
+    var conn = L.polyline([portalLatLng, resoLatLng], connProperty);
 
     // put both in one group, so they can be handled by the same logic.
     var r = L.layerGroup([reso, conn]);
     r.options = {
       level: rdata.level,
       details: rdata,
-      pDetails: ent[2],
+      pDetails: portalDetails,
       guid: resoGuid
     };
 
@@ -4022,10 +5229,7 @@ window.renderResonators = function(ent, portalLayer) {
     // will add/remove all elements of the LayerGroup at once.
     reso.on('remove', function() { delete window.resonators[this.options.guid]; });
     reso.on('add',    function() {
-      if(window.resonators[this.options.guid]) {
-        console.error('dup reso: ' + this.options.guid);
-        window.debug.printStackTrace();
-      }
+      if(window.resonators[this.options.guid]) throw('duplicate resonator detected');
       window.resonators[this.options.guid] = r;
     });
 
@@ -4091,9 +5295,17 @@ window.renderLink = function(ent) {
   if(Object.keys(links).length >= MAX_DRAWN_LINKS)
     return removeByGuid(ent[0]);
 
-  // assume that links never change. If they do, they will have a
-  // different ID.
-  if(findEntityInLeaflet(linksLayer, links, ent[0])) return;
+  // some links are constructed from portal linkedEdges data. These have no valid 'creator' data.
+  // replace with the more detailed data
+  // (we assume the other values - coordinates, etc - remain unchanged)
+  var found=findEntityInLeaflet(linksLayer, links, ent[0]);
+  if (found) {
+    if (!found.options.data.creator && ent[2].creator) {
+      //our existing data has no creator, but the new data does - update
+      found.options.data = ent[2];
+    }
+    return;
+  }
 
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;
@@ -4278,7 +5490,7 @@ window.getPosition = function() {
     var lat = parseInt(getURLParam('latE6'))/1E6 || 0.0;
     var lng = parseInt(getURLParam('lngE6'))/1E6 || 0.0;
     var z = parseInt(getURLParam('z')) || 17;
-    return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
+    return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
   if(getURLParam('ll')) {
@@ -4286,7 +5498,7 @@ window.getPosition = function() {
     var lat = parseFloat(getURLParam('ll').split(",")[0]) || 0.0;
     var lng = parseFloat(getURLParam('ll').split(",")[1]) || 0.0;
     var z = parseInt(getURLParam('z')) || 17;
-    return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
+    return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
   if(readCookie('ingress.intelmap.lat') && readCookie('ingress.intelmap.lng')) {
@@ -4298,10 +5510,10 @@ window.getPosition = function() {
     if(lat < -90  || lat > 90) lat = 0.0;
     if(lng < -180 || lng > 180) lng = 0.0;
 
-    return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
+    return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
-  setTimeout("window.map.locate({setView : true, maxZoom: 13});", 50);
+  setTimeout("window.map.locate({setView : true});", 50);
 
   return {center: new L.LatLng(0.0, 0.0), zoom: 1};
 }
